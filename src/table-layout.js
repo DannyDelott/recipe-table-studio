@@ -44,14 +44,3 @@ export function getConnectorSpan({
 
   return Math.min(openSpan, leftActionSpan, rightActionSpan)
 }
-
-export function getTableBoundaryRows({ actionColumns, ingredientCount }) {
-  const boundaries = new Set()
-
-  actionColumns.flat().forEach((node) => {
-    if (node.start > 1) boundaries.add(node.start - 1)
-    if (node.end < ingredientCount) boundaries.add(node.end)
-  })
-
-  return [...boundaries].sort((a, b) => a - b)
-}

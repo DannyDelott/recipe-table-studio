@@ -1,5 +1,5 @@
 import './style.css'
-import { getConnectorSpan, getTableBoundaryRows } from './table-layout.js'
+import { getConnectorSpan } from './table-layout.js'
 import {
   createRecipeArchive,
   createRecipeFile,
@@ -785,7 +785,6 @@ function buildTableRows(ingredients, actionItems, compact = false) {
 
   const totalActionColumns = Math.max(columnCount, 1)
   const colgroup = `<colgroup><col style="width:26%">${Array.from({ length: totalActionColumns }, () => '<col>').join('')}</colgroup>`
-  const boundaryRows = getTableBoundaryRows({ actionColumns, ingredientCount: ingredients.length })
   const rows = ingredients.map((ingredient, row) => {
     let cells = `<td class="ingredient-cell">${compact ? '' : escapeHtml(ingredient.text)}</td>`
     if (!columnCount) return `<tr>${cells}<td class="blank-cell"></td></tr>`
@@ -833,24 +832,7 @@ function buildTableRows(ingredients, actionItems, compact = false) {
     return `<tr>${cells}</tr>`
   }).join('')
 
-  return { colgroup, rows, totalActionColumns, boundaryRows }
-}
-
-function positionTableBoundaries() {
-  const frame = $('table-wrap').querySelector('.table-frame')
-  const table = frame?.querySelector('.recipe-table')
-  if (!frame || !table) return
-
-  const boundaries = [...frame.querySelectorAll('.table-boundary')]
-  const frameTop = frame.getBoundingClientRect().top
-  const tableRows = [...table.tBodies[0].rows]
-  const headerRowCount = table.querySelector('.table-note') ? 2 : 1
-
-  boundaries.forEach((boundary) => {
-    const ingredientRow = tableRows[headerRowCount + Number(boundary.dataset.boundaryRow) - 1]
-    if (!ingredientRow) return
-    boundary.style.top = `${ingredientRow.getBoundingClientRect().bottom - frameTop - 1}px`
-  })
+  return { colgroup, rows, totalActionColumns }
 }
 
 function renderTable() {
@@ -861,24 +843,18 @@ function renderTable() {
     $('table-wrap').innerHTML = '<div class="empty-preview">Add ingredients to begin your recipe table.</div>'
     return
   }
-  const { colgroup, rows, totalActionColumns, boundaryRows } = buildTableRows(ingredients, actions)
+  const { colgroup, rows, totalActionColumns } = buildTableRows(ingredients, actions)
   $('table-wrap').innerHTML = `
-    <div class="table-frame">
-      <table class="recipe-table">
-        ${colgroup}
-        <tbody>
-          <tr><th class="table-title" colspan="${totalActionColumns + 1}">${escapeHtml(title)}</th></tr>
-          ${note ? `<tr><td class="table-note" colspan="${totalActionColumns + 1}">${escapeHtml(note)}</td></tr>` : ''}
-          ${rows}
-        </tbody>
-      </table>
-      ${boundaryRows.map((row) => `<span class="table-boundary" data-boundary-row="${row}" aria-hidden="true"></span>`).join('')}
-    </div>
+    <table class="recipe-table">
+      ${colgroup}
+      <tbody>
+        <tr><th class="table-title" colspan="${totalActionColumns + 1}">${escapeHtml(title)}</th></tr>
+        ${note ? `<tr><td class="table-note" colspan="${totalActionColumns + 1}">${escapeHtml(note)}</td></tr>` : ''}
+        ${rows}
+      </tbody>
+    </table>
   `
-  positionTableBoundaries()
 }
-
-window.addEventListener('resize', positionTableBoundaries)
 
 function updateAction(id, updater) {
   const action = actions.find((candidate) => candidate.id === id)
