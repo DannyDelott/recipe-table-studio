@@ -1,0 +1,78 @@
+{
+  "format": "recipe-table-studio-recipe",
+  "version": 1,
+  "exportedAt": "2026-07-26T18:23:54.278Z",
+  "recipe": {
+    "id": "1785084854804-v38y6",
+    "title": "Banana Bread",
+    "note": "Preheat oven to 325 degrees",
+    "ingredients": "1/4 cup butter\n1 cup sugar\n3 eggs\n3 mashed bananas\n1 teaspoon vanilla\n1 teaspoon baking soda\n2 teaspoons baking powder\n2 cups flour\n1/2 cup chocolate chips",
+    "actions": [
+      {
+        "id": "cream",
+        "text": "Cream until light",
+        "groupName": "Creamed butter and sugar",
+        "ingredientLines": [
+          1,
+          2
+        ],
+        "sourceIds": []
+      },
+      {
+        "id": "add",
+        "text": "Add",
+        "groupName": "Wet mixture",
+        "ingredientLines": [
+          3,
+          4,
+          5
+        ],
+        "sourceIds": [
+          "cream"
+        ]
+      },
+      {
+        "id": "dry",
+        "text": "Stir together",
+        "groupName": "Dry ingredients",
+        "ingredientLines": [
+          6,
+          7,
+          8
+        ],
+        "sourceIds": []
+      },
+      {
+        "id": "combine",
+        "text": "Mix until just combined",
+        "groupName": "Banana bread batter",
+        "ingredientLines": [],
+        "sourceIds": [
+          "add",
+          "dry"
+        ]
+      },
+      {
+        "id": "finish",
+        "text": "Stir in",
+        "groupName": "Finished batter",
+        "ingredientLines": [
+          9
+        ],
+        "sourceIds": [
+          "combine"
+        ]
+      },
+      {
+        "id": "bake",
+        "text": "Bake 1 hour at 325 degrees in greased loaf pan",
+        "groupName": "Baked banana bread",
+        "ingredientLines": [],
+        "sourceIds": [
+          "finish"
+        ]
+      }
+    ],
+    "updatedAt": 1785087680180
+  }
+}

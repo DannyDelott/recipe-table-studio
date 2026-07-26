@@ -1,8 +1,16 @@
 import './style.css'
 import { getConnectorSpan } from './table-layout.js'
+import {
+  createRecipeArchive,
+  createRecipeFile,
+  mergeRecipeIntoLibrary,
+  parseRecipeFile,
+  recipeFileStem,
+} from './recipe-backup.js'
 
 const STORAGE_KEY = 'recipe-table-studio'
 const LIBRARY_KEY = 'recipe-table-studio-library'
+const MAX_BACKUP_BYTES = 5 * 1024 * 1024
 
 const demo = {
   title: 'Banana Bread',
@@ -74,9 +82,27 @@ app.innerHTML = `
 
     <section class="library-section">
       <div class="library-heading">
-        <div>
+        <div class="library-title">
           <h2>Recipes</h2>
           <span class="badge badge-neutral badge-sm library-count" id="library-count">0</span>
+        </div>
+        <div class="library-tools">
+          <span class="backup-status" id="backup-status" role="status" aria-live="polite"></span>
+          <button class="btn btn-outline btn-xs section-action backup-action" id="import-recipe" type="button">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M12 16V4M7 9l5-5 5 5"></path>
+              <path d="M5 14v6h14v-6"></path>
+            </svg>
+            Import Recipe
+          </button>
+          <button class="btn btn-outline btn-xs section-action backup-action" id="export-all-recipes" type="button">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M12 4v12M7 11l5 5 5-5"></path>
+              <path d="M5 14v6h14v-6"></path>
+            </svg>
+            Export All
+          </button>
+          <input class="file-input file-input-xs backup-file-input" id="recipe-import-file" type="file" accept=".json,application/json" hidden />
         </div>
       </div>
       <div id="recipe-cards" class="recipe-cards"></div>
@@ -116,6 +142,13 @@ app.innerHTML = `
               </svg>
               Save Recipe
             </button>
+            <button class="btn btn-outline btn-xs section-action export-action" id="export-current-recipe" type="button">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M12 4v12M7 11l5 5 5-5"></path>
+                <path d="M5 14v6h14v-6"></path>
+              </svg>
+              Export
+            </button>
             <button class="btn btn-outline btn-xs section-action print-action" id="print-button" type="button">
               <svg aria-hidden="true" viewBox="0 0 24 24">
                 <path d="M7 9V3h10v6M7 18H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
@@ -133,6 +166,10 @@ app.innerHTML = `
 `
 
 const $ = (id) => document.getElementById(id)
+const updatedAtFormatter = new Intl.DateTimeFormat(undefined, {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+})
 let activeRecipeId = null
 let actions = cloneActions(demo.actions)
 let expandedActionId = null
@@ -253,9 +290,93 @@ function saveLibrary(recipes) {
   localStorage.setItem(LIBRARY_KEY, JSON.stringify(recipes))
 }
 
+function formatUpdatedAt(value) {
+  const timestamp = Number(value)
+  if (!Number.isFinite(timestamp) || timestamp <= 0) return 'Updated date unavailable'
+  return `Updated ${updatedAtFormatter.format(new Date(timestamp))}`
+}
+
+function setBackupStatus(message, type = 'success') {
+  const status = $('backup-status')
+  status.textContent = message
+  status.classList.toggle('is-error', type === 'error')
+}
+
+function downloadFile(contents, type, filename) {
+  const downloadUrl = URL.createObjectURL(new Blob([contents], { type }))
+  const link = document.createElement('a')
+  link.href = downloadUrl
+  link.download = filename
+  document.body.append(link)
+  link.click()
+  link.remove()
+  setTimeout(() => URL.revokeObjectURL(downloadUrl), 0)
+}
+
+function recipeWithExportIdentity(recipe) {
+  return {
+    ...recipe,
+    id: activeRecipeId || `exported-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    updatedAt: Date.now(),
+  }
+}
+
+function exportCurrentRecipe() {
+  const recipe = recipeWithExportIdentity(recipeFromFields())
+  try {
+    downloadFile(
+      createRecipeFile(recipe),
+      'application/json',
+      `${recipeFileStem(recipe.title)}.recipe.json`,
+    )
+    setBackupStatus(`Exported "${recipe.title}".`)
+  } catch (error) {
+    setBackupStatus(error.message || 'That recipe could not be exported.', 'error')
+  }
+}
+
+function exportAllRecipes() {
+  const recipes = getLibrary()
+  if (!recipes.length) {
+    setBackupStatus('Save a recipe before exporting all.', 'error')
+    return
+  }
+
+  try {
+    const archive = createRecipeArchive(recipes)
+    downloadFile(
+      archive,
+      'application/zip',
+      `recipe-table-studio-${new Date().toISOString().slice(0, 10)}.zip`,
+    )
+    setBackupStatus(`Exported ${recipes.length} recipe${recipes.length === 1 ? '' : 's'} in one ZIP.`)
+  } catch (error) {
+    setBackupStatus(error.message || 'Recipes could not be exported.', 'error')
+  }
+}
+
+async function importRecipeFile(file) {
+  if (!file) return
+  if (file.size > MAX_BACKUP_BYTES) {
+    setBackupStatus('That recipe file is larger than 5 MB.', 'error')
+    return
+  }
+
+  try {
+    const importedRecipe = parseRecipeFile(await file.text())
+    const result = mergeRecipeIntoLibrary(getLibrary(), importedRecipe)
+    saveLibrary(result.recipes)
+    renderRecipeCards()
+    setBackupStatus(`Imported "${importedRecipe.title}" · ${result.addedCount ? 'new recipe' : 'updated recipe'}.`)
+  } catch (error) {
+    setBackupStatus(error.message || 'That recipe file could not be imported.', 'error')
+  }
+}
+
 function renderRecipeCards() {
   const recipes = getLibrary()
   $('library-count').textContent = recipes.length
+  $('export-all-recipes').disabled = recipes.length === 0
   $('recipe-cards').innerHTML = recipes.length ? recipes.map((recipe) => {
     const ingredientItems = parseIngredients(recipe.ingredients)
     const ingredientList = ingredientItems.map((ingredient) => `
@@ -265,6 +386,7 @@ function renderRecipeCards() {
     return `<article class="recipe-card card card-border ${recipe.id === activeRecipeId ? 'is-active' : ''}" data-id="${recipe.id}" role="button" tabindex="0" aria-label="Open ${escapeHtml(recipe.title)}">
       <button class="delete-card" data-action="delete" data-id="${recipe.id}" aria-label="Delete ${escapeHtml(recipe.title)}">×</button>
       <h3>${escapeHtml(recipe.title)}</h3>
+      <p class="recipe-card-updated">${escapeHtml(formatUpdatedAt(recipe.updatedAt))}</p>
       <ul class="list card-ingredient-list" aria-label="${ingredientItems.length} ingredients">${ingredientList}</ul>
       ${renderMiniRecipeTable(recipe)}
     </article>`
@@ -630,6 +752,13 @@ $('action-list').addEventListener('toggle', (event) => {
 }, true)
 
 $('print-button').addEventListener('click', () => window.print())
+$('export-current-recipe').addEventListener('click', exportCurrentRecipe)
+$('export-all-recipes').addEventListener('click', exportAllRecipes)
+$('import-recipe').addEventListener('click', () => $('recipe-import-file').click())
+$('recipe-import-file').addEventListener('change', async (event) => {
+  await importRecipeFile(event.target.files?.[0])
+  event.target.value = ''
+})
 
 function openShelfRecipe(recipeId) {
   const recipe = getLibrary().find((saved) => saved.id === recipeId)
