@@ -388,7 +388,6 @@ function renderRecipeCards() {
       <h3>${escapeHtml(recipe.title)}</h3>
       <p class="recipe-card-updated">${escapeHtml(formatUpdatedAt(recipe.updatedAt))}</p>
       <ul class="list card-ingredient-list" aria-label="${ingredientItems.length} ingredients">${ingredientList}</ul>
-      ${renderMiniRecipeTable(recipe)}
     </article>`
   }).join('') : '<div class="empty-library"><span>✦</span><p>Your saved recipes will live here.</p><small>Build a table, then save it to come back later.</small></div>'
 }
@@ -575,22 +574,6 @@ function buildTableRows(ingredients, actionItems, compact = false) {
   }).join('')
 
   return { colgroup, rows, totalActionColumns }
-}
-
-function renderMiniRecipeTable(recipe) {
-  const ingredients = parseIngredients(recipe.ingredients)
-  if (!ingredients.length) return ''
-  const { colgroup, rows, totalActionColumns } = buildTableRows(ingredients, recipe.actions, true)
-  return `<div class="recipe-card-preview" aria-hidden="true">
-    <table class="table table-xs mini-recipe-table">
-      ${colgroup}
-      <tbody>
-        <tr><th class="table-title" colspan="${totalActionColumns + 1}"></th></tr>
-        ${recipe.note ? `<tr><td class="table-note" colspan="${totalActionColumns + 1}"></td></tr>` : ''}
-        ${rows}
-      </tbody>
-    </table>
-  </div>`
 }
 
 function renderTable() {
