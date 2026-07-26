@@ -68,6 +68,8 @@ h1 i { font-family:Fraunces,serif; font-weight:500; color:var(--green-deep); }
 .preview-actions { display:flex; align-items:center; gap:7px; }
 .section-action.btn:hover { border-color:var(--green-deep); background:var(--green); color:var(--ink); }
 .section-action.btn:disabled { border-color:var(--line); background:transparent; color:var(--muted); opacity:.55; cursor:not-allowed; }
+.new-recipe-action.btn { width:100%; min-height:34px; height:34px; border-color:var(--green-deep); background:var(--green); font-size:11px; }
+.new-recipe-action.btn:hover { background:var(--green-deep); color:var(--white); }
 .library-tools .section-action { width:100%; padding-inline:7px; }
 .backup-status { grid-column:1/-1; max-width:none; overflow:hidden; color:var(--green-deep); font:9px/1.4 'DM Mono'; text-align:left; text-overflow:ellipsis; white-space:nowrap; }
 .backup-status:empty { display:none; }

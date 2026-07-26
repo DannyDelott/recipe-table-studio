@@ -87,6 +87,12 @@ app.innerHTML = `
             <h2>Recipes</h2>
             <span class="badge badge-neutral badge-sm library-count" id="library-count">0</span>
           </div>
+          <button class="btn btn-outline btn-sm section-action new-recipe-action" id="new-recipe" type="button">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M12 5v14M5 12h14"></path>
+            </svg>
+            New Recipe
+          </button>
           <label class="library-search">
             <svg aria-hidden="true" viewBox="0 0 24 24">
               <circle cx="11" cy="11" r="6"></circle>
@@ -283,7 +289,10 @@ function loadRecipeIntoEditor(recipe) {
 }
 
 function saveDraft() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(recipeFromFields()))
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    ...recipeFromFields(),
+    activeRecipeId,
+  }))
 }
 
 function getLibrary() {
@@ -419,6 +428,22 @@ function saveToLibrary() {
   saveLibrary(recipes)
   saveDraft()
   renderRecipeCards()
+}
+
+function startNewRecipe() {
+  activeRecipeId = null
+  expandedActionId = null
+  actions = []
+  $('title').value = ''
+  $('note').value = ''
+  $('ingredients').value = ''
+  $('library-search').value = ''
+  updateIngredientLineNumbers()
+  renderActionBuilder()
+  renderTable()
+  renderRecipeCards()
+  saveDraft()
+  setBackupStatus('New recipe ready.')
 }
 
 function actionSourceSummary(action) {
@@ -751,6 +776,7 @@ $('print-button').addEventListener('click', () => window.print())
 $('export-current-recipe').addEventListener('click', exportCurrentRecipe)
 $('export-all-recipes').addEventListener('click', exportAllRecipes)
 $('import-recipe').addEventListener('click', () => $('recipe-import-file').click())
+$('new-recipe').addEventListener('click', startNewRecipe)
 $('recipe-import-file').addEventListener('change', async (event) => {
   await importRecipeFile(event.target.files?.[0])
   event.target.value = ''
@@ -791,9 +817,15 @@ $('recipe-cards').addEventListener('keydown', (event) => {
 })
 
 let initialRecipe = demo
+let restoredDraftHasIdentity = false
+let restoredActiveRecipeId = null
 try {
   const savedDraft = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null')
-  if (savedDraft) initialRecipe = normalizeRecipe(savedDraft)
+  if (savedDraft) {
+    initialRecipe = normalizeRecipe(savedDraft)
+    restoredDraftHasIdentity = Object.prototype.hasOwnProperty.call(savedDraft, 'activeRecipeId')
+    restoredActiveRecipeId = savedDraft.activeRecipeId || null
+  }
 } catch {
   localStorage.removeItem(STORAGE_KEY)
 }
@@ -801,15 +833,25 @@ try {
 let savedLibrary = getLibrary()
 saveLibrary(savedLibrary)
 if (initialRecipe !== demo && savedLibrary.length === 0) {
-  activeRecipeId = `migrated-${Date.now()}`
-  savedLibrary = [{ ...initialRecipe, id: activeRecipeId, updatedAt: Date.now() }]
-  saveLibrary(savedLibrary)
+  if (restoredDraftHasIdentity && !restoredActiveRecipeId) {
+    activeRecipeId = null
+  } else {
+    activeRecipeId = restoredActiveRecipeId || `migrated-${Date.now()}`
+    savedLibrary = [{ ...initialRecipe, id: activeRecipeId, updatedAt: Date.now() }]
+    saveLibrary(savedLibrary)
+  }
 } else if (savedLibrary.length) {
-  const matchingRecipe = savedLibrary.find((recipe) =>
-    recipe.title === initialRecipe.title
-    && recipe.ingredients === initialRecipe.ingredients
-    && JSON.stringify(recipe.actions) === JSON.stringify(initialRecipe.actions))
-  activeRecipeId = matchingRecipe?.id || savedLibrary[0].id
+  if (restoredDraftHasIdentity) {
+    activeRecipeId = savedLibrary.some((recipe) => recipe.id === restoredActiveRecipeId)
+      ? restoredActiveRecipeId
+      : null
+  } else {
+    const matchingRecipe = savedLibrary.find((recipe) =>
+      recipe.title === initialRecipe.title
+      && recipe.ingredients === initialRecipe.ingredients
+      && JSON.stringify(recipe.actions) === JSON.stringify(initialRecipe.actions))
+    activeRecipeId = matchingRecipe?.id || savedLibrary[0].id
+  }
 }
 
 loadRecipeIntoEditor(initialRecipe)
