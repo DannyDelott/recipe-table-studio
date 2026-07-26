@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 
-import { getConnectorSpan } from '../src/table-layout.js'
+import { getConnectorSpan, getTableBoundaryRows } from '../src/table-layout.js'
 
 test('connector stops where the neighboring action ends', () => {
   const coverage = Array.from({ length: 9 }, () => Array(3).fill(false))
@@ -35,4 +35,14 @@ test('connector can continue when no neighboring action introduces a boundary', 
     coverage,
     actionColumns: [[]],
   }), 4)
+})
+
+test('table boundaries include ends and starts hidden by rowspans', () => {
+  assert.deepEqual(getTableBoundaryRows({
+    ingredientCount: 6,
+    actionColumns: [[
+      { start: 1, end: 2 },
+      { start: 3, end: 4 },
+    ], [{ start: 1, end: 6 }]],
+  }), [2, 4])
 })
