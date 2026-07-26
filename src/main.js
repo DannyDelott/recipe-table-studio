@@ -80,36 +80,44 @@ app.innerHTML = `
       </div>
     </section>
 
-    <section class="library-section">
-      <div class="library-heading">
-        <div class="library-title">
-          <h2>Recipes</h2>
-          <span class="badge badge-neutral badge-sm library-count" id="library-count">0</span>
-        </div>
-        <div class="library-tools">
-          <span class="backup-status" id="backup-status" role="status" aria-live="polite"></span>
-          <button class="btn btn-outline btn-xs section-action backup-action" id="import-recipe" type="button">
+    <div class="workspace-shell">
+      <section class="library-section" aria-label="Recipe index">
+        <div class="library-heading">
+          <div class="library-title">
+            <h2>Recipes</h2>
+            <span class="badge badge-neutral badge-sm library-count" id="library-count">0</span>
+          </div>
+          <label class="library-search">
             <svg aria-hidden="true" viewBox="0 0 24 24">
-              <path d="M12 16V4M7 9l5-5 5 5"></path>
-              <path d="M5 14v6h14v-6"></path>
+              <circle cx="11" cy="11" r="6"></circle>
+              <path d="m16 16 4 4"></path>
             </svg>
-            Import Recipe
-          </button>
-          <button class="btn btn-outline btn-xs section-action backup-action" id="export-all-recipes" type="button">
-            <svg aria-hidden="true" viewBox="0 0 24 24">
-              <path d="M12 4v12M7 11l5 5 5-5"></path>
-              <path d="M5 14v6h14v-6"></path>
-            </svg>
-            Export All
-          </button>
-          <input class="file-input file-input-xs backup-file-input" id="recipe-import-file" type="file" accept=".json,application/json" hidden />
+            <input class="input input-sm" id="library-search" type="search" placeholder="Find a recipe" autocomplete="off" />
+          </label>
+          <div class="library-tools">
+            <button class="btn btn-outline btn-xs section-action backup-action" id="import-recipe" type="button">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M12 16V4M7 9l5-5 5 5"></path>
+                <path d="M5 14v6h14v-6"></path>
+              </svg>
+              Import Recipe
+            </button>
+            <button class="btn btn-outline btn-xs section-action backup-action" id="export-all-recipes" type="button">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M12 4v12M7 11l5 5 5-5"></path>
+                <path d="M5 14v6h14v-6"></path>
+              </svg>
+              Export All
+            </button>
+            <span class="backup-status" id="backup-status" role="status" aria-live="polite"></span>
+            <input class="file-input file-input-xs backup-file-input" id="recipe-import-file" type="file" accept=".json,application/json" hidden />
+          </div>
         </div>
-      </div>
-      <div id="recipe-cards" class="recipe-cards"></div>
-    </section>
+        <div id="recipe-cards" class="recipe-cards list"></div>
+      </section>
 
-    <section class="studio-grid">
-      <aside class="editor-panel">
+      <section class="studio-grid">
+        <aside class="editor-panel">
         <div class="panel-heading">
           <div><h2>Build</h2></div>
         </div>
@@ -129,9 +137,9 @@ app.innerHTML = `
           </section>
 
         </form>
-      </aside>
+        </aside>
 
-      <section class="preview-panel">
+        <section class="preview-panel">
         <div class="preview-heading">
           <div><h2>Preview</h2></div>
           <div class="preview-actions">
@@ -160,8 +168,9 @@ app.innerHTML = `
           </div>
         </div>
         <div id="table-wrap" class="table-wrap"></div>
+        </section>
       </section>
-    </section>
+    </div>
   </main>
 `
 
@@ -374,22 +383,26 @@ async function importRecipeFile(file) {
 }
 
 function renderRecipeCards() {
-  const recipes = getLibrary()
-  $('library-count').textContent = recipes.length
-  $('export-all-recipes').disabled = recipes.length === 0
+  const allRecipes = getLibrary()
+  const query = $('library-search').value.trim().toLocaleLowerCase()
+  const recipes = query
+    ? allRecipes.filter((recipe) => {
+      const haystack = `${recipe.title}\n${recipe.ingredients}`.toLocaleLowerCase()
+      return haystack.includes(query)
+    })
+    : allRecipes
+  $('library-count').textContent = allRecipes.length
+  $('export-all-recipes').disabled = allRecipes.length === 0
   $('recipe-cards').innerHTML = recipes.length ? recipes.map((recipe) => {
     const ingredientItems = parseIngredients(recipe.ingredients)
-    const ingredientList = ingredientItems.map((ingredient) => `
-      <li class="list-row">
-        <span class="card-ingredient-text">${escapeHtml(ingredient.text)}</span>
-      </li>`).join('')
-    return `<article class="recipe-card card card-border ${recipe.id === activeRecipeId ? 'is-active' : ''}" data-id="${recipe.id}" role="button" tabindex="0" aria-label="Open ${escapeHtml(recipe.title)}">
+    return `<article class="recipe-card recipe-index-row list-row ${recipe.id === activeRecipeId ? 'is-active' : ''}" data-id="${recipe.id}" role="button" tabindex="0" aria-label="Open ${escapeHtml(recipe.title)}">
+      <span class="recipe-index-copy">
+        <strong>${escapeHtml(recipe.title)}</strong>
+        <small>${ingredientItems.length} ingredients · ${escapeHtml(formatUpdatedAt(recipe.updatedAt).replace('Updated ', ''))}</small>
+      </span>
       <button class="delete-card" data-action="delete" data-id="${recipe.id}" aria-label="Delete ${escapeHtml(recipe.title)}">×</button>
-      <h3>${escapeHtml(recipe.title)}</h3>
-      <p class="recipe-card-updated">${escapeHtml(formatUpdatedAt(recipe.updatedAt))}</p>
-      <ul class="list card-ingredient-list" aria-label="${ingredientItems.length} ingredients">${ingredientList}</ul>
     </article>`
-  }).join('') : '<div class="empty-library"><span>✦</span><p>Your saved recipes will live here.</p><small>Build a table, then save it to come back later.</small></div>'
+  }).join('') : `<div class="empty-library"><span>✦</span><p>${query ? 'No recipes match that search.' : 'Your saved recipes will live here.'}</p>${query ? '' : '<small>Build a table, then save it to come back later.</small>'}</div>`
 }
 
 function saveToLibrary() {
@@ -742,6 +755,7 @@ $('recipe-import-file').addEventListener('change', async (event) => {
   await importRecipeFile(event.target.files?.[0])
   event.target.value = ''
 })
+$('library-search').addEventListener('input', renderRecipeCards)
 
 function openShelfRecipe(recipeId) {
   const recipe = getLibrary().find((saved) => saved.id === recipeId)
@@ -750,7 +764,6 @@ function openShelfRecipe(recipeId) {
   loadRecipeIntoEditor(recipe)
   saveDraft()
   renderRecipeCards()
-  $('recipe-form').scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
 $('recipe-cards').addEventListener('click', (event) => {
