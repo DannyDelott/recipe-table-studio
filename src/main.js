@@ -1,5 +1,5 @@
 import './style.css'
-import { getConnectorSpan } from './table-layout.js'
+import { getConnectorSpan, getTableBoundaryRows } from './table-layout.js'
 import {
   createRecipeArchive,
   createRecipeFile,
@@ -7,6 +7,7 @@ import {
   parseRecipeFile,
   recipeFileStem,
 } from './recipe-backup.js'
+import { createRecipeStl } from './recipe-stl.js'
 
 const STORAGE_KEY = 'recipe-table-studio'
 const LIBRARY_KEY = 'recipe-table-studio-library'
@@ -163,6 +164,13 @@ app.innerHTML = `
               </svg>
               Export
             </button>
+            <button class="btn btn-outline btn-xs section-action print3d-action" id="print3d-button" type="button">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="m12 3 8 4.5v9L12 21l-8-4.5v-9z"></path>
+                <path d="m4 7.5 8 4.5 8-4.5M12 12v9"></path>
+              </svg>
+              3D Print
+            </button>
             <button class="btn btn-outline btn-xs section-action print-action" id="print-button" type="button">
               <svg aria-hidden="true" viewBox="0 0 24 24">
                 <path d="M7 9V3h10v6M7 18H5a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
@@ -178,6 +186,56 @@ app.innerHTML = `
       </section>
     </div>
   </main>
+
+  <dialog id="print3d-dialog" class="modal modal-middle" aria-labelledby="print3d-title">
+    <div class="modal-box print3d-dialog-box">
+      <div class="print3d-dialog-heading">
+        <div>
+          <span class="print3d-eyebrow">Printable recipe card</span>
+          <h2 id="print3d-title">3D Print</h2>
+        </div>
+        <form method="dialog" class="print3d-close-form">
+          <button class="btn btn-ghost btn-sm btn-square print3d-close" type="submit" aria-label="Close 3D print preview">×</button>
+        </form>
+      </div>
+
+      <div class="print3d-preview-stage" id="print3d-preview-stage">
+        <div class="print3d-status" id="print3d-status" role="status" aria-live="polite">
+          <span class="loading loading-spinner loading-md" aria-hidden="true"></span>
+          <span>Building your printable card…</span>
+        </div>
+      </div>
+
+      <div class="print3d-details">
+        <div>
+          <span>Model</span>
+          <strong id="print3d-model-name">Recipe card</strong>
+        </div>
+        <div>
+          <span>Size</span>
+          <strong id="print3d-model-size">—</strong>
+        </div>
+        <div>
+          <span>Print setup</span>
+          <strong>Face up · no supports</strong>
+        </div>
+      </div>
+
+      <div class="modal-action print3d-actions">
+        <form method="dialog">
+          <button class="btn btn-outline btn-sm section-action" type="submit">Close</button>
+        </form>
+        <a class="btn btn-sm section-action download-stl is-disabled" id="download-stl" aria-disabled="true">
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M12 4v12M7 11l5 5 5-5"></path>
+            <path d="M5 14v6h14v-6"></path>
+          </svg>
+          Download STL
+        </a>
+      </div>
+    </div>
+    <form method="dialog" class="modal-backdrop"><button type="submit">Close preview</button></form>
+  </dialog>
 `
 
 const $ = (id) => document.getElementById(id)
@@ -188,6 +246,10 @@ const updatedAtFormatter = new Intl.DateTimeFormat(undefined, {
 let activeRecipeId = null
 let actions = cloneActions(demo.actions)
 let expandedActionId = null
+let stlPreviewCleanup = null
+let stlDownloadUrl = null
+let stlGenerationToken = 0
+let stlLibrariesPromise = null
 
 function cloneActions(items) {
   return items.map((action) => ({
@@ -329,6 +391,165 @@ function downloadFile(contents, type, filename) {
   link.click()
   link.remove()
   setTimeout(() => URL.revokeObjectURL(downloadUrl), 0)
+}
+
+function clearStlDownload() {
+  if (stlDownloadUrl) URL.revokeObjectURL(stlDownloadUrl)
+  stlDownloadUrl = null
+  const download = $('download-stl')
+  download.removeAttribute('href')
+  download.removeAttribute('download')
+  download.setAttribute('aria-disabled', 'true')
+  download.classList.add('is-disabled')
+}
+
+function setStlPreviewStatus(message, state = 'loading') {
+  const status = $('print3d-status')
+  status.className = `print3d-status is-${state}`
+  status.innerHTML = state === 'loading'
+    ? '<span class="loading loading-spinner loading-md" aria-hidden="true"></span><span></span>'
+    : '<span></span>'
+  status.querySelector('span:last-child').textContent = message
+}
+
+function disposeStlPreview() {
+  stlPreviewCleanup?.()
+  stlPreviewCleanup = null
+  $('print3d-preview-stage').querySelector('canvas')?.remove()
+}
+
+function loadStlLibraries() {
+  if (!stlLibrariesPromise) {
+    stlLibrariesPromise = Promise.all([
+      import('three'),
+      import('three/examples/jsm/controls/OrbitControls.js'),
+      import('three/examples/jsm/loaders/STLLoader.js'),
+    ]).then(([THREE, { OrbitControls }, { STLLoader }]) => ({ THREE, OrbitControls, STLLoader }))
+  }
+  return stlLibrariesPromise
+}
+
+function renderStlPreview(buffer, libraries) {
+  disposeStlPreview()
+  const { THREE, OrbitControls, STLLoader } = libraries
+  const stage = $('print3d-preview-stage')
+  const geometry = new STLLoader().parse(buffer)
+  geometry.computeVertexNormals()
+  geometry.computeBoundingBox()
+
+  const scene = new THREE.Scene()
+  scene.background = new THREE.Color('#eef2e8')
+  const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 1000)
+  camera.up.set(0, 0, 1)
+  camera.position.set(0, -190, 155)
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true })
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
+  renderer.shadowMap.enabled = true
+  renderer.shadowMap.type = THREE.PCFShadowMap
+  stage.prepend(renderer.domElement)
+
+  const material = new THREE.MeshStandardMaterial({
+    color: '#a9d687',
+    roughness: 0.72,
+    metalness: 0.02,
+  })
+  const card = new THREE.Mesh(geometry, material)
+  card.castShadow = true
+  card.receiveShadow = true
+  scene.add(card)
+
+  const ground = new THREE.Mesh(
+    new THREE.PlaneGeometry(320, 240),
+    new THREE.ShadowMaterial({ color: '#19342c', opacity: 0.13 }),
+  )
+  ground.position.z = -0.3
+  ground.receiveShadow = true
+  scene.add(ground)
+
+  scene.add(new THREE.HemisphereLight('#ffffff', '#b6c3b7', 2.25))
+  const keyLight = new THREE.DirectionalLight('#fff8e8', 3.4)
+  keyLight.position.set(-90, -90, 170)
+  keyLight.castShadow = true
+  keyLight.shadow.mapSize.set(1024, 1024)
+  scene.add(keyLight)
+  const fillLight = new THREE.DirectionalLight('#cfe1ff', 1.4)
+  fillLight.position.set(110, 40, 90)
+  scene.add(fillLight)
+
+  const controls = new OrbitControls(camera, renderer.domElement)
+  controls.target.set(0, 0, 1.6)
+  controls.enableDamping = true
+  controls.dampingFactor = 0.08
+  controls.minDistance = 120
+  controls.maxDistance = 380
+  controls.update()
+
+  function resizePreview() {
+    const width = Math.max(320, stage.clientWidth)
+    const height = Math.max(260, stage.clientHeight)
+    renderer.setSize(width, height, false)
+    camera.aspect = width / height
+    camera.updateProjectionMatrix()
+  }
+
+  let animationFrame = 0
+  function renderFrame() {
+    controls.update()
+    renderer.render(scene, camera)
+    animationFrame = requestAnimationFrame(renderFrame)
+  }
+
+  const resizeObserver = new ResizeObserver(resizePreview)
+  resizeObserver.observe(stage)
+  resizePreview()
+  renderFrame()
+
+  stlPreviewCleanup = () => {
+    cancelAnimationFrame(animationFrame)
+    resizeObserver.disconnect()
+    controls.dispose()
+    geometry.dispose()
+    material.dispose()
+    ground.geometry.dispose()
+    ground.material.dispose()
+    renderer.dispose()
+  }
+}
+
+async function openStlPreview() {
+  const recipe = recipeFromFields()
+  const dialog = $('print3d-dialog')
+  const token = ++stlGenerationToken
+
+  clearStlDownload()
+  disposeStlPreview()
+  $('print3d-title').textContent = `${recipe.title} · 3D Print`
+  $('print3d-model-name').textContent = recipe.title
+  $('print3d-model-size').textContent = '—'
+  setStlPreviewStatus('Building your printable card…')
+  dialog.showModal()
+
+  await new Promise((resolve) => requestAnimationFrame(resolve))
+  if (token !== stlGenerationToken || !dialog.open) return
+
+  try {
+    const librariesPromise = loadStlLibraries()
+    const { buffer, metadata } = createRecipeStl(recipe)
+    const libraries = await librariesPromise
+    if (token !== stlGenerationToken || !dialog.open) return
+    stlDownloadUrl = URL.createObjectURL(new Blob([buffer], { type: 'model/stl' }))
+    const download = $('download-stl')
+    download.href = stlDownloadUrl
+    download.download = `${recipeFileStem(recipe.title)}-recipe-card.stl`
+    download.setAttribute('aria-disabled', 'false')
+    download.classList.remove('is-disabled')
+    $('print3d-model-size').textContent = `${metadata.widthMm.toFixed(0)} × ${metadata.heightMm.toFixed(0)} × ${metadata.depthMm.toFixed(1)} mm`
+    renderStlPreview(buffer, libraries)
+    setStlPreviewStatus('Drag to rotate · scroll to zoom', 'ready')
+  } catch (error) {
+    setStlPreviewStatus(error.message || 'The 3D model could not be generated.', 'error')
+  }
 }
 
 function recipeWithExportIdentity(recipe) {
@@ -564,6 +785,7 @@ function buildTableRows(ingredients, actionItems, compact = false) {
 
   const totalActionColumns = Math.max(columnCount, 1)
   const colgroup = `<colgroup><col style="width:26%">${Array.from({ length: totalActionColumns }, () => '<col>').join('')}</colgroup>`
+  const boundaryRows = getTableBoundaryRows({ actionColumns, ingredientCount: ingredients.length })
   const rows = ingredients.map((ingredient, row) => {
     let cells = `<td class="ingredient-cell">${compact ? '' : escapeHtml(ingredient.text)}</td>`
     if (!columnCount) return `<tr>${cells}<td class="blank-cell"></td></tr>`
@@ -611,7 +833,24 @@ function buildTableRows(ingredients, actionItems, compact = false) {
     return `<tr>${cells}</tr>`
   }).join('')
 
-  return { colgroup, rows, totalActionColumns }
+  return { colgroup, rows, totalActionColumns, boundaryRows }
+}
+
+function positionTableBoundaries() {
+  const frame = $('table-wrap').querySelector('.table-frame')
+  const table = frame?.querySelector('.recipe-table')
+  if (!frame || !table) return
+
+  const boundaries = [...frame.querySelectorAll('.table-boundary')]
+  const frameTop = frame.getBoundingClientRect().top
+  const tableRows = [...table.tBodies[0].rows]
+  const headerRowCount = table.querySelector('.table-note') ? 2 : 1
+
+  boundaries.forEach((boundary) => {
+    const ingredientRow = tableRows[headerRowCount + Number(boundary.dataset.boundaryRow) - 1]
+    if (!ingredientRow) return
+    boundary.style.top = `${ingredientRow.getBoundingClientRect().bottom - frameTop - 1}px`
+  })
 }
 
 function renderTable() {
@@ -622,18 +861,24 @@ function renderTable() {
     $('table-wrap').innerHTML = '<div class="empty-preview">Add ingredients to begin your recipe table.</div>'
     return
   }
-  const { colgroup, rows, totalActionColumns } = buildTableRows(ingredients, actions)
+  const { colgroup, rows, totalActionColumns, boundaryRows } = buildTableRows(ingredients, actions)
   $('table-wrap').innerHTML = `
-    <table class="recipe-table">
-      ${colgroup}
-      <tbody>
-        <tr><th class="table-title" colspan="${totalActionColumns + 1}">${escapeHtml(title)}</th></tr>
-        ${note ? `<tr><td class="table-note" colspan="${totalActionColumns + 1}">${escapeHtml(note)}</td></tr>` : ''}
-        ${rows}
-      </tbody>
-    </table>
+    <div class="table-frame">
+      <table class="recipe-table">
+        ${colgroup}
+        <tbody>
+          <tr><th class="table-title" colspan="${totalActionColumns + 1}">${escapeHtml(title)}</th></tr>
+          ${note ? `<tr><td class="table-note" colspan="${totalActionColumns + 1}">${escapeHtml(note)}</td></tr>` : ''}
+          ${rows}
+        </tbody>
+      </table>
+      ${boundaryRows.map((row) => `<span class="table-boundary" data-boundary-row="${row}" aria-hidden="true"></span>`).join('')}
+    </div>
   `
+  positionTableBoundaries()
 }
+
+window.addEventListener('resize', positionTableBoundaries)
 
 function updateAction(id, updater) {
   const action = actions.find((candidate) => candidate.id === id)
@@ -772,6 +1017,15 @@ $('action-list').addEventListener('toggle', (event) => {
   }
 }, true)
 
+$('print3d-button').addEventListener('click', openStlPreview)
+$('print3d-dialog').addEventListener('close', () => {
+  stlGenerationToken += 1
+  disposeStlPreview()
+  clearStlDownload()
+})
+$('download-stl').addEventListener('click', (event) => {
+  if (event.currentTarget.getAttribute('aria-disabled') === 'true') event.preventDefault()
+})
 $('print-button').addEventListener('click', () => window.print())
 $('export-current-recipe').addEventListener('click', exportCurrentRecipe)
 $('export-all-recipes').addEventListener('click', exportAllRecipes)

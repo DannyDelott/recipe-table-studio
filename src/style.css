@@ -68,6 +68,7 @@ h1 i { font-family:Fraunces,serif; font-weight:500; color:var(--green-deep); }
 .preview-actions { display:flex; align-items:center; gap:7px; }
 .section-action.btn:hover { border-color:var(--green-deep); background:var(--green); color:var(--ink); }
 .section-action.btn:disabled { border-color:var(--line); background:transparent; color:var(--muted); opacity:.55; cursor:not-allowed; }
+.section-action.btn.is-disabled { border-color:var(--line); background:transparent; color:var(--muted); opacity:.55; cursor:not-allowed; pointer-events:none; }
 .new-recipe-action.btn { width:100%; min-height:34px; height:34px; border-color:var(--green-deep); background:var(--green); font-size:11px; }
 .new-recipe-action.btn:hover { background:var(--green-deep); color:var(--white); }
 .library-tools .section-action { width:100%; padding-inline:7px; }
@@ -114,7 +115,33 @@ input:focus, textarea:focus { border-color:var(--green-deep); box-shadow:0 0 0 2
 .format-tip strong { color:var(--ink); font:10px 'DM Mono'; }
 .preview-panel { order:1; min-width:0; padding:0; }
 .preview-heading { padding:0; }
+.print3d-dialog-box.modal-box { width:min(920px,calc(100vw - 32px)); max-width:none; max-height:calc(100vh - 32px); padding:0; overflow:hidden; border:1px solid var(--green-deep); border-radius:0; background:var(--paper); color:var(--ink); box-shadow:0 28px 80px rgba(25,52,44,.22); }
+.print3d-dialog-heading { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:18px 20px; border-bottom:1px solid var(--line); }
+.print3d-dialog-heading h2 { margin-top:3px; font:600 24px/1.1 Fraunces,serif; }
+.print3d-eyebrow { color:var(--green-deep); font:500 9px 'DM Mono'; letter-spacing:.13em; text-transform:uppercase; }
+#print3d-dialog form { display:block; gap:0; padding:0; border:0; background:transparent; }
+.print3d-close.btn { min-height:32px; width:32px; height:32px; padding:0; border:1px solid transparent; border-radius:0; color:var(--muted); font-size:22px; }
+.print3d-close.btn:hover { border-color:var(--line); background:var(--white); color:var(--ink); }
+.print3d-preview-stage { position:relative; height:min(54vh,500px); min-height:330px; overflow:hidden; border-bottom:1px solid var(--line); background:#eef2e8; }
+.print3d-preview-stage canvas { display:block; width:100%; height:100%; cursor:grab; }
+.print3d-preview-stage canvas:active { cursor:grabbing; }
+.print3d-status { position:absolute; z-index:2; display:flex; align-items:center; gap:9px; color:var(--muted); font:10px 'DM Mono'; pointer-events:none; }
+.print3d-status.is-loading, .print3d-status.is-error { inset:0; justify-content:center; background:rgba(238,242,232,.9); }
+.print3d-status.is-error { color:var(--color-error); }
+.print3d-status.is-ready { right:12px; bottom:12px; padding:7px 9px; border:1px solid rgba(76,121,69,.32); background:rgba(251,250,246,.84); color:var(--green-deep); backdrop-filter:blur(5px); }
+.print3d-details { display:grid; grid-template-columns:1.2fr 1fr 1fr; border-bottom:1px solid var(--line); background:rgba(255,255,255,.42); }
+.print3d-details > div { display:grid; gap:3px; min-width:0; padding:13px 16px; border-right:1px solid var(--line); }
+.print3d-details > div:last-child { border-right:0; }
+.print3d-details span { color:var(--muted); font:8px 'DM Mono'; letter-spacing:.08em; text-transform:uppercase; }
+.print3d-details strong { overflow:hidden; font:600 11px 'DM Sans'; text-overflow:ellipsis; white-space:nowrap; }
+.print3d-actions.modal-action { display:flex; align-items:center; justify-content:flex-end; gap:8px; margin:0; padding:14px 16px; background:var(--paper); }
+.print3d-actions .section-action.btn { min-height:34px; height:34px; padding-inline:13px; font-size:11px; }
+.download-stl.btn { border-color:var(--green-deep); background:var(--green); }
+.download-stl.btn:hover { background:var(--green-deep); color:var(--white); }
+#print3d-dialog .modal-backdrop { background:rgba(25,52,44,.34); backdrop-filter:blur(2px); }
 .table-wrap { overflow-x:auto; padding:0; border:0; background:transparent; }
+.table-frame { position:relative; width:100%; min-width:760px; }
+.table-boundary { position:absolute; z-index:2; left:1px; right:1px; height:1px; background:var(--green-deep); pointer-events:none; }
 .recipe-table { width:100%; min-width:760px; border:1px solid var(--green-deep); border-collapse:collapse; table-layout:fixed; background:var(--white); }
 .recipe-table th, .recipe-table td { border:1px solid var(--green-deep); }
 .recipe-table td.join-left { border-left:0; }
@@ -180,5 +207,5 @@ input:focus, textarea:focus { border-color:var(--green-deep); box-shadow:0 0 0 2
 .empty-actions p { margin:0; font-size:11px; }
 .empty-actions .btn { min-height:35px; height:35px; border-color:var(--green-deep); color:var(--green-deep); text-transform:none; }
 .empty-table { padding:60px 20px; text-align:center; color:var(--muted); font-size:13px; }
-@media (max-width:800px) { main { padding-top:22px; } .workspace-shell { grid-template-columns:1fr; } .library-section { position:static; height:auto; margin-bottom:8px; } .recipe-cards.list { max-height:250px; } .backup-status { width:100%; max-width:none; text-align:left; } .action-builder-heading { align-items:flex-start; flex-direction:column; } .add-action-button.btn { width:100%; } }
+@media (max-width:800px) { main { padding-top:22px; } .workspace-shell { grid-template-columns:1fr; } .library-section { position:static; height:auto; margin-bottom:8px; } .recipe-cards.list { max-height:250px; } .backup-status { width:100%; max-width:none; text-align:left; } .preview-heading { align-items:flex-start; flex-direction:column; gap:10px; } .preview-actions { flex-wrap:wrap; } .action-builder-heading { align-items:flex-start; flex-direction:column; } .add-action-button.btn { width:100%; } .print3d-preview-stage { min-height:270px; } .print3d-details { grid-template-columns:1fr; } .print3d-details > div { border-right:0; border-bottom:1px solid var(--line); } .print3d-details > div:last-child { border-bottom:0; } }
 @media print { body { background:white; } body:before, .workspace-header, .library-section, .editor-panel, .preview-heading { display:none !important; } main { padding:0; max-width:none; } .workspace-shell, .studio-grid { display:block; } .recipe-table { min-width:0; } .table-title { print-color-adjust:exact; -webkit-print-color-adjust:exact; } }
