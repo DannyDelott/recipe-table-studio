@@ -1,7 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { strFromU8, unzipSync } from 'fflate'
 
-import { createRecipeStl, STL_CARD } from '../src/recipe-stl.js'
+import { createRecipePrintFiles, createRecipeStl, STL_CARD } from '../src/recipe-stl.js'
 
 const recipe = {
   title: 'Test Cake',
@@ -78,4 +79,29 @@ test('creates a closed mesh where every edge belongs to two triangles', () => {
   }
 
   assert.equal([...edgeCounts.values()].filter((count) => count !== 2).length, 0)
+})
+
+test('creates a two-color 3MF and STL from a captured table raster', () => {
+  const raster = Array.from({ length: 8 }, (_, y) => Uint8Array.from(
+    Array.from({ length: 12 }, (_, x) => (
+      x === 0 || x === 11 || y === 0 || y === 7 || x === 5 || y === 3 ? 1 : 0
+    )),
+  ))
+  const result = createRecipePrintFiles(recipe, { raster })
+  const archive = unzipSync(result.threeMfBuffer)
+  const model = strFromU8(archive['3D/3dmodel.model'])
+
+  assert.equal(result.metadata.widthMm, 180)
+  assert.equal(result.metadata.heightMm, 120)
+  assert.equal(result.metadata.colorCount, 2)
+  assert.ok(result.baseBuffer.byteLength > 84)
+  assert.ok(result.detailBuffer.byteLength > 84)
+  assert.ok(result.stlBuffer.byteLength > 84)
+  assert.match(model, /White card/)
+  assert.match(model, /Black lettering and borders/)
+  assert.match(model, /displaycolor="#FFFFFFFF"/)
+  assert.match(model, /displaycolor="#000000FF"/)
+  assert.match(model, /<component objectid="2"\/>/)
+  assert.match(model, /<component objectid="3"\/>/)
+  assert.match(model, /<item objectid="4"\/>/)
 })

@@ -1,3 +1,5 @@
+import { strToU8, zipSync } from 'fflate'
+
 const FONT = {
   ' ': ['00000', '00000', '00000', '00000', '00000', '00000', '00000'],
   A: ['01110', '10001', '10001', '11111', '10001', '10001', '10001'],
@@ -290,7 +292,7 @@ function writeVerticalQuad(view, offset, side, fixed, start, end, low, high) {
   return writeTriangle(view, offset, b0, t1, b1)
 }
 
-function rasterToBinaryStl(raster, title) {
+function rasterToBinaryStl(raster, title, cellMm = STL_CARD.cellMm) {
   const rows = raster.length
   const columns = raster[0].length
   const triangleCount = countTriangles(raster)
@@ -301,15 +303,15 @@ function rasterToBinaryStl(raster, title) {
   const view = new DataView(buffer)
   view.setUint32(80, triangleCount, true)
   let offset = 84
-  const halfWidth = (columns * STL_CARD.cellMm) / 2
-  const halfHeight = (rows * STL_CARD.cellMm) / 2
+  const halfWidth = (columns * cellMm) / 2
+  const halfHeight = (rows * cellMm) / 2
 
   for (let y = 0; y < rows; y += 1) {
     for (let x = 0; x < columns; x += 1) {
-      const x0 = x * STL_CARD.cellMm - halfWidth
-      const x1 = x0 + STL_CARD.cellMm
-      const y1 = halfHeight - y * STL_CARD.cellMm
-      const y0 = y1 - STL_CARD.cellMm
+      const x0 = x * cellMm - halfWidth
+      const x1 = x0 + cellMm
+      const y1 = halfHeight - y * cellMm
+      const y0 = y1 - cellMm
       const height = cellHeight(raster, x, y)
       const p00 = [x0, y0, height]
       const p10 = [x1, y0, height]
@@ -347,6 +349,243 @@ export function createRecipeStl(recipe) {
       triangleCount,
       ingredientCount: ingredients.length,
       actionCount: actions.length,
+    },
+  }
+}
+
+function indexedMeshToBinaryStl(mesh, title) {
+  const buffer = new ArrayBuffer(84 + mesh.triangles.length * 50)
+  const bytes = new Uint8Array(buffer)
+  const header = new TextEncoder().encode(`Recipe Table Studio | ${cleanText(title).slice(0, 52)}`)
+  bytes.set(header.slice(0, 80), 0)
+  const view = new DataView(buffer)
+  view.setUint32(80, mesh.triangles.length, true)
+  let offset = 84
+  mesh.triangles.forEach(([a, b, c]) => {
+    offset = writeTriangle(view, offset, mesh.vertices[a], mesh.vertices[b], mesh.vertices[c])
+  })
+  return buffer
+}
+
+function createBaseMesh(widthMm, heightMm) {
+  const halfWidth = widthMm / 2
+  const halfHeight = heightMm / 2
+  const z = STL_CARD.baseHeightMm
+  return {
+    vertices: [
+      [-halfWidth, -halfHeight, 0],
+      [halfWidth, -halfHeight, 0],
+      [halfWidth, halfHeight, 0],
+      [-halfWidth, halfHeight, 0],
+      [-halfWidth, -halfHeight, z],
+      [halfWidth, -halfHeight, z],
+      [halfWidth, halfHeight, z],
+      [-halfWidth, halfHeight, z],
+    ],
+    triangles: [
+      [0, 2, 1], [0, 3, 2],
+      [4, 5, 6], [4, 6, 7],
+      [0, 1, 5], [0, 5, 4],
+      [1, 2, 6], [1, 6, 5],
+      [2, 3, 7], [2, 7, 6],
+      [3, 0, 4], [3, 4, 7],
+    ],
+  }
+}
+
+function countDetailTriangles(raster) {
+  const rows = raster.length
+  const columns = raster[0].length
+  let count = 0
+  for (let y = 0; y < rows; y += 1) {
+    for (let x = 0; x < columns; x += 1) {
+      if (!raster[y][x]) continue
+      count += 4
+      if (x === 0 || !raster[y][x - 1]) count += 2
+      if (x === columns - 1 || !raster[y][x + 1]) count += 2
+      if (y === 0 || !raster[y - 1][x]) count += 2
+      if (y === rows - 1 || !raster[y + 1][x]) count += 2
+    }
+  }
+  return count
+}
+
+function detailRasterToBinaryStl(raster, title, cellMm) {
+  const rows = raster.length
+  const columns = raster[0].length
+  const triangleCount = countDetailTriangles(raster)
+  const buffer = new ArrayBuffer(84 + triangleCount * 50)
+  const bytes = new Uint8Array(buffer)
+  const header = new TextEncoder().encode(`Recipe Table Studio details | ${cleanText(title).slice(0, 44)}`)
+  bytes.set(header.slice(0, 80), 0)
+  const view = new DataView(buffer)
+  view.setUint32(80, triangleCount, true)
+  const halfWidth = (columns * cellMm) / 2
+  const halfHeight = (rows * cellMm) / 2
+  const low = STL_CARD.baseHeightMm
+  const high = low + STL_CARD.reliefHeightMm
+  let offset = 84
+
+  for (let y = 0; y < rows; y += 1) {
+    for (let x = 0; x < columns; x += 1) {
+      if (!raster[y][x]) continue
+      const x0 = x * cellMm - halfWidth
+      const x1 = x0 + cellMm
+      const y1 = halfHeight - y * cellMm
+      const y0 = y1 - cellMm
+      const p00 = [x0, y0, high]
+      const p10 = [x1, y0, high]
+      const p11 = [x1, y1, high]
+      const p01 = [x0, y1, high]
+
+      offset = writeTriangle(view, offset, p00, p10, p11)
+      offset = writeTriangle(view, offset, p00, p11, p01)
+      offset = writeTriangle(view, offset, [x0, y0, low], [x0, y1, low], [x1, y1, low])
+      offset = writeTriangle(view, offset, [x0, y0, low], [x1, y1, low], [x1, y0, low])
+
+      if (x === 0 || !raster[y][x - 1]) {
+        offset = writeVerticalQuad(view, offset, 'left', x0, y0, y1, low, high)
+      }
+      if (x === columns - 1 || !raster[y][x + 1]) {
+        offset = writeVerticalQuad(view, offset, 'right', x1, y0, y1, low, high)
+      }
+      if (y === rows - 1 || !raster[y + 1][x]) {
+        offset = writeVerticalQuad(view, offset, 'bottom', y0, x0, x1, low, high)
+      }
+      if (y === 0 || !raster[y - 1][x]) {
+        offset = writeVerticalQuad(view, offset, 'top', y1, x0, x1, low, high)
+      }
+    }
+  }
+
+  return { buffer, triangleCount }
+}
+
+function stlToIndexedMesh(buffer) {
+  const view = new DataView(buffer)
+  const triangleCount = view.getUint32(80, true)
+  const vertices = []
+  const triangles = []
+  const vertexIndexes = new Map()
+
+  function vertexAt(offset) {
+    const vertex = [0, 1, 2].map((axis) => view.getFloat32(offset + axis * 4, true))
+    const key = vertex.map((value) => (Math.abs(value) < 0.00005 ? 0 : value).toFixed(5)).join(',')
+    if (!vertexIndexes.has(key)) {
+      vertexIndexes.set(key, vertices.length)
+      vertices.push(vertex)
+    }
+    return vertexIndexes.get(key)
+  }
+
+  for (let triangle = 0; triangle < triangleCount; triangle += 1) {
+    const offset = 84 + triangle * 50 + 12
+    triangles.push([
+      vertexAt(offset),
+      vertexAt(offset + 12),
+      vertexAt(offset + 24),
+    ])
+  }
+  return { vertices, triangles }
+}
+
+function escapeXml(value) {
+  return String(value).replace(/[&<>'"]/g, (character) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    "'": '&apos;',
+    '"': '&quot;',
+  }[character]))
+}
+
+function meshToXml(mesh) {
+  const vertices = mesh.vertices
+    .map(([x, y, z]) => `<vertex x="${x.toFixed(5)}" y="${y.toFixed(5)}" z="${z.toFixed(5)}"/>`)
+    .join('')
+  const triangles = mesh.triangles
+    .map(([v1, v2, v3]) => `<triangle v1="${v1}" v2="${v2}" v3="${v3}"/>`)
+    .join('')
+  return `<mesh><vertices>${vertices}</vertices><triangles>${triangles}</triangles></mesh>`
+}
+
+function createColorThreeMf(title, baseBuffer, detailBuffer) {
+  const baseMesh = stlToIndexedMesh(baseBuffer)
+  const detailMesh = stlToIndexedMesh(detailBuffer)
+  const safeTitle = escapeXml(title || 'Recipe card')
+  const model = `<?xml version="1.0" encoding="UTF-8"?>
+<model unit="millimeter" xml:lang="en-US" xmlns="http://schemas.microsoft.com/3dmanufacturing/core/2015/02" xmlns:m="http://schemas.microsoft.com/3dmanufacturing/material/2015/02">
+  <metadata name="Title">${safeTitle}</metadata>
+  <metadata name="Designer">Recipe Table Studio</metadata>
+  <resources>
+    <m:basematerials id="1">
+      <m:base name="White card" displaycolor="#FFFFFFFF"/>
+      <m:base name="Black lettering and borders" displaycolor="#000000FF"/>
+    </m:basematerials>
+    <object id="2" name="${safeTitle} white card" type="model" pid="1" pindex="0">${meshToXml(baseMesh)}</object>
+    <object id="3" name="${safeTitle} black details" type="model" pid="1" pindex="1">${meshToXml(detailMesh)}</object>
+    <object id="4" name="${safeTitle} two-color recipe card" type="model">
+      <components>
+        <component objectid="2"/>
+        <component objectid="3"/>
+      </components>
+    </object>
+  </resources>
+  <build>
+    <item objectid="4"/>
+  </build>
+</model>`
+  const contentTypes = `<?xml version="1.0" encoding="UTF-8"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="model" ContentType="application/vnd.ms-package.3dmanufacturing-3dmodel+xml"/>
+</Types>`
+  const relationships = `<?xml version="1.0" encoding="UTF-8"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Target="/3D/3dmodel.model" Id="rel0" Type="http://schemas.microsoft.com/3dmanufacturing/2013/01/3dmodel"/>
+</Relationships>`
+
+  return zipSync({
+    '[Content_Types].xml': strToU8(contentTypes),
+    '_rels/.rels': strToU8(relationships),
+    '3D/3dmodel.model': strToU8(model),
+  }, { level: 6 })
+}
+
+export function createRecipePrintFiles(recipe, capturedRaster) {
+  if (!capturedRaster?.raster?.length || !capturedRaster.raster[0]?.length) {
+    throw new Error('The recipe table could not be captured.')
+  }
+
+  const raster = capturedRaster.raster.map((row) => Uint8Array.from(row))
+  resolveDiagonalContacts(raster)
+  const columns = raster[0].length
+  const rows = raster.length
+  const cellMm = STL_CARD.widthMm / columns
+  const widthMm = columns * cellMm
+  const heightMm = rows * cellMm
+  const baseMesh = createBaseMesh(widthMm, heightMm)
+  const baseBuffer = indexedMeshToBinaryStl(baseMesh, `${recipe.title} white card`)
+  const { buffer: detailBuffer, triangleCount: detailTriangleCount } = detailRasterToBinaryStl(
+    raster,
+    recipe.title,
+    cellMm,
+  )
+  const { buffer: stlBuffer, triangleCount } = rasterToBinaryStl(raster, recipe.title, cellMm)
+  const threeMfBuffer = createColorThreeMf(recipe.title, baseBuffer, detailBuffer)
+
+  return {
+    baseBuffer,
+    detailBuffer,
+    stlBuffer,
+    threeMfBuffer,
+    metadata: {
+      widthMm,
+      heightMm,
+      depthMm: STL_CARD.baseHeightMm + STL_CARD.reliefHeightMm,
+      triangleCount,
+      detailTriangleCount,
+      colorCount: 2,
     },
   }
 }

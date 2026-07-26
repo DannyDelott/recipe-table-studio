@@ -11,7 +11,8 @@ import {
   recipeFileStem,
 } from './recipe-backup.js'
 import { seedBuiltInRecipes } from './built-in-recipes.js'
-import { createRecipeStl } from './recipe-stl.js'
+import { createRecipePrintFiles } from './recipe-stl.js'
+import { captureRecipeTableRaster } from './table-raster.js'
 
 const STORAGE_KEY = 'recipe-table-studio'
 const LIBRARY_KEY = 'recipe-table-studio-library'
@@ -202,9 +203,10 @@ app.innerHTML = `
     <div class="modal-box print3d-dialog-box">
       <div class="print3d-dialog-heading">
         <div>
-          <span class="print3d-eyebrow">Printable recipe card</span>
+          <span class="print3d-eyebrow">Exact table replica</span>
           <h2 id="print3d-title">3D Print</h2>
         </div>
+        <span class="badge badge-outline badge-sm print3d-format-badge">2-color 3MF</span>
         <form method="dialog" class="print3d-close-form">
           <button class="btn btn-ghost btn-sm btn-square print3d-close" type="submit" aria-label="Close 3D print preview">×</button>
         </form>
@@ -227,8 +229,12 @@ app.innerHTML = `
           <strong id="print3d-model-size">—</strong>
         </div>
         <div>
+          <span>Colors</span>
+          <strong><i class="material-dot is-white"></i> White <i class="material-dot is-black"></i> Black</strong>
+        </div>
+        <div>
           <span>Print setup</span>
-          <strong>Face up · no supports</strong>
+          <strong>Face up · color change at 2.4 mm</strong>
         </div>
       </div>
 
@@ -236,12 +242,19 @@ app.innerHTML = `
         <form method="dialog">
           <button class="btn btn-outline btn-sm section-action" type="submit">Close</button>
         </form>
-        <a class="btn btn-sm section-action download-stl is-disabled" id="download-stl" aria-disabled="true">
+        <a class="btn btn-outline btn-sm section-action download-model is-disabled" id="download-stl" aria-disabled="true">
           <svg aria-hidden="true" viewBox="0 0 24 24">
             <path d="M12 4v12M7 11l5 5 5-5"></path>
             <path d="M5 14v6h14v-6"></path>
           </svg>
           Download STL
+        </a>
+        <a class="btn btn-sm section-action download-model download-3mf is-disabled" id="download-3mf" aria-disabled="true">
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M12 4v12M7 11l5 5 5-5"></path>
+            <path d="M5 14v6h14v-6"></path>
+          </svg>
+          Download 3MF
         </a>
       </div>
     </div>
@@ -258,7 +271,7 @@ let activeRecipeId = null
 let actions = cloneActions(demo.actions)
 let expandedActionId = null
 let stlPreviewCleanup = null
-let stlDownloadUrl = null
+let modelDownloadUrls = []
 let stlGenerationToken = 0
 let stlLibrariesPromise = null
 
@@ -416,14 +429,17 @@ function downloadFile(contents, type, filename) {
   setTimeout(() => URL.revokeObjectURL(downloadUrl), 0)
 }
 
-function clearStlDownload() {
-  if (stlDownloadUrl) URL.revokeObjectURL(stlDownloadUrl)
-  stlDownloadUrl = null
-  const download = $('download-stl')
-  download.removeAttribute('href')
-  download.removeAttribute('download')
-  download.setAttribute('aria-disabled', 'true')
-  download.classList.add('is-disabled')
+function clearModelDownloads() {
+  modelDownloadUrls.forEach((url) => URL.revokeObjectURL(url))
+  modelDownloadUrls = []
+  ;['download-stl', 'download-3mf'].forEach((id) => {
+    const download = $(id)
+    download.removeAttribute('href')
+    download.removeAttribute('download')
+    download.setAttribute('aria-disabled', 'true')
+    download.setAttribute('tabindex', '-1')
+    download.classList.add('is-disabled')
+  })
 }
 
 function setStlPreviewStatus(message, state = 'loading') {
@@ -452,19 +468,20 @@ function loadStlLibraries() {
   return stlLibrariesPromise
 }
 
-function renderStlPreview(buffer, libraries) {
+function renderStlPreview(baseBuffer, detailBuffer, libraries) {
   disposeStlPreview()
   const { THREE, OrbitControls, STLLoader } = libraries
   const stage = $('print3d-preview-stage')
-  const geometry = new STLLoader().parse(buffer)
-  geometry.computeVertexNormals()
-  geometry.computeBoundingBox()
+  const baseGeometry = new STLLoader().parse(baseBuffer)
+  const detailGeometry = new STLLoader().parse(detailBuffer)
+  baseGeometry.computeVertexNormals()
+  detailGeometry.computeVertexNormals()
 
   const scene = new THREE.Scene()
   scene.background = new THREE.Color('#eef2e8')
   const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 1000)
   camera.up.set(0, 0, 1)
-  camera.position.set(0, -190, 155)
+  camera.position.set(0, -145, 120)
 
   const renderer = new THREE.WebGLRenderer({ antialias: true })
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
@@ -472,15 +489,23 @@ function renderStlPreview(buffer, libraries) {
   renderer.shadowMap.type = THREE.PCFShadowMap
   stage.prepend(renderer.domElement)
 
-  const material = new THREE.MeshStandardMaterial({
-    color: '#a9d687',
-    roughness: 0.72,
+  const baseMaterial = new THREE.MeshStandardMaterial({
+    color: '#ffffff',
+    roughness: 0.82,
     metalness: 0.02,
   })
-  const card = new THREE.Mesh(geometry, material)
-  card.castShadow = true
-  card.receiveShadow = true
-  scene.add(card)
+  const detailMaterial = new THREE.MeshStandardMaterial({
+    color: '#050505',
+    roughness: 0.74,
+    metalness: 0.01,
+  })
+  const base = new THREE.Mesh(baseGeometry, baseMaterial)
+  const details = new THREE.Mesh(detailGeometry, detailMaterial)
+  base.castShadow = true
+  base.receiveShadow = true
+  details.castShadow = true
+  details.receiveShadow = true
+  scene.add(base, details)
 
   const ground = new THREE.Mesh(
     new THREE.PlaneGeometry(320, 240),
@@ -490,8 +515,8 @@ function renderStlPreview(buffer, libraries) {
   ground.receiveShadow = true
   scene.add(ground)
 
-  scene.add(new THREE.HemisphereLight('#ffffff', '#b6c3b7', 2.25))
-  const keyLight = new THREE.DirectionalLight('#fff8e8', 3.4)
+  scene.add(new THREE.HemisphereLight('#ffffff', '#a7b1aa', 2))
+  const keyLight = new THREE.DirectionalLight('#fffdf7', 3)
   keyLight.position.set(-90, -90, 170)
   keyLight.castShadow = true
   keyLight.shadow.mapSize.set(1024, 1024)
@@ -504,7 +529,7 @@ function renderStlPreview(buffer, libraries) {
   controls.target.set(0, 0, 1.6)
   controls.enableDamping = true
   controls.dampingFactor = 0.08
-  controls.minDistance = 120
+  controls.minDistance = 95
   controls.maxDistance = 380
   controls.update()
 
@@ -532,8 +557,10 @@ function renderStlPreview(buffer, libraries) {
     cancelAnimationFrame(animationFrame)
     resizeObserver.disconnect()
     controls.dispose()
-    geometry.dispose()
-    material.dispose()
+    baseGeometry.dispose()
+    detailGeometry.dispose()
+    baseMaterial.dispose()
+    detailMaterial.dispose()
     ground.geometry.dispose()
     ground.material.dispose()
     renderer.dispose()
@@ -545,7 +572,7 @@ async function openStlPreview() {
   const dialog = $('print3d-dialog')
   const token = ++stlGenerationToken
 
-  clearStlDownload()
+  clearModelDownloads()
   disposeStlPreview()
   $('print3d-title').textContent = `${recipe.title} · 3D Print`
   $('print3d-model-name').textContent = recipe.title
@@ -558,18 +585,42 @@ async function openStlPreview() {
 
   try {
     const librariesPromise = loadStlLibraries()
-    const { buffer, metadata } = createRecipeStl(recipe)
+    await document.fonts.ready
+    const capturedRaster = captureRecipeTableRaster($('table-wrap'))
+    const {
+      baseBuffer,
+      detailBuffer,
+      stlBuffer,
+      threeMfBuffer,
+      metadata,
+    } = createRecipePrintFiles(recipe, capturedRaster)
     const libraries = await librariesPromise
     if (token !== stlGenerationToken || !dialog.open) return
-    stlDownloadUrl = URL.createObjectURL(new Blob([buffer], { type: 'model/stl' }))
-    const download = $('download-stl')
-    download.href = stlDownloadUrl
-    download.download = `${recipeFileStem(recipe.title)}-recipe-card.stl`
-    download.setAttribute('aria-disabled', 'false')
-    download.classList.remove('is-disabled')
+    const stem = `${recipeFileStem(recipe.title)}-recipe-card`
+    const downloads = [
+      {
+        id: 'download-stl',
+        url: URL.createObjectURL(new Blob([stlBuffer], { type: 'model/stl' })),
+        filename: `${stem}.stl`,
+      },
+      {
+        id: 'download-3mf',
+        url: URL.createObjectURL(new Blob([threeMfBuffer], { type: 'model/3mf' })),
+        filename: `${stem}-2-color.3mf`,
+      },
+    ]
+    modelDownloadUrls = downloads.map(({ url }) => url)
+    downloads.forEach(({ id, url, filename }) => {
+      const download = $(id)
+      download.href = url
+      download.download = filename
+      download.setAttribute('aria-disabled', 'false')
+      download.removeAttribute('tabindex')
+      download.classList.remove('is-disabled')
+    })
     $('print3d-model-size').textContent = `${metadata.widthMm.toFixed(0)} × ${metadata.heightMm.toFixed(0)} × ${metadata.depthMm.toFixed(1)} mm`
-    renderStlPreview(buffer, libraries)
-    setStlPreviewStatus('Drag to rotate · scroll to zoom', 'ready')
+    renderStlPreview(baseBuffer, detailBuffer, libraries)
+    setStlPreviewStatus('Exact table geometry · drag to rotate · scroll to zoom', 'ready')
   } catch (error) {
     setStlPreviewStatus(error.message || 'The 3D model could not be generated.', 'error')
   }
@@ -1014,10 +1065,12 @@ $('print3d-button').addEventListener('click', openStlPreview)
 $('print3d-dialog').addEventListener('close', () => {
   stlGenerationToken += 1
   disposeStlPreview()
-  clearStlDownload()
+  clearModelDownloads()
 })
-$('download-stl').addEventListener('click', (event) => {
-  if (event.currentTarget.getAttribute('aria-disabled') === 'true') event.preventDefault()
+;['download-stl', 'download-3mf'].forEach((id) => {
+  $(id).addEventListener('click', (event) => {
+    if (event.currentTarget.getAttribute('aria-disabled') === 'true') event.preventDefault()
+  })
 })
 $('print-button').addEventListener('click', () => window.print())
 $('export-current-recipe').addEventListener('click', exportCurrentRecipe)
