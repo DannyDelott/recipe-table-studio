@@ -126,7 +126,13 @@ app.innerHTML = `
       <section class="studio-grid">
         <aside class="editor-panel">
         <div class="panel-heading">
-          <div><h2>Build</h2></div>
+          <div class="panel-title">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M12 20h9"></path>
+              <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"></path>
+            </svg>
+            <h2>Edit Recipe</h2>
+          </div>
         </div>
         <form id="recipe-form">
           <label>Recipe name<input id="title" name="title" value="${demo.title}" /></label>

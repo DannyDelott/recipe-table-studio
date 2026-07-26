@@ -102,6 +102,7 @@ h1 i { font-family:Fraunces,serif; font-weight:500; color:var(--green-deep); }
 .editor-panel { order:2; min-width:0; padding:0; }
 .panel-heading, .preview-heading { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
 .panel-heading > div, .preview-heading > div { display:flex; align-items:center; gap:12px; }
+.panel-title svg { width:15px; height:15px; flex:0 0 15px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
 h2 { font-size:17px; letter-spacing:-.03em; margin:0; }
 form { display:grid; gap:17px; padding:20px; border:1px solid var(--line); background:rgba(255,255,255,.44); }
 label { display:grid; gap:7px; font-size:11px; font-weight:600; }
