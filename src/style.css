@@ -140,8 +140,6 @@ input:focus, textarea:focus { border-color:var(--green-deep); box-shadow:0 0 0 2
 .download-stl.btn:hover { background:var(--green-deep); color:var(--white); }
 #print3d-dialog .modal-backdrop { background:rgba(25,52,44,.34); backdrop-filter:blur(2px); }
 .table-wrap { overflow-x:auto; padding:0; border:0; background:transparent; }
-.table-frame { position:relative; width:100%; min-width:760px; }
-.table-boundary { position:absolute; z-index:2; left:1px; right:1px; height:1px; background:var(--green-deep); pointer-events:none; }
 .recipe-table { width:100%; min-width:760px; border:1px solid var(--green-deep); border-collapse:collapse; table-layout:fixed; background:var(--white); }
 .recipe-table th, .recipe-table td { border:1px solid var(--green-deep); }
 .recipe-table td.join-left { border-left:0; }
@@ -157,7 +155,6 @@ input:focus, textarea:focus { border-color:var(--green-deep); box-shadow:0 0 0 2
 .line-numbers span { display:block; height:1.55em; }
 .action-cell { padding:14px 12px; text-align:center; font-size:12px; line-height:1.4; overflow-wrap:anywhere; }
 .blank-cell { padding:0; }
-.action-cell:last-child { border-right:0; }
 .action-builder { display:grid; gap:9px; margin-top:2px; }
 .action-builder-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; padding-top:4px; }
 .action-builder-heading h3 { margin:0; font:600 15px 'DM Sans'; letter-spacing:-.025em; }
