@@ -269,11 +269,7 @@ app.innerHTML = `
   <dialog id="print3d-dialog" class="modal modal-middle" aria-labelledby="print3d-title">
     <div class="modal-box print3d-dialog-box">
       <div class="print3d-dialog-heading">
-        <div>
-          <span class="print3d-eyebrow">Exact table replica</span>
-          <h2 id="print3d-title">3D Print</h2>
-        </div>
-        <span class="badge badge-outline badge-sm print3d-format-badge">2-color 3MF</span>
+        <h2 id="print3d-title">3D Print</h2>
         <form method="dialog" class="print3d-close-form">
           <button class="btn btn-ghost btn-sm btn-square print3d-close" type="submit" aria-label="Close 3D print preview">×</button>
         </form>
@@ -542,11 +538,18 @@ function clearModelDownloads() {
 
 function setStlPreviewStatus(message, state = 'loading') {
   const status = $('print3d-status')
+  status.hidden = false
   status.className = `print3d-status is-${state}`
   status.innerHTML = state === 'loading'
     ? '<span class="loading loading-spinner loading-md" aria-hidden="true"></span><span></span>'
     : '<span></span>'
   status.querySelector('span:last-child').textContent = message
+}
+
+function hideStlPreviewStatus() {
+  const status = $('print3d-status')
+  status.hidden = true
+  status.replaceChildren()
 }
 
 function disposeStlPreview() {
@@ -740,7 +743,7 @@ async function openStlPreview() {
     typeSize.textContent = `P1S · 0.4 mm nozzle · type ≥ ${metadata.minimumFontSizeMm.toFixed(1)} mm`
     typeSize.dataset.minimumHorizontalScale = metadata.minimumHorizontalScale.toFixed(3)
     renderStlPreview(baseBuffer, detailBuffer, libraries)
-    setStlPreviewStatus('Exact table geometry · drag to rotate · scroll to zoom', 'ready')
+    hideStlPreviewStatus()
   } catch (error) {
     setStlPreviewStatus(error.message || 'The 3D model could not be generated.', 'error')
   }
