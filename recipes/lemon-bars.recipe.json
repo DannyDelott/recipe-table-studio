@@ -1,0 +1,85 @@
+{
+  "format": "recipe-table-studio-recipe",
+  "version": 1,
+  "exportedAt": "2026-07-27T01:37:18.791Z",
+  "recipe": {
+    "id": "1785115943512-w4h3p",
+    "title": "Lemon Bars",
+    "note": "Preheat oven 350 degrees",
+    "ingredients": "2 cups flour\n1 cup butter\n1/2 cup powdered sugar\n4 eggs\n7 tablespoons lemon juice\n2 cups sugar\n1/2 teaspoon salt\n4 tablespoons flour",
+    "actions": [
+      {
+        "id": "action-ms2jv24k-cwg1",
+        "text": "Cream and press into ungreased 9 × 12 baking pan",
+        "groupName": "Crust",
+        "ingredientLines": [
+          1,
+          2,
+          3
+        ],
+        "sourceIds": []
+      },
+      {
+        "id": "action-ms2jvrke-59la",
+        "text": "Bake 20 minutes at 350 degrees",
+        "groupName": "Baked crust",
+        "ingredientLines": [],
+        "sourceIds": [
+          "action-ms2jv24k-cwg1"
+        ]
+      },
+      {
+        "id": "action-ms2jwjlj-cpnv",
+        "text": "Beat",
+        "groupName": "Beaten eggs",
+        "ingredientLines": [
+          4
+        ],
+        "sourceIds": []
+      },
+      {
+        "id": "action-ms2jwsh3-3236",
+        "text": "Add",
+        "groupName": "Lemon filling",
+        "ingredientLines": [
+          5,
+          6,
+          7,
+          8
+        ],
+        "sourceIds": [
+          "action-ms2jwjlj-cpnv"
+        ]
+      },
+      {
+        "id": "action-ms2jx4n2-7070",
+        "text": "Pour on baked crust",
+        "groupName": "Filled crust",
+        "ingredientLines": [],
+        "sourceIds": [
+          "action-ms2jvrke-59la",
+          "action-ms2jwsh3-3236"
+        ]
+      },
+      {
+        "id": "action-ms2jxee1-b0lo",
+        "text": "Bake 25 minutes at 350 degrees",
+        "groupName": "Baked lemon bars",
+        "ingredientLines": [],
+        "sourceIds": [
+          "action-ms2jx4n2-7070"
+        ]
+      },
+      {
+        "id": "action-ms2jxn84-q1bc",
+        "text": "Sprinkle with powdered sugar while warm",
+        "groupName": "Lemon Bars",
+        "ingredientLines": [],
+        "sourceIds": [
+          "action-ms2jxee1-b0lo"
+        ]
+      }
+    ],
+    "updatedAt": 1785115988614
+  }
+}
