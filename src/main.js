@@ -86,6 +86,15 @@ app.innerHTML = `
     <section class="workspace-header" aria-labelledby="workspace-title">
       <div class="workspace-title">
         <h1 id="workspace-title">Recipe Table Studio</h1>
+        <a
+          class="link link-hover workspace-repository-link"
+          href="https://github.com/DannyDelott/recipe-table-studio"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Open the Recipe Table Studio GitHub repository"
+        >
+          GitHub ↗
+        </a>
       </div>
     </section>
 

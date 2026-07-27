@@ -48,8 +48,10 @@ body:before { content:''; position:fixed; inset:0; pointer-events:none; opacity:
 button { font:inherit; cursor:pointer; }
 main { max-width:1540px; margin:0 auto; padding:32px clamp(24px,4vw,62px) 64px; }
 .workspace-header { display:flex; align-items:center; justify-content:space-between; gap:28px; padding:0; margin-bottom:26px; }
-.workspace-title { min-width:0; }
+.workspace-title { display:flex; align-items:baseline; gap:10px; min-width:0; }
 .workspace-header h1 { margin:0; font:600 clamp(26px,3vw,38px)/1 Fraunces,serif; letter-spacing:-.045em; }
+.workspace-repository-link { color:color-mix(in oklab, var(--color-base-content) 58%, transparent); font:500 10px 'DM Mono'; white-space:nowrap; }
+.workspace-repository-link:hover { color:var(--color-base-content); }
 .hero { max-width:750px; margin-bottom:75px; }
 .eyebrow { text-transform:uppercase; letter-spacing:.16em; font:500 10px 'DM Mono'; color:var(--green-deep); display:flex; align-items:center; gap:10px; margin-bottom:24px; }
 .eyebrow span { display:block; width:26px; height:2px; background:var(--green-deep); }
