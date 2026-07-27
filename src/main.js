@@ -20,6 +20,13 @@ const STORAGE_KEY = 'recipe-table-studio'
 const LIBRARY_KEY = 'recipe-table-studio-library'
 const BUILT_IN_LIBRARY_VERSION_KEY = 'recipe-table-studio-built-in-version'
 const MAX_BACKUP_BYTES = 5 * 1024 * 1024
+// PROTOTYPE — Three mobile recipe-library disclosure models on the existing route,
+// switchable with ?recipePrototype=A, B, or C. Throw this code away after a winner is chosen.
+const MOBILE_LIBRARY_PROTOTYPE_VARIANTS = [
+  { key: 'A', name: 'Selected + reveal' },
+  { key: 'B', name: 'Swipeable recents' },
+  { key: 'C', name: 'Recipe picker sheet' },
+]
 
 const demo = {
   title: 'Banana Bread',
@@ -95,6 +102,9 @@ app.innerHTML = `
           <div class="library-title">
             <h2>Recipes</h2>
             <span class="badge badge-neutral badge-sm library-count" id="library-count">0</span>
+            <button class="btn btn-ghost btn-xs mobile-library-sheet-close" type="button" data-mobile-library-command="close-library">
+              Done
+            </button>
           </div>
           <button class="btn btn-outline btn-sm section-action new-recipe-action" id="new-recipe" type="button">
             <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -109,6 +119,9 @@ app.innerHTML = `
             </svg>
             <input class="input input-sm" id="library-search" type="search" placeholder="Find a recipe" autocomplete="off" />
           </label>
+          <button class="btn btn-ghost btn-xs mobile-library-tools-toggle" type="button" data-mobile-library-command="toggle-tools" aria-expanded="false">
+            Import &amp; export
+          </button>
           <div class="library-tools">
             <button class="btn btn-outline btn-xs section-action backup-action" id="import-recipe" type="button">
               <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -128,6 +141,37 @@ app.innerHTML = `
             <input class="file-input file-input-xs backup-file-input" id="recipe-import-file" type="file" accept=".json,application/json" hidden />
           </div>
         </div>
+        <div class="mobile-library-nav">
+          <button class="btn btn-outline mobile-my-recipes-button" type="button" data-mobile-library-command="toggle-library" aria-expanded="false">
+            <svg aria-hidden="true" viewBox="0 0 24 24">
+              <path d="M5 5h14v14H5z"></path>
+              <path d="M8 3v4M16 3v4M8 11h8M8 15h5"></path>
+            </svg>
+            <span>My Recipes</span>
+            <span class="badge badge-neutral badge-sm" id="mobile-my-recipes-count">0</span>
+            <span class="mobile-my-recipes-arrow" aria-hidden="true">›</span>
+          </button>
+          <button class="btn mobile-nav-new-recipe" type="button" data-mobile-library-command="new-recipe">
+            <span aria-hidden="true">＋</span>
+            New Recipe
+          </button>
+        </div>
+        <div class="mobile-library-active" aria-live="polite">
+          <div class="mobile-library-active-copy">
+            <span>Current recipe</span>
+            <strong id="mobile-library-active-title">Unsaved recipe</strong>
+            <small id="mobile-library-active-meta">Not in your library yet</small>
+          </div>
+          <div class="mobile-library-active-actions">
+            <button class="btn btn-outline btn-sm mobile-library-browse" type="button" data-mobile-library-command="toggle-library" aria-expanded="false">
+              Browse recipes
+            </button>
+            <button class="btn btn-sm mobile-library-new" type="button" data-mobile-library-command="new-recipe">
+              <span aria-hidden="true">＋</span>
+              New
+            </button>
+          </div>
+        </div>
         <div id="recipe-cards" class="recipe-cards list"></div>
       </section>
 
@@ -141,10 +185,33 @@ app.innerHTML = `
             </svg>
             <h2>Edit Recipe</h2>
           </div>
+          <div class="mobile-editor-controls">
+            <button class="btn btn-outline mobile-editor-toggle" type="button" data-mobile-editor-command="toggle-editor" aria-expanded="false">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"></path>
+              </svg>
+              <span>
+                <strong id="mobile-editor-toggle-label">Edit recipe</strong>
+                <small id="mobile-editor-toggle-description">Change ingredients and actions</small>
+              </span>
+              <span class="mobile-editor-caret" aria-hidden="true">›</span>
+            </button>
+            <button class="btn btn-neutral mobile-editor-save" type="submit" form="recipe-form">
+              Save
+            </button>
+          </div>
         </div>
         <form id="recipe-form">
           <label>Recipe name<input id="title" name="title" value="${demo.title}" /></label>
-          <label>Opening note <span class="optional">optional</span><input id="note" name="note" value="${demo.note}" /></label>
+          <div class="recipe-field">
+            <label class="recipe-field-label" for="note">Opening note <span class="optional">optional</span></label>
+            <input id="note" name="note" value="${demo.note}" aria-describedby="opening-note-help" />
+            <p class="opening-note-help" id="opening-note-help">
+              <strong>Good for:</strong>
+              “Preheat oven to 350 degrees” · “Makes 2 loaves”
+            </p>
+          </div>
           <label>Ingredients <span class="hint">one ingredient per numbered line</span><div class="numbered-input"><div id="ingredient-line-numbers" class="line-numbers" aria-hidden="true"></div><textarea id="ingredients" name="ingredients" rows="10" wrap="off">${demo.ingredients}</textarea></div></label>
 
           <section class="action-builder" aria-labelledby="action-builder-title">
@@ -185,6 +252,12 @@ app.innerHTML = `
                 <path d="M12 8v5M12 16h.01"></path>
               </svg>
               Submit Recipe
+            </button>
+            <button class="btn btn-outline btn-xs section-action fullscreen-action" id="fullscreen-button" type="button" aria-pressed="false">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M9 4H4v5M15 4h5v5M20 15v5h-5M4 15v5h5"></path>
+              </svg>
+              Full Screen
             </button>
             <button class="btn btn-outline btn-xs section-action export-action" id="export-current-recipe" type="button">
               <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -277,6 +350,16 @@ app.innerHTML = `
     </div>
     <form method="dialog" class="modal-backdrop"><button type="submit">Close preview</button></form>
   </dialog>
+
+  <aside class="mobile-library-prototype-switcher" aria-label="Mobile recipe library prototype variants">
+    <button class="btn btn-ghost btn-sm btn-square" type="button" data-mobile-library-command="previous-variant" aria-label="Previous prototype variant">←</button>
+    <div>
+      <span>Mobile prototype</span>
+      <strong id="mobile-library-prototype-label">C — Recipe picker sheet</strong>
+      <small id="mobile-library-prototype-state">Library collapsed</small>
+    </div>
+    <button class="btn btn-ghost btn-sm btn-square" type="button" data-mobile-library-command="next-variant" aria-label="Next prototype variant">→</button>
+  </aside>
 `
 
 const $ = (id) => document.getElementById(id)
@@ -291,6 +374,14 @@ let stlPreviewCleanup = null
 let modelDownloadUrls = []
 let stlGenerationToken = 0
 let stlLibrariesPromise = null
+let mobileLibraryPrototypeVariant = new URLSearchParams(window.location.search).get('recipePrototype')?.toUpperCase() || 'C'
+let mobileLibraryPrototypeOpen = false
+let mobileLibraryPrototypeToolsOpen = false
+let mobileEditorPrototypeOpen = false
+
+if (!MOBILE_LIBRARY_PROTOTYPE_VARIANTS.some(({ key }) => key === mobileLibraryPrototypeVariant)) {
+  mobileLibraryPrototypeVariant = 'C'
+}
 
 function cloneActions(items) {
   return items.map((action) => ({
@@ -784,6 +875,143 @@ function renderRecipeCards() {
       <button class="delete-card" data-action="delete" data-id="${recipe.id}" aria-label="Delete ${escapeHtml(recipe.title)}">×</button>
     </article>`
   }).join('') : `<div class="empty-library"><span>✦</span><p>${query ? 'No recipes match that search.' : 'Your saved recipes will live here.'}</p>${query ? '' : '<small>Build a table, then save it to come back later.</small>'}</div>`
+  updateMobileLibraryPrototype()
+}
+
+function updateMobileLibraryPrototype() {
+  const librarySection = document.querySelector('.library-section')
+  if (!librarySection || import.meta.env.PROD) return
+
+  const recipes = getLibrary()
+  const activeRecipe = recipes.find((recipe) => recipe.id === activeRecipeId)
+  const currentVariant = MOBILE_LIBRARY_PROTOTYPE_VARIANTS.find(({ key }) => key === mobileLibraryPrototypeVariant)
+  const currentRecipe = activeRecipe || recipeFromFields()
+  const ingredientCount = parseIngredients(currentRecipe.ingredients).length
+  const recipeCountLabel = `${recipes.length} recipe${recipes.length === 1 ? '' : 's'}`
+  const activeMeta = activeRecipe
+    ? `${ingredientCount} ingredients · ${formatUpdatedAt(activeRecipe.updatedAt).replace('Updated ', '')}`
+    : `${ingredientCount} ingredient${ingredientCount === 1 ? '' : 's'} · Unsaved`
+
+  librarySection.dataset.mobilePrototypeVariant = mobileLibraryPrototypeVariant
+  librarySection.classList.toggle('is-mobile-library-open', mobileLibraryPrototypeOpen)
+  librarySection.classList.toggle('is-mobile-tools-open', mobileLibraryPrototypeToolsOpen)
+  $('mobile-library-active-title').textContent = currentRecipe.title || 'Untitled recipe'
+  $('mobile-library-active-meta').textContent = activeMeta
+  $('mobile-my-recipes-count').textContent = recipes.length
+
+  const browseButton = librarySection.querySelector('.mobile-library-browse')
+  browseButton.textContent = mobileLibraryPrototypeVariant === 'C'
+    ? 'Change'
+    : mobileLibraryPrototypeOpen ? 'Show less' : `Browse all ${recipes.length}`
+  browseButton.setAttribute('aria-expanded', String(mobileLibraryPrototypeOpen))
+  librarySection.querySelector('.mobile-my-recipes-button')
+    .setAttribute('aria-expanded', String(mobileLibraryPrototypeOpen))
+
+  const toolsButton = librarySection.querySelector('.mobile-library-tools-toggle')
+  toolsButton.textContent = mobileLibraryPrototypeToolsOpen ? 'Hide file tools' : 'Import & export'
+  toolsButton.setAttribute('aria-expanded', String(mobileLibraryPrototypeToolsOpen))
+
+  $('mobile-library-prototype-label').textContent = `${currentVariant.key} — ${currentVariant.name}`
+  updateMobilePrototypeStateLabel(recipeCountLabel)
+}
+
+function updateMobilePrototypeStateLabel(recipeCountLabel = `${getLibrary().length} recipes`) {
+  const libraryState = mobileLibraryPrototypeVariant === 'B'
+    ? `${recipeCountLabel} in the swipe rail${mobileLibraryPrototypeToolsOpen ? ' · file tools open' : ''}`
+    : `${recipeCountLabel} · ${mobileLibraryPrototypeOpen ? 'library open' : 'library collapsed'}`
+  $('mobile-library-prototype-state').textContent = `${libraryState} · editor ${mobileEditorPrototypeOpen ? 'open' : 'collapsed'}`
+}
+
+function updateMobileEditorPrototype() {
+  const studioGrid = document.querySelector('.studio-grid')
+  if (!studioGrid || import.meta.env.PROD) return
+
+  studioGrid.dataset.mobileEditorPrototype = ''
+  studioGrid.classList.toggle('is-mobile-editor-open', mobileEditorPrototypeOpen)
+  const toggleButton = studioGrid.querySelector('.mobile-editor-toggle')
+  toggleButton.setAttribute('aria-expanded', String(mobileEditorPrototypeOpen))
+  $('mobile-editor-toggle-label').textContent = mobileEditorPrototypeOpen ? 'Hide editor' : 'Edit recipe'
+  $('mobile-editor-toggle-description').textContent = mobileEditorPrototypeOpen
+    ? 'Changes update the preview live'
+    : 'Change ingredients and actions'
+  updateMobilePrototypeStateLabel()
+}
+
+function setMobileEditorPrototypeOpen(isOpen, shouldScroll = false) {
+  mobileEditorPrototypeOpen = isOpen
+  updateMobileEditorPrototype()
+  if (isOpen && shouldScroll) {
+    requestAnimationFrame(() => {
+      document.querySelector('.editor-panel')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    })
+  }
+}
+
+function setMobileLibraryPrototypeVariant(nextKey) {
+  mobileLibraryPrototypeVariant = nextKey
+  mobileLibraryPrototypeOpen = false
+  mobileLibraryPrototypeToolsOpen = false
+  const url = new URL(window.location.href)
+  url.searchParams.set('recipePrototype', nextKey)
+  window.history.replaceState({}, '', url)
+  updateMobileLibraryPrototype()
+}
+
+function cycleMobileLibraryPrototype(direction) {
+  const currentIndex = MOBILE_LIBRARY_PROTOTYPE_VARIANTS.findIndex(({ key }) => key === mobileLibraryPrototypeVariant)
+  const nextIndex = (currentIndex + direction + MOBILE_LIBRARY_PROTOTYPE_VARIANTS.length) % MOBILE_LIBRARY_PROTOTYPE_VARIANTS.length
+  setMobileLibraryPrototypeVariant(MOBILE_LIBRARY_PROTOTYPE_VARIANTS[nextIndex].key)
+}
+
+function closeMobileLibraryPrototype() {
+  mobileLibraryPrototypeOpen = false
+  mobileLibraryPrototypeToolsOpen = false
+  updateMobileLibraryPrototype()
+}
+
+function setupMobileLibraryPrototype() {
+  if (import.meta.env.PROD) {
+    document.querySelector('.mobile-library-prototype-switcher')?.remove()
+    return
+  }
+
+  document.addEventListener('click', (event) => {
+    const editorCommand = event.target.closest('[data-mobile-editor-command]')?.dataset.mobileEditorCommand
+    if (editorCommand === 'toggle-editor') {
+      setMobileEditorPrototypeOpen(!mobileEditorPrototypeOpen, !mobileEditorPrototypeOpen)
+      return
+    }
+
+    const command = event.target.closest('[data-mobile-library-command]')?.dataset.mobileLibraryCommand
+    if (!command) return
+    if (command === 'previous-variant') cycleMobileLibraryPrototype(-1)
+    if (command === 'next-variant') cycleMobileLibraryPrototype(1)
+    if (command === 'toggle-library') {
+      mobileLibraryPrototypeOpen = !mobileLibraryPrototypeOpen
+      if (!mobileLibraryPrototypeOpen) mobileLibraryPrototypeToolsOpen = false
+      updateMobileLibraryPrototype()
+    }
+    if (command === 'close-library') closeMobileLibraryPrototype()
+    if (command === 'toggle-tools') {
+      mobileLibraryPrototypeToolsOpen = !mobileLibraryPrototypeToolsOpen
+      updateMobileLibraryPrototype()
+    }
+    if (command === 'new-recipe') {
+      $('new-recipe').click()
+      closeMobileLibraryPrototype()
+    }
+  })
+
+  document.addEventListener('keydown', (event) => {
+    if (['INPUT', 'TEXTAREA'].includes(event.target.tagName) || event.target.isContentEditable) return
+    if (event.key === 'ArrowLeft') cycleMobileLibraryPrototype(-1)
+    if (event.key === 'ArrowRight') cycleMobileLibraryPrototype(1)
+    if (event.key === 'Escape' && mobileLibraryPrototypeOpen) closeMobileLibraryPrototype()
+    else if (event.key === 'Escape' && mobileEditorPrototypeOpen) setMobileEditorPrototypeOpen(false)
+  })
+
+  updateMobileLibraryPrototype()
+  updateMobileEditorPrototype()
 }
 
 function saveToLibrary() {
@@ -816,6 +1044,8 @@ function startNewRecipe() {
   renderRecipeCards()
   saveDraft()
   setBackupStatus('New recipe ready.')
+  closeMobileLibraryPrototype()
+  setMobileEditorPrototypeOpen(true, true)
 }
 
 function actionSourceSummary(action) {
@@ -984,12 +1214,19 @@ function renderTable() {
   const title = $('title').value.trim() || 'Untitled recipe'
   const note = $('note').value.trim()
   const ingredients = getIngredients()
+  $('fullscreen-button').disabled = !ingredients.length
   if (!ingredients.length) {
     $('table-wrap').innerHTML = '<div class="empty-preview">Add ingredients to begin your recipe table.</div>'
     return
   }
   const { colgroup, rows, totalActionColumns } = buildTableRows(ingredients, actions)
   $('table-wrap').innerHTML = `
+    <button class="btn btn-neutral recipe-fullscreen-exit" type="button" data-fullscreen-command="exit" aria-label="Exit full screen">
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <path d="M9 9H4V4M15 9h5V4M20 20v-5h-5M4 20v-5h5"></path>
+      </svg>
+      Exit Full Screen
+    </button>
     <table class="recipe-table">
       ${colgroup}
       <tbody>
@@ -999,6 +1236,53 @@ function renderTable() {
       </tbody>
     </table>
   `
+}
+
+function fullscreenElement() {
+  return document.fullscreenElement || document.webkitFullscreenElement || null
+}
+
+function updateRecipeFullscreenState() {
+  const tableWrap = $('table-wrap')
+  const isOpen = fullscreenElement() === tableWrap || tableWrap.classList.contains('is-fullscreen-fallback')
+  $('fullscreen-button').setAttribute('aria-pressed', String(isOpen))
+  document.body.classList.toggle('recipe-fullscreen-open', isOpen)
+}
+
+function openRecipeFullscreen() {
+  const tableWrap = $('table-wrap')
+  if (!tableWrap.querySelector('.recipe-table')) return
+
+  const requestFullscreen = tableWrap.requestFullscreen || tableWrap.webkitRequestFullscreen
+  if (!requestFullscreen) {
+    tableWrap.classList.add('is-fullscreen-fallback')
+    updateRecipeFullscreenState()
+    return
+  }
+
+  try {
+    const request = requestFullscreen.call(tableWrap)
+    if (request?.catch) {
+      request.catch(() => {
+        tableWrap.classList.add('is-fullscreen-fallback')
+        updateRecipeFullscreenState()
+      })
+    }
+  } catch {
+    tableWrap.classList.add('is-fullscreen-fallback')
+    updateRecipeFullscreenState()
+  }
+}
+
+function closeRecipeFullscreen() {
+  const tableWrap = $('table-wrap')
+  tableWrap.classList.remove('is-fullscreen-fallback')
+
+  if (fullscreenElement() === tableWrap) {
+    const exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen
+    exitFullscreen?.call(document)
+  }
+  updateRecipeFullscreenState()
 }
 
 function updateAction(id, updater) {
@@ -1039,6 +1323,7 @@ $('recipe-form').addEventListener('submit', (event) => {
   event.preventDefault()
   saveToLibrary()
   renderTable()
+  setMobileEditorPrototypeOpen(false)
 })
 
 ;['title', 'note'].forEach((id) => $(id).addEventListener('input', () => {
@@ -1152,6 +1437,17 @@ $('print3d-dialog').addEventListener('close', () => {
 $('print-button').addEventListener('click', () => window.print())
 $('copy-table-png').addEventListener('click', copyRecipeTablePng)
 $('submit-recipe').addEventListener('click', submitRecipeForInclusion)
+$('fullscreen-button').addEventListener('click', openRecipeFullscreen)
+$('table-wrap').addEventListener('click', (event) => {
+  if (event.target.closest('[data-fullscreen-command="exit"]')) closeRecipeFullscreen()
+})
+document.addEventListener('fullscreenchange', updateRecipeFullscreenState)
+document.addEventListener('webkitfullscreenchange', updateRecipeFullscreenState)
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && $('table-wrap').classList.contains('is-fullscreen-fallback')) {
+    closeRecipeFullscreen()
+  }
+})
 $('export-current-recipe').addEventListener('click', exportCurrentRecipe)
 $('export-all-recipes').addEventListener('click', exportAllRecipes)
 $('import-recipe').addEventListener('click', () => $('recipe-import-file').click())
@@ -1169,6 +1465,8 @@ function openShelfRecipe(recipeId) {
   loadRecipeIntoEditor(recipe)
   saveDraft()
   renderRecipeCards()
+  closeMobileLibraryPrototype()
+  setMobileEditorPrototypeOpen(false)
 }
 
 $('recipe-cards').addEventListener('click', (event) => {
@@ -1239,3 +1537,4 @@ if (!restoredStandaloneDraft && savedLibrary.length) {
 loadRecipeIntoEditor(initialRecipe)
 saveDraft()
 renderRecipeCards()
+setupMobileLibraryPrototype()
