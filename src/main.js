@@ -860,7 +860,7 @@ async function openPrintTestPreview() {
     threeMfFilename: `recipe-type-test-card-${dimensions}-arial-rounded-nozzle-optimized-flush-inlay-p1s-0.4-white-black-pla.3mf`,
     buildFiles: (libraries) => createPrintTestCard(libraries),
     printSetupLabel: (metadata) => (
-      `P1S · 0.42 mm lines · Arachne · ${metadata.targetCapHeightMm.toFixed(1)} mm cap height`
+      `P1S · 0.42 mm lines · Arachne · body ${metadata.testedBodySizesMm.at(0).toFixed(1)}–${metadata.testedBodySizesMm.at(-1).toFixed(1)} mm`
     ),
   })
 }

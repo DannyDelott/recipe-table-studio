@@ -219,7 +219,7 @@ test('uses vector geometry for every captured table label', () => {
 
   assert.equal(result.metadata.vectorText, true)
   assert.deepEqual(result.metadata.renderedText, cells.map(({ text }) => text))
-  assert.ok(result.metadata.minimumFontSizeMm >= 4.8 - Number.EPSILON * 10)
+  assert.ok(result.metadata.minimumFontSizeMm >= 4 - Number.EPSILON * 10)
   assert.ok(result.metadata.minimumHorizontalScale >= 0.97)
   assert.ok(result.metadata.detailTriangleCount > 100)
 })
@@ -241,7 +241,7 @@ test('uses one shared size tier for notes, ingredients, and actions', () => {
     { font, TextGeometry },
   )
 
-  assert.ok(result.metadata.minimumFontSizeMm >= 4.8)
+  assert.ok(Math.abs(result.metadata.minimumFontSizeMm - 4) < 0.001)
   assert.ok(result.metadata.minimumHorizontalScale >= 0.97)
 })
 
@@ -251,8 +251,10 @@ test('creates the compact Arial Rounded flush-inlay test card', () => {
   ))
   const testFont = fontFromAsset('../src/assets/ArchivoCondensed-Bold.ttf')
   const expectedText = [
-    'Abcdefghijklmnopqrstuvwxyz',
-    'abcdefghijklmnoqrstuvwxyz\n0123456789 !@#$%^&*()_-+=./,<>;:\'"?',
+    '4.4 aegmnopqrs ABR 23890 !@%&?',
+    '4.0 aegmnopqrs ABR 23890 !@%&?',
+    '3.6 aegmnopqrs ABR 23890 !@%&?',
+    '3.2 aegmnopqrs ABR 23890 !@%&?',
   ]
   const result = createPrintTestCard({ testFont, TextGeometry })
   const archive = unzipSync(result.threeMfBuffer)
@@ -264,20 +266,20 @@ test('creates the compact Arial Rounded flush-inlay test card', () => {
 
   assert.equal(result.metadata.fontId, PRINT_TEST_FONT.id)
   assert.equal(result.metadata.fontName, PRINT_TEST_FONT.name)
-  assert.equal(result.metadata.targetCapHeightMm, 5.14)
+  assert.equal(result.metadata.targetCapHeightMm, 4.11)
   assert.equal(result.metadata.widthMm, PRINT_TEST_CARD.widthMm)
   assert.equal(result.metadata.heightMm, PRINT_TEST_CARD.heightMm)
-  assert.ok(result.metadata.widthMm <= 141)
-  assert.ok(result.metadata.heightMm <= 54)
+  assert.ok(result.metadata.widthMm * result.metadata.heightMm <= 4700)
   assert.equal(result.metadata.colorCount, 2)
   assert.equal(result.metadata.vectorText, true)
   assert.deepEqual(result.metadata.renderedText, expectedText)
-  assert.deepEqual(result.metadata.renderedLineCounts, [1, 2])
+  assert.deepEqual(result.metadata.renderedLineCounts, [1, 1, 1, 1])
   assert.equal(result.metadata.depthMm, PRINT_TEST_CARD.baseHeightMm)
   assert.equal(result.metadata.flushInlay, true)
   assert.ok(Math.abs(Math.min(...detailZCoordinates) - 0.8) < 0.00001)
   assert.ok(Math.abs(Math.max(...detailZCoordinates) - 1.2) < 0.00001)
-  assert.ok(Math.abs(result.metadata.minimumFontSizeMm - PRINT_TEST_FONT.bodySizeMm) < 0.001)
+  assert.deepEqual(result.metadata.testedBodySizesMm, [4.4, 4, 3.6, 3.2])
+  assert.ok(Math.abs(result.metadata.minimumFontSizeMm - 3.2) < 0.001)
   assert.ok(result.metadata.minimumHorizontalScale >= 0.97)
   assert.equal(projectSettings.line_width, '0.42')
   assert.equal(projectSettings.outer_wall_line_width, '0.42')
