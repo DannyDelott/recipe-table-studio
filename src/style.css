@@ -163,17 +163,17 @@ body.recipe-fullscreen-open { overflow:hidden; }
 .recipe-table th, .recipe-table td { border:1px solid var(--green-deep); }
 .recipe-table td.join-left { border-left:0; }
 .recipe-table td.righthide { border-right:0; }
-.table-title { background:#a9d687; color:var(--ink); font-weight:700; text-align:center; padding:15px 18px; font-size:16px; letter-spacing:-.02em; }
-.table-note { text-align:center; padding:12px 16px; font-size:13px; }
+.table-title { background:#a9d687; color:var(--ink); font-weight:700; text-align:center; padding:9px 12px; font-size:13px; letter-spacing:-.02em; }
+.table-note { text-align:center; padding:8px 10px; font-size:10px; }
 .ingredient-cell, .action-cell, .blank-cell { background:var(--white); vertical-align:middle; }
-.ingredient-cell, .action-cell { padding:20px 16px; }
-.ingredient-cell { text-align:center; font-size:12px; line-height:1.3; }
+.ingredient-cell, .action-cell { padding:10px; }
+.ingredient-cell { text-align:center; font-size:10px; line-height:1.3; }
 .numbered-input { display:grid; grid-template-columns:38px 1fr; border:1px solid var(--line); background:var(--white); overflow:hidden; }
 .numbered-input:focus-within { border-color:var(--green-deep); box-shadow:0 0 0 2px rgba(76,121,69,.12); }
 .numbered-input textarea { min-width:0; border:0; background:transparent; color:var(--ink); font:12px/1.55 'DM Mono'; white-space:pre; overflow:auto; }
 .line-numbers { padding:10px 9px 10px 0; border-right:1px solid var(--line); color:#91a28e; font:12px/1.55 'DM Mono'; text-align:right; user-select:none; will-change:transform; }
 .line-numbers span { display:block; height:1.55em; }
-.action-cell { text-align:center; font-size:12px; line-height:1.4; overflow-wrap:anywhere; }
+.action-cell { text-align:center; font-size:10px; line-height:1.4; overflow-wrap:anywhere; }
 .blank-cell { padding:0; }
 .action-builder { display:grid; gap:9px; margin-top:2px; }
 .action-builder-heading { display:flex; align-items:center; justify-content:space-between; gap:16px; padding-top:4px; }

@@ -63,25 +63,25 @@ export const STL_CARD = {
 }
 
 export const PRINT_TEST_CARD = {
-  widthMm: 141,
-  heightMm: 29.4,
+  widthMm: 120,
+  heightMm: 39,
   cellMm: 0.3,
   baseHeightMm: 1.2,
   reliefHeightMm: 0.4,
   detailBaseMm: 0.8,
-  columns: 470,
-  rows: 98,
+  columns: 400,
+  rows: 130,
 }
 
 export const PRINT_TEST_FONT = {
   id: 'arial-rounded',
   name: 'Arial Rounded MT Bold',
   slug: 'arial-rounded',
-  titleSizeMm: 6.2,
-  titleMinimumSizeMm: 5,
-  bodySizeMm: 5,
-  bodyMinimumSizeMm: 4.8,
-  targetCapHeightMm: 5.14,
+  titleSizeMm: 4.4,
+  titleMinimumSizeMm: 4.4,
+  bodySizeMm: 4,
+  bodyMinimumSizeMm: 4,
+  targetCapHeightMm: 4.11,
 }
 
 const PRINT_TEST_CARD_SLICER_SETTINGS = {
@@ -94,6 +94,8 @@ const PRINT_TEST_CARD_SLICER_SETTINGS = {
   xy_contour_compensation: '0',
   xy_hole_compensation: '0',
 }
+
+const PRINT_TEST_BODY_SIZES_MM = [4.4, 4, 3.6, 3.2]
 
 function recipeLines(value) {
   return String(value || '').split('\n').map((line) => line.trim()).filter(Boolean)
@@ -198,20 +200,25 @@ function resolveDiagonalContacts(raster) {
   }
 }
 
-function buildPrintTestLayout(fontProfile = PRINT_TEST_FONT) {
+function buildPrintTestLayout() {
   const raster = makeRaster(PRINT_TEST_CARD.columns, PRINT_TEST_CARD.rows)
   const left = 2
   const right = PRINT_TEST_CARD.columns - 3
   const top = 2
   const bottom = PRINT_TEST_CARD.rows - 3
-  const titleRegionBottom = 41
+  const rowBoundaries = [36, 68, 98]
+  const rowStarts = [top, ...rowBoundaries]
+  const rowEnds = [...rowBoundaries, bottom]
+  const testedBodySizesMm = PRINT_TEST_BODY_SIZES_MM
   const stroke = 3
 
   drawLine(raster, left, top, right, top, stroke)
   drawLine(raster, left, bottom, right, bottom, stroke)
   drawLine(raster, left, top, left, bottom, stroke)
   drawLine(raster, right, top, right, bottom, stroke)
-  drawLine(raster, left, titleRegionBottom, right, titleRegionBottom, stroke)
+  rowBoundaries.forEach((boundary) => {
+    drawLine(raster, left, boundary, right, boundary, stroke)
+  })
 
   return {
     raster,
@@ -221,34 +228,22 @@ function buildPrintTestLayout(fontProfile = PRINT_TEST_FONT) {
     reliefHeightMm: PRINT_TEST_CARD.reliefHeightMm,
     detailBaseMm: PRINT_TEST_CARD.detailBaseMm,
     slicerSettings: PRINT_TEST_CARD_SLICER_SETTINGS,
-    cells: [
+    testedBodySizesMm,
+    cells: testedBodySizesMm.map((size, index) => (
       {
-        text: 'Abcdefghijklmnopqrstuvwxyz',
+        text: `${size.toFixed(1)} aegmnopqrs ABR 23890 !@%&?`,
         x: left,
-        y: top,
+        y: rowStarts[index],
         width: right - left,
-        height: titleRegionBottom - top,
-        role: 'title',
-        typography: {
-          size: fontProfile.titleSizeMm,
-          minimumSize: fontProfile.titleMinimumSizeMm,
-          minimumHorizontalScale: 0.97,
-        },
-      },
-      {
-        text: 'abcdefghijklmnoqrstuvwxyz\n0123456789 !@#$%^&*()_-+=./,<>;:\'"?',
-        x: left,
-        y: titleRegionBottom,
-        width: right - left,
-        height: bottom - titleRegionBottom,
+        height: rowEnds[index] - rowStarts[index],
         role: 'body',
         typography: {
-          size: fontProfile.bodySizeMm,
-          minimumSize: fontProfile.bodyMinimumSizeMm,
+          size,
+          minimumSize: size,
           minimumHorizontalScale: 0.97,
         },
-      },
-    ],
+      }
+    )),
   }
 }
 
@@ -667,9 +662,17 @@ function partitionWords(font, words, size, lineCount) {
 
 function fitVectorText(font, text, role, widthMm, heightMm, typography = {}) {
   const minimumPadding = 2
-  const cardTextSize = { size: 5, minimumSize: 4.8 }
+  const cardTextSize = {
+    size: PRINT_TEST_FONT.bodySizeMm,
+    minimumSize: PRINT_TEST_FONT.bodyMinimumSizeMm,
+  }
   const roleSettings = {
-    title: { size: 6.2, minimumSize: 5, padding: 2.2, lineHeight: 1.18 },
+    title: {
+      size: PRINT_TEST_FONT.titleSizeMm,
+      minimumSize: PRINT_TEST_FONT.titleMinimumSizeMm,
+      padding: minimumPadding,
+      lineHeight: 1.18,
+    },
     note: { ...cardTextSize, padding: minimumPadding, lineHeight: 1.28 },
     ingredient: { ...cardTextSize, padding: minimumPadding, lineHeight: 1.2 },
     body: { ...cardTextSize, padding: minimumPadding, lineHeight: 1.28 },
@@ -1104,6 +1107,7 @@ export function createPrintTestCard(vectorLibraries = {}) {
       fontId: PRINT_TEST_FONT.id,
       fontName: PRINT_TEST_FONT.name,
       targetCapHeightMm: PRINT_TEST_FONT.targetCapHeightMm,
+      testedBodySizesMm: [...PRINT_TEST_BODY_SIZES_MM],
     },
   }
 }
