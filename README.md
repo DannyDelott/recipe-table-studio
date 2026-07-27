@@ -22,6 +22,7 @@ Open the local URL printed by Vite (usually `http://localhost:5173/`).
   earlier actions
 - A live table preview with calculated row and column spans
 - A recipe shelf with ingredient lists and miniature table previews
+- Six built-in recipes exported from the production library
 - Browser-local recipe storage with named deletion confirmation
 - Versioned JSON backups that can be exported and safely imported later
 - Clean print output containing only the finished recipe table
@@ -49,8 +50,9 @@ Select **Import Recipe** and choose one extracted `.recipe.json` file to restore
 it. Imports are non-destructive: a new recipe is added, a recipe with a matching
 ID is updated, and every other recipe already on the shelf is kept.
 
-The `recipes/` directory contains source-controlled exports of the recipes that
-ship with this repository.
+The `recipes/` directory contains the source-controlled production exports that
+seed the built-in recipe shelf. Existing saved recipes are never overwritten,
+and built-ins that a user deletes stay deleted.
 
 ## Verify
 

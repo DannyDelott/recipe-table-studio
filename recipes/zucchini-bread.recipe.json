@@ -1,0 +1,80 @@
+{
+  "format": "recipe-table-studio-recipe",
+  "version": 1,
+  "exportedAt": "2026-07-27T01:37:18.791Z",
+  "recipe": {
+    "id": "carrot-cake-2026-07-26",
+    "title": "Zucchini Bread",
+    "note": "Preheat oven to 350 degrees",
+    "ingredients": "1½ cups all-purpose flour\n1 teaspoon ground cinnamon\n½ teaspoon baking soda\n¼ teaspoon salt\n¼ teaspoon baking powder\n¼ teaspoon ground nutmeg\n1 cup sugar\n1 cup finely shredded unpeeled zucchini\n¼ cup cooking oil\n1 egg\n¼ teaspoon finely shredded lemon peel\n½ cup chopped walnuts",
+    "actions": [
+      {
+        "id": "action-ms27x7vg-fi58",
+        "text": "Combine in a bowl",
+        "groupName": "Dry ingredients",
+        "ingredientLines": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "sourceIds": []
+      },
+      {
+        "id": "action-ms27xpfu-qgdh",
+        "text": "Combine in a bowl; mix well",
+        "groupName": "Wet mixture",
+        "ingredientLines": [
+          7,
+          8,
+          9,
+          10,
+          11
+        ],
+        "sourceIds": []
+      },
+      {
+        "id": "action-ms2aq4sv-a3zw",
+        "text": "Add wet mixture to flour mixture; stir until just combined",
+        "groupName": "Batter",
+        "ingredientLines": [],
+        "sourceIds": [
+          "action-ms27x7vg-fi58",
+          "action-ms27xpfu-qgdh"
+        ]
+      },
+      {
+        "id": "action-ms27z5tl-uy1y",
+        "text": "Stir in chopped walnuts",
+        "groupName": "Batter with walnuts",
+        "ingredientLines": [
+          12
+        ],
+        "sourceIds": [
+          "action-ms2aq4sv-a3zw"
+        ]
+      },
+      {
+        "id": "action-ms27ze5n-dx2c",
+        "text": "Pour batter into a greased 8 × 4 × 2-inch loaf pan",
+        "groupName": "Prepared loaf pan",
+        "ingredientLines": [],
+        "sourceIds": [
+          "action-ms27z5tl-uy1y"
+        ]
+      },
+      {
+        "id": "action-ms27zl2a-vlbe",
+        "text": "Bake in a 350° oven for 55 to 60 minutes or till a toothpick inserted near the center comes out clean",
+        "groupName": "Zucchini bread",
+        "ingredientLines": [],
+        "sourceIds": [
+          "action-ms27ze5n-dx2c"
+        ]
+      }
+    ],
+    "updatedAt": 1785102513110
+  }
+}

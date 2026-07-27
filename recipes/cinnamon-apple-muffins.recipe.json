@@ -1,0 +1,108 @@
+{
+  "format": "recipe-table-studio-recipe",
+  "version": 1,
+  "exportedAt": "2026-07-27T01:37:18.791Z",
+  "recipe": {
+    "id": "cinnamon-apple-muffins",
+    "title": "Cinnamon Apple Muffins",
+    "note": "Preheat oven 375 degrees",
+    "ingredients": "2 cups diced apples\n2 teaspoons flour\n1/2 teaspoon ground cinnamon\n2 cups flour\n1 1/2 teaspoon baking powder\n1/2 teaspoon kosher salt\n2 teaspoons ground cinnamon\n1/2 cup butter (room temp, unsalted)\n1 cup sugar\n2 large eggs\n2 teaspoons vanilla extract\n1/2 cup milk",
+    "actions": [
+      {
+        "id": "apple-mixture",
+        "text": "Mix in separate bowl",
+        "groupName": "Apple mixture",
+        "ingredientLines": [
+          1,
+          2,
+          3
+        ],
+        "sourceIds": []
+      },
+      {
+        "id": "dry-mixture",
+        "text": "Mix together in medium bowl",
+        "groupName": "Dry mixture",
+        "ingredientLines": [
+          4,
+          5,
+          6,
+          7
+        ],
+        "sourceIds": []
+      },
+      {
+        "id": "creamed-butter",
+        "text": "Cream together",
+        "groupName": "Creamed butter and sugar",
+        "ingredientLines": [
+          8,
+          9
+        ],
+        "sourceIds": []
+      },
+      {
+        "id": "egg-mixture",
+        "text": "Add one at a time, mixing fully after each",
+        "groupName": "Egg mixture",
+        "ingredientLines": [
+          10
+        ],
+        "sourceIds": [
+          "creamed-butter"
+        ]
+      },
+      {
+        "id": "wet-mixture",
+        "text": "Stir in",
+        "groupName": "Wet mixture",
+        "ingredientLines": [
+          11
+        ],
+        "sourceIds": [
+          "egg-mixture"
+        ]
+      },
+      {
+        "id": "batter",
+        "text": "Fold in, alternating with milk until just combined",
+        "groupName": "Batter",
+        "ingredientLines": [
+          12
+        ],
+        "sourceIds": [
+          "dry-mixture",
+          "wet-mixture"
+        ]
+      },
+      {
+        "id": "batter-apples",
+        "text": "Fold in",
+        "groupName": "Batter with apples",
+        "ingredientLines": [],
+        "sourceIds": [
+          "apple-mixture",
+          "batter"
+        ]
+      },
+      {
+        "id": "filled-tins",
+        "text": "Fill greased muffin tins about 2/3 to 3/4 full",
+        "groupName": "Filled muffin tins",
+        "ingredientLines": [],
+        "sourceIds": [
+          "batter-apples"
+        ]
+      },
+      {
+        "id": "baked-muffins",
+        "text": "Bake 20-30 minutes",
+        "groupName": "Cinnamon Apple Muffins",
+        "ingredientLines": [],
+        "sourceIds": [
+          "filled-tins"
+        ]
+      }
+    ]
+  }
+}

@@ -1,9 +1,9 @@
 {
   "format": "recipe-table-studio-recipe",
   "version": 1,
-  "exportedAt": "2026-07-26T18:23:54.278Z",
+  "exportedAt": "2026-07-27T01:37:18.791Z",
   "recipe": {
-    "id": "1785084854804-v38y6",
+    "id": "1785090741628-m8u3v",
     "title": "Banana Bread",
     "note": "Preheat oven to 325 degrees",
     "ingredients": "1/4 cup butter\n1 cup sugar\n3 eggs\n3 mashed bananas\n1 teaspoon vanilla\n1 teaspoon baking soda\n2 teaspoons baking powder\n2 cups flour\n1/2 cup chocolate chips",
@@ -73,6 +73,6 @@
         ]
       }
     ],
-    "updatedAt": 1785087680180
+    "updatedAt": 1785090741628
   }
 }

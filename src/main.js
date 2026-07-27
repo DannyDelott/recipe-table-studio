@@ -1,5 +1,8 @@
 import './style.css'
-import { getConnectorSpan } from './table-layout.js'
+import {
+  mergeActionConnectorCells,
+  planConnectorCells,
+} from './table-layout.js'
 import {
   createRecipeArchive,
   createRecipeFile,
@@ -7,10 +10,12 @@ import {
   parseRecipeFile,
   recipeFileStem,
 } from './recipe-backup.js'
+import { seedBuiltInRecipes } from './built-in-recipes.js'
 import { createRecipeStl } from './recipe-stl.js'
 
 const STORAGE_KEY = 'recipe-table-studio'
 const LIBRARY_KEY = 'recipe-table-studio-library'
+const BUILT_IN_LIBRARY_VERSION_KEY = 'recipe-table-studio-built-in-version'
 const MAX_BACKUP_BYTES = 5 * 1024 * 1024
 
 const demo = {
@@ -374,6 +379,18 @@ function getLibrary() {
 
 function saveLibrary(recipes) {
   localStorage.setItem(LIBRARY_KEY, JSON.stringify(recipes))
+}
+
+function seedLibraryWithBuiltIns(recipes) {
+  const result = seedBuiltInRecipes(
+    recipes,
+    localStorage.getItem(BUILT_IN_LIBRARY_VERSION_KEY),
+  )
+  if (!result.changed) return result.recipes
+
+  saveLibrary(result.recipes)
+  localStorage.setItem(BUILT_IN_LIBRARY_VERSION_KEY, String(result.version))
+  return result.recipes
 }
 
 function formatUpdatedAt(value) {
@@ -788,6 +805,24 @@ function buildTableRows(ingredients, actionItems, compact = false) {
       for (let row = node.start - 1; row < node.end; row += 1) coverage[row][column] = true
     })
   })
+  const plannedConnectorCells = planConnectorCells({
+    ingredientCount: ingredients.length,
+    columnCount,
+    coverage,
+    actionColumns,
+  })
+  const {
+    actionCells,
+    connectorCells,
+  } = mergeActionConnectorCells(actionColumns, plannedConnectorCells)
+  const actionCellByStart = new Map(actionCells.map((cell) => [
+    `${cell.row}:${cell.column}`,
+    cell,
+  ]))
+  const connectorByStart = new Map(connectorCells.map((cell) => [
+    `${cell.row}:${cell.column}`,
+    cell,
+  ]))
 
   const totalActionColumns = Math.max(columnCount, 1)
   const colgroup = `<colgroup><col style="width:26%">${Array.from({ length: totalActionColumns }, () => '<col>').join('')}</colgroup>`
@@ -800,37 +835,13 @@ function buildTableRows(ingredients, actionItems, compact = false) {
       const columnNodes = actionColumns[column]
       const node = columnNodes.find((candidate) => candidate.start - 1 === row)
       if (node) {
-        cells += `<td class="action-cell join-left" rowspan="${node.end - node.start + 1}">${compact ? '' : escapeHtml(node.text)}</td>`
-        column += 1
-      } else if (!coverage[row][column] && (row === 0 || coverage[row - 1][column])) {
-        const blankSpan = getConnectorSpan({
-          row,
-          column,
-          ingredientCount: ingredients.length,
-          columnCount,
-          coverage,
-          actionColumns,
-        })
-
-        let blankColumns = 1
-        while (column + blankColumns < columnCount) {
-          const nextColumn = column + blankColumns
-          if (coverage[row][nextColumn]) break
-          const nextBlankSpan = getConnectorSpan({
-            row,
-            column: nextColumn,
-            ingredientCount: ingredients.length,
-            columnCount,
-            coverage,
-            actionColumns,
-          })
-          if (nextBlankSpan !== blankSpan) break
-          blankColumns += 1
-        }
-
-        const nextNode = actionColumns[column + blankColumns]?.find((candidate) => candidate.start - 1 <= row && candidate.end > row)
-        cells += `<td class="blank-cell${nextNode ? ' righthide' : ''}" rowspan="${blankSpan}" colspan="${blankColumns}"></td>`
-        column += blankColumns
+        const actionCell = actionCellByStart.get(`${row}:${column}`)
+        cells += `<td class="action-cell join-left" rowspan="${actionCell.rowSpan}" colspan="${actionCell.colSpan}">${compact ? '' : escapeHtml(node.text)}</td>`
+        column += actionCell.colSpan
+      } else if (connectorByStart.has(`${row}:${column}`)) {
+        const connector = connectorByStart.get(`${row}:${column}`)
+        cells += `<td class="blank-cell${connector.joinsActionOnRight ? ' righthide' : ''}" rowspan="${connector.rowSpan}" colspan="${connector.colSpan}"></td>`
+        column += connector.colSpan
       } else {
         column += 1
       }
@@ -1067,8 +1078,8 @@ try {
 }
 
 let savedLibrary = getLibrary()
-saveLibrary(savedLibrary)
-if (initialRecipe !== demo && savedLibrary.length === 0) {
+const restoredStandaloneDraft = initialRecipe !== demo && savedLibrary.length === 0
+if (restoredStandaloneDraft) {
   if (restoredDraftHasIdentity && !restoredActiveRecipeId) {
     activeRecipeId = null
   } else {
@@ -1076,7 +1087,10 @@ if (initialRecipe !== demo && savedLibrary.length === 0) {
     savedLibrary = [{ ...initialRecipe, id: activeRecipeId, updatedAt: Date.now() }]
     saveLibrary(savedLibrary)
   }
-} else if (savedLibrary.length) {
+}
+
+savedLibrary = seedLibraryWithBuiltIns(savedLibrary)
+if (!restoredStandaloneDraft && savedLibrary.length) {
   if (restoredDraftHasIdentity) {
     activeRecipeId = savedLibrary.some((recipe) => recipe.id === restoredActiveRecipeId)
       ? restoredActiveRecipeId

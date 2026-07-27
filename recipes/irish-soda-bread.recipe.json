@@ -1,0 +1,67 @@
+{
+  "format": "recipe-table-studio-recipe",
+  "version": 1,
+  "exportedAt": "2026-07-27T01:37:18.791Z",
+  "recipe": {
+    "id": "1785114493740-4u962",
+    "title": "Irish Soda Bread",
+    "note": "Preheat oven 375 degrees",
+    "ingredients": "2 1/4 cups flour\n1/2 cup sugar\n1/4 teaspoon salt\n1/2 teaspoon baking soda\n1 1/2 teaspoon baking powder\n3/4 cup dried cranberries\n1 teaspoon caraway seeds\n1 cup buttermilk",
+    "actions": [
+      {
+        "id": "action-ms2j0fam-uhho",
+        "text": "Whisk together in a large bowl",
+        "groupName": "Dry ingredients",
+        "ingredientLines": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7
+        ],
+        "sourceIds": []
+      },
+      {
+        "id": "action-ms2j1bce-wune",
+        "text": "Add and knead until mixed",
+        "groupName": "Dough",
+        "ingredientLines": [
+          8
+        ],
+        "sourceIds": [
+          "action-ms2j0fam-uhho"
+        ]
+      },
+      {
+        "id": "action-ms2j1t1k-kjqo",
+        "text": "Put on greased cookie sheet; cross score on top",
+        "groupName": "Shaped dough",
+        "ingredientLines": [],
+        "sourceIds": [
+          "action-ms2j1bce-wune"
+        ]
+      },
+      {
+        "id": "action-ms2j2797-0u4u",
+        "text": "Bake 10 minutes at 375 degrees",
+        "groupName": "Partially baked bread",
+        "ingredientLines": [],
+        "sourceIds": [
+          "action-ms2j1t1k-kjqo"
+        ]
+      },
+      {
+        "id": "action-ms2j2k5u-7hmc",
+        "text": "Bake 40 minutes at 350 degrees",
+        "groupName": "Irish Soda Bread",
+        "ingredientLines": [],
+        "sourceIds": [
+          "action-ms2j2797-0u4u"
+        ]
+      }
+    ],
+    "updatedAt": 1785114493740
+  }
+}
