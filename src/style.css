@@ -124,9 +124,7 @@ input:focus, textarea:focus { border-color:var(--green-deep); box-shadow:0 0 0 2
 .preview-heading { padding:0; }
 .print3d-dialog-box.modal-box { width:min(1180px,calc(100vw - 32px)); max-width:none; max-height:calc(100vh - 32px); padding:0; overflow:hidden; border:1px solid var(--green-deep); border-radius:0; background:var(--paper); color:var(--ink); box-shadow:0 28px 80px rgba(25,52,44,.22); }
 .print3d-dialog-heading { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:18px 20px; border-bottom:1px solid var(--line); }
-.print3d-dialog-heading h2 { margin-top:3px; font:600 24px/1.1 Fraunces,serif; }
-.print3d-eyebrow { color:var(--green-deep); font:500 9px 'DM Mono'; letter-spacing:.13em; text-transform:uppercase; }
-.print3d-format-badge.badge { margin-left:auto; border-color:var(--green-deep); border-radius:999px; color:var(--green-deep); font:500 8px 'DM Mono'; letter-spacing:.06em; text-transform:uppercase; }
+.print3d-dialog-heading h2 { margin:0; font:600 24px/1.1 Fraunces,serif; }
 #print3d-dialog form { display:block; gap:0; padding:0; border:0; background:transparent; }
 .print3d-close.btn { min-height:32px; width:32px; height:32px; padding:0; border:1px solid transparent; border-radius:0; color:var(--muted); font-size:22px; }
 .print3d-close.btn:hover { border-color:var(--line); background:var(--white); color:var(--ink); }
@@ -136,7 +134,6 @@ input:focus, textarea:focus { border-color:var(--green-deep); box-shadow:0 0 0 2
 .print3d-status { position:absolute; z-index:2; display:flex; align-items:center; gap:9px; color:var(--muted); font:10px 'DM Mono'; pointer-events:none; }
 .print3d-status.is-loading, .print3d-status.is-error { inset:0; justify-content:center; background:rgba(238,242,232,.9); }
 .print3d-status.is-error { color:var(--color-error); }
-.print3d-status.is-ready { right:12px; bottom:12px; padding:7px 9px; border:1px solid rgba(76,121,69,.32); background:rgba(251,250,246,.84); color:var(--green-deep); backdrop-filter:blur(5px); }
 .print3d-details { display:grid; grid-template-columns:1.2fr 1fr 1fr 1.35fr; border-bottom:1px solid var(--line); background:rgba(255,255,255,.42); }
 .print3d-details > div { display:grid; gap:3px; min-width:0; padding:13px 16px; border-right:1px solid var(--line); }
 .print3d-details > div:last-child { border-right:0; }
