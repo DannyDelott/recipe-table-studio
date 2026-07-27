@@ -230,11 +230,11 @@ app.innerHTML = `
         </div>
         <div>
           <span>Colors</span>
-          <strong><i class="material-dot is-white"></i> White <i class="material-dot is-black"></i> Black</strong>
+          <strong><i class="material-dot is-white"></i> White PLA <i class="material-dot is-black"></i> Black PLA</strong>
         </div>
         <div>
           <span>Print setup</span>
-          <strong>Face up · color change at 2.4 mm</strong>
+          <strong id="print3d-type-size">P1S · 0.4 mm nozzle · face up</strong>
         </div>
       </div>
 
@@ -254,7 +254,7 @@ app.innerHTML = `
             <path d="M12 4v12M7 11l5 5 5-5"></path>
             <path d="M5 14v6h14v-6"></path>
           </svg>
-          Download 3MF
+          Download Bambu 3MF
         </a>
       </div>
     </div>
@@ -463,7 +463,25 @@ function loadStlLibraries() {
       import('three'),
       import('three/examples/jsm/controls/OrbitControls.js'),
       import('three/examples/jsm/loaders/STLLoader.js'),
-    ]).then(([THREE, { OrbitControls }, { STLLoader }]) => ({ THREE, OrbitControls, STLLoader }))
+      import('three/examples/jsm/loaders/FontLoader.js'),
+      import('three/examples/jsm/geometries/TextGeometry.js'),
+      import('./opentype-to-three-font.js'),
+      import('./assets/ArchivoCondensed-ExtraBold.ttf?url'),
+    ]).then(([
+      THREE,
+      { OrbitControls },
+      { STLLoader },
+      { FontLoader },
+      { TextGeometry },
+      { loadOpenTypeAsThreeFontJson },
+      fontAsset,
+    ]) => loadOpenTypeAsThreeFontJson(fontAsset.default).then((fontJson) => ({
+        THREE,
+        OrbitControls,
+        STLLoader,
+        TextGeometry,
+        font: new FontLoader().parse(fontJson),
+      })))
   }
   return stlLibrariesPromise
 }
@@ -479,9 +497,9 @@ function renderStlPreview(baseBuffer, detailBuffer, libraries) {
 
   const scene = new THREE.Scene()
   scene.background = new THREE.Color('#eef2e8')
-  const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 1000)
+  const camera = new THREE.PerspectiveCamera(32, 1, 0.1, 1000)
   camera.up.set(0, 0, 1)
-  camera.position.set(0, -145, 120)
+  camera.position.set(0, -72, 210)
 
   const renderer = new THREE.WebGLRenderer({ antialias: true })
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
@@ -529,7 +547,7 @@ function renderStlPreview(baseBuffer, detailBuffer, libraries) {
   controls.target.set(0, 0, 1.6)
   controls.enableDamping = true
   controls.dampingFactor = 0.08
-  controls.minDistance = 95
+  controls.minDistance = 125
   controls.maxDistance = 380
   controls.update()
 
@@ -577,6 +595,7 @@ async function openStlPreview() {
   $('print3d-title').textContent = `${recipe.title} · 3D Print`
   $('print3d-model-name').textContent = recipe.title
   $('print3d-model-size').textContent = '—'
+  $('print3d-type-size').textContent = 'P1S · 0.4 mm nozzle · face up'
   setStlPreviewStatus('Building your printable card…')
   dialog.showModal()
 
@@ -587,14 +606,14 @@ async function openStlPreview() {
     const librariesPromise = loadStlLibraries()
     await document.fonts.ready
     const capturedRaster = captureRecipeTableRaster($('table-wrap'))
+    const libraries = await librariesPromise
     const {
       baseBuffer,
       detailBuffer,
       stlBuffer,
       threeMfBuffer,
       metadata,
-    } = createRecipePrintFiles(recipe, capturedRaster)
-    const libraries = await librariesPromise
+    } = createRecipePrintFiles(recipe, capturedRaster, libraries)
     if (token !== stlGenerationToken || !dialog.open) return
     const stem = `${recipeFileStem(recipe.title)}-recipe-card`
     const downloads = [
@@ -606,7 +625,7 @@ async function openStlPreview() {
       {
         id: 'download-3mf',
         url: URL.createObjectURL(new Blob([threeMfBuffer], { type: 'model/3mf' })),
-        filename: `${stem}-2-color.3mf`,
+        filename: `${stem}-p1s-0.4-white-black-pla.3mf`,
       },
     ]
     modelDownloadUrls = downloads.map(({ url }) => url)
@@ -619,6 +638,9 @@ async function openStlPreview() {
       download.classList.remove('is-disabled')
     })
     $('print3d-model-size').textContent = `${metadata.widthMm.toFixed(0)} × ${metadata.heightMm.toFixed(0)} × ${metadata.depthMm.toFixed(1)} mm`
+    const typeSize = $('print3d-type-size')
+    typeSize.textContent = `P1S · 0.4 mm nozzle · type ≥ ${metadata.minimumFontSizeMm.toFixed(1)} mm`
+    typeSize.dataset.minimumHorizontalScale = metadata.minimumHorizontalScale.toFixed(3)
     renderStlPreview(baseBuffer, detailBuffer, libraries)
     setStlPreviewStatus('Exact table geometry · drag to rotate · scroll to zoom', 'ready')
   } catch (error) {
