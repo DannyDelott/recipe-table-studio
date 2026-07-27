@@ -10,9 +10,11 @@ import {
   parseRecipeFile,
   recipeFileStem,
 } from './recipe-backup.js'
+import { createRecipeSubmissionIssueUrl } from './recipe-submission.js'
 import { seedBuiltInRecipes } from './built-in-recipes.js'
 import { createRecipePrintFiles } from './recipe-stl.js'
 import { captureRecipeTableRaster } from './table-raster.js'
+import { captureRecipeTablePng } from './table-png.js'
 
 const STORAGE_KEY = 'recipe-table-studio'
 const LIBRARY_KEY = 'recipe-table-studio-library'
@@ -168,6 +170,21 @@ app.innerHTML = `
                 <path d="M8 3v6h8V3M8 21v-7h8v7"></path>
               </svg>
               Save Recipe
+            </button>
+            <button class="btn btn-outline btn-xs section-action copy-png-action" id="copy-table-png" type="button">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <rect x="4" y="5" width="16" height="14" rx="1"></rect>
+                <circle cx="9" cy="10" r="1.5"></circle>
+                <path d="m6 17 4-4 3 3 2-2 3 3"></path>
+              </svg>
+              <span id="copy-table-png-label" aria-live="polite">Copy Image</span>
+            </button>
+            <button class="btn btn-outline btn-xs section-action submit-recipe-action" id="submit-recipe" type="button">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="9"></circle>
+                <path d="M12 8v5M12 16h.01"></path>
+              </svg>
+              Submit Recipe
             </button>
             <button class="btn btn-outline btn-xs section-action export-action" id="export-current-recipe" type="button">
               <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -429,6 +446,34 @@ function downloadFile(contents, type, filename) {
   setTimeout(() => URL.revokeObjectURL(downloadUrl), 0)
 }
 
+async function copyRecipeTablePng() {
+  const button = $('copy-table-png')
+  const label = $('copy-table-png-label')
+  button.disabled = true
+  label.textContent = 'Copying…'
+
+  try {
+    if (!navigator.clipboard?.write || !window.ClipboardItem) {
+      throw new Error('PNG copying is not supported in this browser.')
+    }
+    const blob = await captureRecipeTablePng($('table-wrap'))
+    await navigator.clipboard.write([
+      new window.ClipboardItem({ 'image/png': blob }),
+    ])
+    label.textContent = 'Image Copied'
+    button.classList.add('is-success')
+  } catch (error) {
+    label.textContent = 'Copy failed'
+    setBackupStatus(error.message || 'The recipe PNG could not be copied.', 'error')
+  } finally {
+    window.setTimeout(() => {
+      label.textContent = 'Copy Image'
+      button.classList.remove('is-success')
+      button.disabled = false
+    }, 3000)
+  }
+}
+
 function clearModelDownloads() {
   modelDownloadUrls.forEach((url) => URL.revokeObjectURL(url))
   modelDownloadUrls = []
@@ -668,6 +713,16 @@ function exportCurrentRecipe() {
   } catch (error) {
     setBackupStatus(error.message || 'That recipe could not be exported.', 'error')
   }
+}
+
+function submitRecipeForInclusion() {
+  const recipe = recipeWithExportIdentity(recipeFromFields())
+  window.open(
+    createRecipeSubmissionIssueUrl(recipe),
+    '_blank',
+    'noopener,noreferrer',
+  )
+  setBackupStatus(`Opened a GitHub preset submission for "${recipe.title}".`)
 }
 
 function exportAllRecipes() {
@@ -1095,6 +1150,8 @@ $('print3d-dialog').addEventListener('close', () => {
   })
 })
 $('print-button').addEventListener('click', () => window.print())
+$('copy-table-png').addEventListener('click', copyRecipeTablePng)
+$('submit-recipe').addEventListener('click', submitRecipeForInclusion)
 $('export-current-recipe').addEventListener('click', exportCurrentRecipe)
 $('export-all-recipes').addEventListener('click', exportAllRecipes)
 $('import-recipe').addEventListener('click', () => $('recipe-import-file').click())
