@@ -121,10 +121,24 @@ test('creates a two-color 3MF and STL from a captured table raster', () => {
   assert.equal(projectSettings.print_settings_id, '0.20mm Standard @BBL X1C')
   assert.equal(projectSettings.layer_height, '0.2')
   assert.equal(projectSettings.initial_layer_print_height, '0.2')
+  assert.equal(projectSettings.line_width, '0.5')
+  assert.equal(projectSettings.outer_wall_line_width, '0.5')
+  assert.equal(projectSettings.inner_wall_line_width, '0.5')
+  assert.equal(projectSettings.top_surface_line_width, '0.5')
+  assert.equal(projectSettings.internal_solid_infill_line_width, '0.5')
   assert.deepEqual(projectSettings.printable_area, ['0x0', '256x0', '256x256', '0x256'])
   assert.deepEqual(projectSettings.filament_colour, ['#FFFFFF', '#000000'])
   assert.deepEqual(projectSettings.filament_is_support, ['0', '0'])
   assert.equal(projectSettings.wall_generator, 'arachne')
+  assert.equal(projectSettings.seam_gap, '0%')
+  assert.equal(projectSettings.xy_contour_compensation, '0.1')
+  assert.equal(projectSettings.xy_hole_compensation, '-0.1')
+  assert.deepEqual(projectSettings.different_settings_to_system, [
+    'inner_wall_line_width;internal_solid_infill_line_width;line_width;outer_wall_line_width;seam_gap;top_surface_line_width;wall_generator;xy_contour_compensation;xy_hole_compensation',
+    '',
+    '',
+    '',
+  ])
 })
 
 test('places the recipe card fully inside a 256 mm Bambu build plate', () => {
