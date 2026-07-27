@@ -19,7 +19,11 @@ import {
   BUILT_IN_RECIPES,
   seedBuiltInRecipes,
 } from './built-in-recipes.js'
-import { createRecipePrintFiles } from './recipe-stl.js'
+import {
+  createPrintTestCard,
+  createRecipePrintFiles,
+  PRINT_TEST_CARD,
+} from './recipe-stl.js'
 import { captureRecipeTableRaster } from './table-raster.js'
 import { captureRecipeTablePng } from './table-png.js'
 
@@ -102,6 +106,13 @@ app.innerHTML = `
         >
           GitHub ↗
         </a>
+        <button class="btn btn-outline btn-sm section-action print-test-card-action" id="print-test-card-button" type="button">
+          <svg aria-hidden="true" viewBox="0 0 24 24">
+            <path d="M9 3h6M10 3v6l-5 9a2 2 0 0 0 2 3h10a2 2 0 0 0 2-3l-5-9V3"></path>
+            <path d="M8 15h8"></path>
+          </svg>
+          Print Test Card
+        </button>
       </div>
     </section>
 
@@ -612,14 +623,14 @@ function disposeStlPreview() {
 
 function loadStlLibraries() {
   if (!stlLibrariesPromise) {
-    stlLibrariesPromise = Promise.all([
+    const pendingLibraries = Promise.all([
       import('three'),
       import('three/examples/jsm/controls/OrbitControls.js'),
       import('three/examples/jsm/loaders/STLLoader.js'),
       import('three/examples/jsm/loaders/FontLoader.js'),
       import('three/examples/jsm/geometries/TextGeometry.js'),
       import('./opentype-to-three-font.js'),
-      import('./assets/ArchivoCondensed-ExtraBold.ttf?url'),
+      import('./assets/ArchivoCondensed-Bold.ttf?url'),
     ]).then(([
       THREE,
       { OrbitControls },
@@ -627,14 +638,27 @@ function loadStlLibraries() {
       { FontLoader },
       { TextGeometry },
       { loadOpenTypeAsThreeFontJson },
-      fontAsset,
-    ]) => loadOpenTypeAsThreeFontJson(fontAsset.default).then((fontJson) => ({
-        THREE,
-        OrbitControls,
-        STLLoader,
-        TextGeometry,
-        font: new FontLoader().parse(fontJson),
-      })))
+      fallbackFontAsset,
+    ]) => {
+      const arialRoundedUrl = import.meta.env.DEV
+        ? '/@fs/System/Library/Fonts/Supplemental/Arial%20Rounded%20Bold.ttf'
+        : fallbackFontAsset.default
+      return loadOpenTypeAsThreeFontJson(arialRoundedUrl).then((arialRoundedJson) => {
+        const arialRoundedFont = new FontLoader().parse(arialRoundedJson)
+        return {
+          THREE,
+          OrbitControls,
+          STLLoader,
+          TextGeometry,
+          font: arialRoundedFont,
+          testFont: arialRoundedFont,
+        }
+      })
+    })
+    stlLibrariesPromise = pendingLibraries.catch((error) => {
+      stlLibrariesPromise = null
+      throw error
+    })
   }
   return stlLibrariesPromise
 }
@@ -669,6 +693,9 @@ function renderStlPreview(baseBuffer, detailBuffer, libraries) {
     color: '#050505',
     roughness: 0.74,
     metalness: 0.01,
+    polygonOffset: true,
+    polygonOffsetFactor: -1,
+    polygonOffsetUnits: -1,
   })
   const base = new THREE.Mesh(baseGeometry, baseMaterial)
   const details = new THREE.Mesh(detailGeometry, detailMaterial)
@@ -738,47 +765,52 @@ function renderStlPreview(baseBuffer, detailBuffer, libraries) {
   }
 }
 
-async function openStlPreview() {
-  const recipe = recipeFromFields()
+async function openPrintPreview({
+  title,
+  modelName,
+  buildingMessage,
+  stlFilename,
+  threeMfFilename,
+  buildFiles,
+  printSetupLabel = (metadata) => (
+    `Arial Rounded · 0.42 mm lines · type ≥ ${metadata.minimumFontSizeMm.toFixed(1)} mm`
+  ),
+}) {
   const dialog = $('print3d-dialog')
   const token = ++stlGenerationToken
 
   clearModelDownloads()
   disposeStlPreview()
-  $('print3d-title').textContent = `${recipe.title} · 3D Print`
-  $('print3d-model-name').textContent = recipe.title
+  $('print3d-title').textContent = title
+  $('print3d-model-name').textContent = modelName
   $('print3d-model-size').textContent = '—'
   $('print3d-type-size').textContent = 'P1S · 0.4 mm nozzle · face up'
-  setStlPreviewStatus('Building your printable card…')
-  dialog.showModal()
+  setStlPreviewStatus(buildingMessage)
+  if (!dialog.open) dialog.showModal()
 
   await new Promise((resolve) => requestAnimationFrame(resolve))
   if (token !== stlGenerationToken || !dialog.open) return
 
   try {
-    const librariesPromise = loadStlLibraries()
-    await document.fonts.ready
-    const capturedRaster = captureRecipeTableRaster($('table-wrap'))
-    const libraries = await librariesPromise
+    const libraries = await loadStlLibraries()
     const {
       baseBuffer,
       detailBuffer,
       stlBuffer,
       threeMfBuffer,
       metadata,
-    } = createRecipePrintFiles(recipe, capturedRaster, libraries)
+    } = await buildFiles(libraries)
     if (token !== stlGenerationToken || !dialog.open) return
-    const stem = `${recipeFileStem(recipe.title)}-recipe-card`
     const downloads = [
       {
         id: 'download-stl',
         url: URL.createObjectURL(new Blob([stlBuffer], { type: 'model/stl' })),
-        filename: `${stem}.stl`,
+        filename: stlFilename,
       },
       {
         id: 'download-3mf',
         url: URL.createObjectURL(new Blob([threeMfBuffer], { type: 'model/3mf' })),
-        filename: `${stem}-p1s-0.4-white-black-pla.3mf`,
+        filename: threeMfFilename,
       },
     ]
     modelDownloadUrls = downloads.map(({ url }) => url)
@@ -792,13 +824,45 @@ async function openStlPreview() {
     })
     $('print3d-model-size').textContent = `${metadata.widthMm.toFixed(0)} × ${metadata.heightMm.toFixed(0)} × ${metadata.depthMm.toFixed(1)} mm`
     const typeSize = $('print3d-type-size')
-    typeSize.textContent = `P1S · 0.4 mm nozzle · type ≥ ${metadata.minimumFontSizeMm.toFixed(1)} mm`
+    typeSize.textContent = printSetupLabel(metadata)
     typeSize.dataset.minimumHorizontalScale = metadata.minimumHorizontalScale.toFixed(3)
     renderStlPreview(baseBuffer, detailBuffer, libraries)
     hideStlPreviewStatus()
   } catch (error) {
     setStlPreviewStatus(error.message || 'The 3D model could not be generated.', 'error')
   }
+}
+
+async function openStlPreview() {
+  const recipe = recipeFromFields()
+  const stem = `${recipeFileStem(recipe.title)}-recipe-card`
+  return openPrintPreview({
+    title: `${recipe.title} · 3D Print`,
+    modelName: recipe.title,
+    buildingMessage: 'Building your printable card…',
+    stlFilename: `${stem}.stl`,
+    threeMfFilename: `${stem}-p1s-0.4-white-black-pla.3mf`,
+    buildFiles: async (libraries) => {
+      await document.fonts.ready
+      const capturedRaster = captureRecipeTableRaster($('table-wrap'))
+      return createRecipePrintFiles(recipe, capturedRaster, libraries)
+    },
+  })
+}
+
+async function openPrintTestPreview() {
+  const dimensions = `${PRINT_TEST_CARD.widthMm}x${PRINT_TEST_CARD.heightMm}mm`
+  return openPrintPreview({
+    title: 'Print Test Card',
+    modelName: 'Arial Rounded MT Bold · nozzle-optimized flush inlay',
+    buildingMessage: 'Building the compact test card…',
+    stlFilename: `recipe-type-test-card-${dimensions}-arial-rounded-nozzle-optimized-flush-inlay.stl`,
+    threeMfFilename: `recipe-type-test-card-${dimensions}-arial-rounded-nozzle-optimized-flush-inlay-p1s-0.4-white-black-pla.3mf`,
+    buildFiles: (libraries) => createPrintTestCard(libraries),
+    printSetupLabel: (metadata) => (
+      `P1S · 0.42 mm lines · Arachne · ${metadata.targetCapHeightMm.toFixed(1)} mm cap height`
+    ),
+  })
 }
 
 function recipeWithExportIdentity(recipe) {
@@ -1160,7 +1224,7 @@ function buildTableRows(ingredients, actionItems, compact = false) {
   ]))
 
   const totalActionColumns = Math.max(columnCount, 1)
-  const colgroup = `<colgroup><col style="width:26%">${Array.from({ length: totalActionColumns }, () => '<col>').join('')}</colgroup>`
+  const colgroup = `<colgroup><col style="width:30%">${Array.from({ length: totalActionColumns }, () => '<col>').join('')}</colgroup>`
   const rows = ingredients.map((ingredient, row) => {
     let cells = `<td class="ingredient-cell">${compact ? '' : escapeHtml(ingredient.text)}</td>`
     if (!columnCount) return `<tr>${cells}<td class="blank-cell"></td></tr>`
@@ -1404,6 +1468,7 @@ $('action-list').addEventListener('toggle', (event) => {
 }, true)
 
 $('print3d-button').addEventListener('click', openStlPreview)
+$('print-test-card-button').addEventListener('click', () => openPrintTestPreview())
 $('print3d-dialog').addEventListener('close', () => {
   stlGenerationToken += 1
   disposeStlPreview()
