@@ -67,6 +67,7 @@ h1 i { font-family:Fraunces,serif; font-weight:500; color:var(--green-deep); }
 .section-action.btn svg { width:13px; height:13px; flex:0 0 13px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
 .preview-actions { display:flex; align-items:center; gap:7px; }
 .section-action.btn:hover { border-color:var(--green-deep); background:var(--green); color:var(--ink); }
+.copy-png-action.btn.is-success { border-color:var(--green-deep); background:var(--green); color:var(--ink); }
 .section-action.btn:disabled { border-color:var(--line); background:transparent; color:var(--muted); opacity:.55; cursor:not-allowed; }
 .section-action.btn.is-disabled { border-color:var(--line); background:transparent; color:var(--muted); opacity:.55; cursor:not-allowed; pointer-events:none; }
 .new-recipe-action.btn { width:100%; min-height:34px; height:34px; border-color:var(--green-deep); background:var(--green); font-size:11px; }
@@ -91,7 +92,7 @@ h1 i { font-family:Fraunces,serif; font-weight:500; color:var(--green-deep); }
 .recipe-index-row:hover, .recipe-index-row.is-active { box-shadow:inset 3px 0 0 var(--green-deep); }
 .recipe-index-copy { min-width:0; display:grid; gap:3px; }
 .recipe-index-copy strong { overflow:hidden; font:600 13px 'DM Sans'; text-overflow:ellipsis; white-space:nowrap; }
-.recipe-index-copy small { color:#64716a; font:10px/1.35 'DM Sans'; }
+.recipe-index-copy small { color:#64716a; font:500 11px/1.4 'DM Sans'; }
 .delete-card { position:static; align-self:center; z-index:1; border:0; background:transparent; color:var(--muted); font-size:17px; line-height:1; padding:3px; }
 .delete-card:hover { color:#a35c4c; }
 .empty-library { padding:24px 14px; border:1px dashed var(--line); text-align:center; color:var(--muted); }
