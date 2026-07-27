@@ -215,6 +215,12 @@ app.innerHTML = `
               </svg>
               Save Recipe
             </button>
+            <button class="btn btn-outline btn-xs section-action fullscreen-action" id="fullscreen-button" type="button" aria-pressed="false">
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M9 4H4v5M15 4h5v5M20 15v5h-5M4 15v5h5"></path>
+              </svg>
+              Full Screen
+            </button>
             <button class="btn btn-outline btn-xs section-action copy-png-action" id="copy-table-png" type="button">
               <svg aria-hidden="true" viewBox="0 0 24 24">
                 <rect x="4" y="5" width="16" height="14" rx="1"></rect>
@@ -1117,12 +1123,19 @@ function renderTable() {
   const title = $('title').value.trim() || 'Untitled recipe'
   const note = $('note').value.trim()
   const ingredients = getIngredients()
+  $('fullscreen-button').disabled = !ingredients.length
   if (!ingredients.length) {
     $('table-wrap').innerHTML = '<div class="empty-preview">Add ingredients to begin your recipe table.</div>'
     return
   }
   const { colgroup, rows, totalActionColumns } = buildTableRows(ingredients, actions)
   $('table-wrap').innerHTML = `
+    <button class="btn btn-neutral recipe-fullscreen-exit" type="button" data-fullscreen-command="exit" aria-label="Exit full screen">
+      <svg aria-hidden="true" viewBox="0 0 24 24">
+        <path d="M9 9H4V4M15 9h5V4M20 20v-5h-5M4 20v-5h5"></path>
+      </svg>
+      Exit Full Screen
+    </button>
     <table class="recipe-table">
       ${colgroup}
       <tbody>
@@ -1132,6 +1145,53 @@ function renderTable() {
       </tbody>
     </table>
   `
+}
+
+function fullscreenElement() {
+  return document.fullscreenElement || document.webkitFullscreenElement || null
+}
+
+function updateRecipeFullscreenState() {
+  const tableWrap = $('table-wrap')
+  const isOpen = fullscreenElement() === tableWrap || tableWrap.classList.contains('is-fullscreen-fallback')
+  $('fullscreen-button').setAttribute('aria-pressed', String(isOpen))
+  document.body.classList.toggle('recipe-fullscreen-open', isOpen)
+}
+
+function openRecipeFullscreen() {
+  const tableWrap = $('table-wrap')
+  if (!tableWrap.querySelector('.recipe-table')) return
+
+  const requestFullscreen = tableWrap.requestFullscreen || tableWrap.webkitRequestFullscreen
+  if (!requestFullscreen) {
+    tableWrap.classList.add('is-fullscreen-fallback')
+    updateRecipeFullscreenState()
+    return
+  }
+
+  try {
+    const request = requestFullscreen.call(tableWrap)
+    if (request?.catch) {
+      request.catch(() => {
+        tableWrap.classList.add('is-fullscreen-fallback')
+        updateRecipeFullscreenState()
+      })
+    }
+  } catch {
+    tableWrap.classList.add('is-fullscreen-fallback')
+    updateRecipeFullscreenState()
+  }
+}
+
+function closeRecipeFullscreen() {
+  const tableWrap = $('table-wrap')
+  tableWrap.classList.remove('is-fullscreen-fallback')
+
+  if (fullscreenElement() === tableWrap) {
+    const exitFullscreen = document.exitFullscreen || document.webkitExitFullscreen
+    exitFullscreen?.call(document)
+  }
+  updateRecipeFullscreenState()
 }
 
 function updateAction(id, updater) {
@@ -1284,6 +1344,17 @@ $('print3d-dialog').addEventListener('close', () => {
   })
 })
 $('print-button').addEventListener('click', () => window.print())
+$('fullscreen-button').addEventListener('click', openRecipeFullscreen)
+$('table-wrap').addEventListener('click', (event) => {
+  if (event.target.closest('[data-fullscreen-command="exit"]')) closeRecipeFullscreen()
+})
+document.addEventListener('fullscreenchange', updateRecipeFullscreenState)
+document.addEventListener('webkitfullscreenchange', updateRecipeFullscreenState)
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && $('table-wrap').classList.contains('is-fullscreen-fallback')) {
+    closeRecipeFullscreen()
+  }
+})
 $('copy-table-png').addEventListener('click', copyRecipeTablePng)
 $('submit-recipe').addEventListener('click', submitRecipeForInclusion)
 $('export-current-recipe').addEventListener('click', exportCurrentRecipe)
