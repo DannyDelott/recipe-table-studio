@@ -54,6 +54,13 @@ The `recipes/` directory contains the source-controlled production exports that
 seed the built-in recipe shelf. Existing saved recipes are never overwritten,
 and built-ins that a user deletes stay deleted.
 
+## Third-party typeface
+
+The 3D-print exporter bundles Archivo Condensed ExtraBold from the
+[Archivo project](https://github.com/Omnibus-Type/Archivo). It is distributed
+under the SIL Open Font License 1.1; the license is included at
+`third_party/archivo/OFL.txt`.
+
 ## Verify
 
 ```sh

@@ -116,10 +116,11 @@ input:focus, textarea:focus { border-color:var(--green-deep); box-shadow:0 0 0 2
 .format-tip strong { color:var(--ink); font:10px 'DM Mono'; }
 .preview-panel { order:1; min-width:0; padding:0; }
 .preview-heading { padding:0; }
-.print3d-dialog-box.modal-box { width:min(920px,calc(100vw - 32px)); max-width:none; max-height:calc(100vh - 32px); padding:0; overflow:hidden; border:1px solid var(--green-deep); border-radius:0; background:var(--paper); color:var(--ink); box-shadow:0 28px 80px rgba(25,52,44,.22); }
+.print3d-dialog-box.modal-box { width:min(1180px,calc(100vw - 32px)); max-width:none; max-height:calc(100vh - 32px); padding:0; overflow:hidden; border:1px solid var(--green-deep); border-radius:0; background:var(--paper); color:var(--ink); box-shadow:0 28px 80px rgba(25,52,44,.22); }
 .print3d-dialog-heading { display:flex; align-items:center; justify-content:space-between; gap:20px; padding:18px 20px; border-bottom:1px solid var(--line); }
 .print3d-dialog-heading h2 { margin-top:3px; font:600 24px/1.1 Fraunces,serif; }
 .print3d-eyebrow { color:var(--green-deep); font:500 9px 'DM Mono'; letter-spacing:.13em; text-transform:uppercase; }
+.print3d-format-badge.badge { margin-left:auto; border-color:var(--green-deep); border-radius:999px; color:var(--green-deep); font:500 8px 'DM Mono'; letter-spacing:.06em; text-transform:uppercase; }
 #print3d-dialog form { display:block; gap:0; padding:0; border:0; background:transparent; }
 .print3d-close.btn { min-height:32px; width:32px; height:32px; padding:0; border:1px solid transparent; border-radius:0; color:var(--muted); font-size:22px; }
 .print3d-close.btn:hover { border-color:var(--line); background:var(--white); color:var(--ink); }
@@ -130,15 +131,19 @@ input:focus, textarea:focus { border-color:var(--green-deep); box-shadow:0 0 0 2
 .print3d-status.is-loading, .print3d-status.is-error { inset:0; justify-content:center; background:rgba(238,242,232,.9); }
 .print3d-status.is-error { color:var(--color-error); }
 .print3d-status.is-ready { right:12px; bottom:12px; padding:7px 9px; border:1px solid rgba(76,121,69,.32); background:rgba(251,250,246,.84); color:var(--green-deep); backdrop-filter:blur(5px); }
-.print3d-details { display:grid; grid-template-columns:1.2fr 1fr 1fr; border-bottom:1px solid var(--line); background:rgba(255,255,255,.42); }
+.print3d-details { display:grid; grid-template-columns:1.2fr 1fr 1fr 1.35fr; border-bottom:1px solid var(--line); background:rgba(255,255,255,.42); }
 .print3d-details > div { display:grid; gap:3px; min-width:0; padding:13px 16px; border-right:1px solid var(--line); }
 .print3d-details > div:last-child { border-right:0; }
 .print3d-details span { color:var(--muted); font:8px 'DM Mono'; letter-spacing:.08em; text-transform:uppercase; }
 .print3d-details strong { overflow:hidden; font:600 11px 'DM Sans'; text-overflow:ellipsis; white-space:nowrap; }
+.material-dot { display:inline-block; width:9px; height:9px; margin:0 3px 0 1px; border:1px solid var(--ink); border-radius:50%; vertical-align:-1px; }
+.material-dot.is-white { background:#fff; }
+.material-dot.is-black { margin-left:8px; background:#050505; }
 .print3d-actions.modal-action { display:flex; align-items:center; justify-content:flex-end; gap:8px; margin:0; padding:14px 16px; background:var(--paper); }
 .print3d-actions .section-action.btn { min-height:34px; height:34px; padding-inline:13px; font-size:11px; }
-.download-stl.btn { border-color:var(--green-deep); background:var(--green); }
-.download-stl.btn:hover { background:var(--green-deep); color:var(--white); }
+.download-model.btn { border-color:var(--green-deep); }
+.download-3mf.btn { background:var(--green); }
+.download-3mf.btn:hover { background:var(--green-deep); color:var(--white); }
 #print3d-dialog .modal-backdrop { background:rgba(25,52,44,.34); backdrop-filter:blur(2px); }
 .table-wrap { overflow-x:auto; padding:0; border:0; background:transparent; }
 .recipe-table { width:100%; min-width:760px; border:1px solid var(--green-deep); border-collapse:collapse; table-layout:fixed; background:var(--white); }
