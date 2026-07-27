@@ -10,8 +10,15 @@ import {
   parseRecipeFile,
   recipeFileStem,
 } from './recipe-backup.js'
+import {
+  findBuiltInPresetForLoadedRecipe,
+  recipeHasChanges,
+} from './recipe-changes.js'
 import { createRecipeSubmissionIssueUrl } from './recipe-submission.js'
-import { seedBuiltInRecipes } from './built-in-recipes.js'
+import {
+  BUILT_IN_RECIPES,
+  seedBuiltInRecipes,
+} from './built-in-recipes.js'
 import { createRecipePrintFiles } from './recipe-stl.js'
 import { captureRecipeTableRaster } from './table-raster.js'
 import { captureRecipeTablePng } from './table-png.js'
@@ -183,7 +190,7 @@ app.innerHTML = `
               </span>
               <span class="mobile-editor-caret" aria-hidden="true">›</span>
             </button>
-            <button class="btn btn-neutral mobile-editor-save" type="submit" form="recipe-form">
+            <button class="btn btn-neutral mobile-editor-save" type="submit" form="recipe-form" data-save-recipe disabled>
               Save
             </button>
           </div>
@@ -217,7 +224,7 @@ app.innerHTML = `
         <div class="preview-heading">
           <div><h2>Preview</h2></div>
           <div class="preview-actions">
-            <button class="btn btn-outline btn-xs section-action save-action" type="submit" form="recipe-form">
+            <button class="btn btn-outline btn-xs section-action save-action" type="submit" form="recipe-form" data-save-recipe disabled>
               <svg aria-hidden="true" viewBox="0 0 24 24">
                 <path d="M5 3h12l2 2v16H5z"></path>
                 <path d="M8 3v6h8V3M8 21v-7h8v7"></path>
@@ -237,13 +244,6 @@ app.innerHTML = `
                 <path d="m6 17 4-4 3 3 2-2 3 3"></path>
               </svg>
               <span id="copy-table-png-label" aria-live="polite">Copy Image</span>
-            </button>
-            <button class="btn btn-outline btn-xs section-action submit-recipe-action" id="submit-recipe" type="button">
-              <svg aria-hidden="true" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="9"></circle>
-                <path d="M12 8v5M12 16h.01"></path>
-              </svg>
-              Submit Recipe
             </button>
             <button class="btn btn-outline btn-xs section-action export-action" id="export-current-recipe" type="button">
               <svg aria-hidden="true" viewBox="0 0 24 24">
@@ -340,6 +340,7 @@ const updatedAtFormatter = new Intl.DateTimeFormat(undefined, {
   timeStyle: 'short',
 })
 let activeRecipeId = null
+let activePresetId = null
 let actions = cloneActions(demo.actions)
 let expandedActionId = null
 let stlPreviewCleanup = null
@@ -437,8 +438,47 @@ function recipeFromFields() {
   }
 }
 
-function loadRecipeIntoEditor(recipe) {
+function getActiveBuiltInPreset() {
+  return BUILT_IN_RECIPES.find((recipe) => recipe.id === activePresetId) || null
+}
+
+function getSaveBaseline() {
+  return getActiveBuiltInPreset()
+    || getLibrary().find((recipe) => recipe.id === activeRecipeId)
+    || {
+      title: 'Untitled recipe',
+      note: '',
+      ingredients: '',
+      actions: [],
+    }
+}
+
+function hasUnsavedRecipeChanges() {
+  return recipeHasChanges(recipeFromFields(), getSaveBaseline())
+}
+
+function updateSaveButtons() {
+  const hasChanges = hasUnsavedRecipeChanges()
+  document.querySelectorAll('[data-save-recipe]').forEach((button) => {
+    button.disabled = !hasChanges
+    button.title = hasChanges
+      ? 'Open a GitHub issue with these recipe changes'
+      : 'No changes from the recipe preset'
+  })
+}
+
+function loadRecipeIntoEditor(
+  recipe,
+  preferredPresetId = null,
+  allowTitleFallback = true,
+) {
   const normalized = normalizeRecipe(recipe)
+  activePresetId = findBuiltInPresetForLoadedRecipe(
+    normalized,
+    BUILT_IN_RECIPES,
+    preferredPresetId,
+    allowTitleFallback,
+  )?.id || null
   $('title').value = normalized.title
   $('note').value = normalized.note
   $('ingredients').value = normalized.ingredients
@@ -447,13 +487,16 @@ function loadRecipeIntoEditor(recipe) {
   updateIngredientLineNumbers()
   renderActionBuilder()
   renderTable()
+  updateSaveButtons()
 }
 
 function saveDraft() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify({
     ...recipeFromFields(),
     activeRecipeId,
+    activePresetId,
   }))
+  updateSaveButtons()
 }
 
 function getLibrary() {
@@ -780,14 +823,16 @@ function exportCurrentRecipe() {
   }
 }
 
-function submitRecipeForInclusion() {
+function submitRecipeForInclusion(existingPreset = getActiveBuiltInPreset()) {
   const recipe = recipeWithExportIdentity(recipeFromFields())
   window.open(
-    createRecipeSubmissionIssueUrl(recipe),
+    createRecipeSubmissionIssueUrl(recipe, existingPreset),
     '_blank',
     'noopener,noreferrer',
   )
-  setBackupStatus(`Opened a GitHub preset submission for "${recipe.title}".`)
+  setBackupStatus(
+    `Opened a GitHub preset ${existingPreset ? 'update' : 'submission'} for "${recipe.title}".`,
+  )
 }
 
 function exportAllRecipes() {
@@ -941,10 +986,20 @@ function saveToLibrary() {
   const now = Date.now()
   if (activeRecipeId && recipes.some((saved) => saved.id === activeRecipeId)) {
     const index = recipes.findIndex((saved) => saved.id === activeRecipeId)
-    recipes[index] = { ...recipes[index], ...recipe, updatedAt: now }
+    recipes[index] = {
+      ...recipes[index],
+      ...recipe,
+      ...(activePresetId ? { presetId: activePresetId } : {}),
+      updatedAt: now,
+    }
   } else {
     activeRecipeId = `${now}-${Math.random().toString(36).slice(2, 7)}`
-    recipes.unshift({ ...recipe, id: activeRecipeId, updatedAt: now })
+    recipes.unshift({
+      ...recipe,
+      id: activeRecipeId,
+      presetId: activePresetId,
+      updatedAt: now,
+    })
   }
   saveLibrary(recipes)
   saveDraft()
@@ -953,6 +1008,7 @@ function saveToLibrary() {
 
 function startNewRecipe() {
   activeRecipeId = null
+  activePresetId = null
   expandedActionId = null
   actions = []
   $('title').value = ''
@@ -1242,7 +1298,10 @@ function syncIngredientScroll() {
 
 $('recipe-form').addEventListener('submit', (event) => {
   event.preventDefault()
+  if (!hasUnsavedRecipeChanges()) return
+  const existingPreset = getActiveBuiltInPreset()
   saveToLibrary()
+  submitRecipeForInclusion(existingPreset)
   renderTable()
   setMobileEditorOpen(false)
 })
@@ -1368,7 +1427,6 @@ document.addEventListener('keydown', (event) => {
   }
 })
 $('copy-table-png').addEventListener('click', copyRecipeTablePng)
-$('submit-recipe').addEventListener('click', submitRecipeForInclusion)
 $('export-current-recipe').addEventListener('click', exportCurrentRecipe)
 $('export-all-recipes').addEventListener('click', exportAllRecipes)
 $('import-recipe').addEventListener('click', () => $('recipe-import-file').click())
@@ -1383,7 +1441,8 @@ function openShelfRecipe(recipeId) {
   const recipe = getLibrary().find((saved) => saved.id === recipeId)
   if (!recipe) return
   activeRecipeId = recipe.id
-  loadRecipeIntoEditor(recipe)
+  const hasPresetIdentity = Object.prototype.hasOwnProperty.call(recipe, 'presetId')
+  loadRecipeIntoEditor(recipe, recipe.presetId, !hasPresetIdentity)
   saveDraft()
   renderRecipeCards()
   closeMobileLibrary()
@@ -1399,6 +1458,7 @@ $('recipe-cards').addEventListener('click', (event) => {
     saveLibrary(recipes.filter((saved) => saved.id !== deleteButton.dataset.id))
     if (activeRecipeId === deleteButton.dataset.id) activeRecipeId = null
     renderRecipeCards()
+    updateSaveButtons()
     return
   }
 
@@ -1416,13 +1476,17 @@ $('recipe-cards').addEventListener('keydown', (event) => {
 
 let initialRecipe = demo
 let restoredDraftHasIdentity = false
+let restoredDraftHasPresetIdentity = false
 let restoredActiveRecipeId = null
+let restoredActivePresetId = null
 try {
   const savedDraft = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null')
   if (savedDraft) {
     initialRecipe = normalizeRecipe(savedDraft)
     restoredDraftHasIdentity = Object.prototype.hasOwnProperty.call(savedDraft, 'activeRecipeId')
+    restoredDraftHasPresetIdentity = Object.prototype.hasOwnProperty.call(savedDraft, 'activePresetId')
     restoredActiveRecipeId = savedDraft.activeRecipeId || null
+    restoredActivePresetId = savedDraft.activePresetId || null
   }
 } catch {
   localStorage.removeItem(STORAGE_KEY)
@@ -1455,7 +1519,11 @@ if (!restoredStandaloneDraft && savedLibrary.length) {
   }
 }
 
-loadRecipeIntoEditor(initialRecipe)
+loadRecipeIntoEditor(
+  initialRecipe,
+  restoredActivePresetId,
+  !restoredDraftHasPresetIdentity,
+)
 saveDraft()
 renderRecipeCards()
 setupMobileLayout()
