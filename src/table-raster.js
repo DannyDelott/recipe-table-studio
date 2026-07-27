@@ -183,14 +183,19 @@ export function captureRecipeTableRaster(tableContainer) {
     drawCellBorders(borderLayer.context, cell, tableBounds, scale)
     drawCellText(textLayer.context, cell, tableBounds, scale)
     const bounds = cell.getBoundingClientRect()
-    const rowIndex = cell.parentElement?.rowIndex ?? 2
     cells.push({
       text: cell.textContent.trim().replace(/\s+/g, ' '),
       x: (bounds.left - tableBounds.left) * scale,
       y: (bounds.top - tableBounds.top) * scale,
       width: bounds.width * scale,
       height: bounds.height * scale,
-      role: cell.tagName === 'TH' ? 'title' : rowIndex === 1 ? 'note' : 'body',
+      role: cell.tagName === 'TH'
+        ? 'title'
+        : cell.classList.contains('table-note')
+          ? 'note'
+          : cell.classList.contains('ingredient-cell')
+            ? 'ingredient'
+            : 'body',
     })
   })
 

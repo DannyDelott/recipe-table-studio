@@ -54,11 +54,45 @@ const FONT = {
 export const STL_CARD = {
   widthMm: 220,
   cellMm: 0.9,
-  baseHeightMm: 2.4,
+  baseHeightMm: 1.2,
   reliefHeightMm: 0.4,
+  detailBaseMm: 0.8,
   columns: 200,
   minimumRows: 120,
   maximumRows: 180,
+}
+
+export const PRINT_TEST_CARD = {
+  widthMm: 141,
+  heightMm: 29.4,
+  cellMm: 0.3,
+  baseHeightMm: 1.2,
+  reliefHeightMm: 0.4,
+  detailBaseMm: 0.8,
+  columns: 470,
+  rows: 98,
+}
+
+export const PRINT_TEST_FONT = {
+  id: 'arial-rounded',
+  name: 'Arial Rounded MT Bold',
+  slug: 'arial-rounded',
+  titleSizeMm: 6.2,
+  titleMinimumSizeMm: 5,
+  bodySizeMm: 5,
+  bodyMinimumSizeMm: 4.8,
+  targetCapHeightMm: 5.14,
+}
+
+const PRINT_TEST_CARD_SLICER_SETTINGS = {
+  inner_wall_line_width: '0.45',
+  internal_solid_infill_line_width: '0.42',
+  line_width: '0.42',
+  outer_wall_line_width: '0.42',
+  top_surface_line_width: '0.42',
+  wall_generator: 'arachne',
+  xy_contour_compensation: '0',
+  xy_hole_compensation: '0',
 }
 
 function recipeLines(value) {
@@ -164,6 +198,60 @@ function resolveDiagonalContacts(raster) {
   }
 }
 
+function buildPrintTestLayout(fontProfile = PRINT_TEST_FONT) {
+  const raster = makeRaster(PRINT_TEST_CARD.columns, PRINT_TEST_CARD.rows)
+  const left = 2
+  const right = PRINT_TEST_CARD.columns - 3
+  const top = 2
+  const bottom = PRINT_TEST_CARD.rows - 3
+  const titleRegionBottom = 41
+  const stroke = 3
+
+  drawLine(raster, left, top, right, top, stroke)
+  drawLine(raster, left, bottom, right, bottom, stroke)
+  drawLine(raster, left, top, left, bottom, stroke)
+  drawLine(raster, right, top, right, bottom, stroke)
+  drawLine(raster, left, titleRegionBottom, right, titleRegionBottom, stroke)
+
+  return {
+    raster,
+    borderRaster: raster,
+    widthMm: PRINT_TEST_CARD.widthMm,
+    baseHeightMm: PRINT_TEST_CARD.baseHeightMm,
+    reliefHeightMm: PRINT_TEST_CARD.reliefHeightMm,
+    detailBaseMm: PRINT_TEST_CARD.detailBaseMm,
+    slicerSettings: PRINT_TEST_CARD_SLICER_SETTINGS,
+    cells: [
+      {
+        text: 'Abcdefghijklmnopqrstuvwxyz',
+        x: left,
+        y: top,
+        width: right - left,
+        height: titleRegionBottom - top,
+        role: 'title',
+        typography: {
+          size: fontProfile.titleSizeMm,
+          minimumSize: fontProfile.titleMinimumSizeMm,
+          minimumHorizontalScale: 0.97,
+        },
+      },
+      {
+        text: 'abcdefghijklmnoqrstuvwxyz\n0123456789 !@#$%^&*()_-+=./,<>;:\'"?',
+        x: left,
+        y: titleRegionBottom,
+        width: right - left,
+        height: bottom - titleRegionBottom,
+        role: 'body',
+        typography: {
+          size: fontProfile.bodySizeMm,
+          minimumSize: fontProfile.bodyMinimumSizeMm,
+          minimumHorizontalScale: 0.97,
+        },
+      },
+    ],
+  }
+}
+
 function buildCardRaster(recipe) {
   const ingredients = recipeLines(recipe.ingredients)
   const actions = (Array.isArray(recipe.actions) ? recipe.actions : [])
@@ -239,21 +327,31 @@ function writeTriangle(view, offset, a, b, c) {
   return offset + 50
 }
 
-function cellHeight(raster, x, y) {
-  return STL_CARD.baseHeightMm + raster[y][x] * STL_CARD.reliefHeightMm
+function cellHeight(
+  raster,
+  x,
+  y,
+  reliefHeightMm = STL_CARD.reliefHeightMm,
+  baseHeightMm = STL_CARD.baseHeightMm,
+) {
+  return baseHeightMm + raster[y][x] * reliefHeightMm
 }
 
-function countTriangles(raster) {
+function countTriangles(
+  raster,
+  reliefHeightMm = STL_CARD.reliefHeightMm,
+  baseHeightMm = STL_CARD.baseHeightMm,
+) {
   const rows = raster.length
   const columns = raster[0].length
   let count = rows * columns * 4
   for (let y = 0; y < rows; y += 1) {
     for (let x = 0; x < columns; x += 1) {
-      const height = cellHeight(raster, x, y)
-      if (x === 0 || height > cellHeight(raster, x - 1, y)) count += 2
-      if (x === columns - 1 || height > cellHeight(raster, x + 1, y)) count += 2
-      if (y === 0 || height > cellHeight(raster, x, y - 1)) count += 2
-      if (y === rows - 1 || height > cellHeight(raster, x, y + 1)) count += 2
+      const height = cellHeight(raster, x, y, reliefHeightMm, baseHeightMm)
+      if (x === 0 || height > cellHeight(raster, x - 1, y, reliefHeightMm, baseHeightMm)) count += 2
+      if (x === columns - 1 || height > cellHeight(raster, x + 1, y, reliefHeightMm, baseHeightMm)) count += 2
+      if (y === 0 || height > cellHeight(raster, x, y - 1, reliefHeightMm, baseHeightMm)) count += 2
+      if (y === rows - 1 || height > cellHeight(raster, x, y + 1, reliefHeightMm, baseHeightMm)) count += 2
     }
   }
   return count
@@ -292,10 +390,16 @@ function writeVerticalQuad(view, offset, side, fixed, start, end, low, high) {
   return writeTriangle(view, offset, b0, t1, b1)
 }
 
-function rasterToBinaryStl(raster, title, cellMm = STL_CARD.cellMm) {
+function rasterToBinaryStl(
+  raster,
+  title,
+  cellMm = STL_CARD.cellMm,
+  reliefHeightMm = STL_CARD.reliefHeightMm,
+  baseHeightMm = STL_CARD.baseHeightMm,
+) {
   const rows = raster.length
   const columns = raster[0].length
-  const triangleCount = countTriangles(raster)
+  const triangleCount = countTriangles(raster, reliefHeightMm, baseHeightMm)
   const buffer = new ArrayBuffer(84 + triangleCount * 50)
   const bytes = new Uint8Array(buffer)
   const header = new TextEncoder().encode(`Recipe Table Studio | ${cleanText(title).slice(0, 52)}`)
@@ -312,7 +416,7 @@ function rasterToBinaryStl(raster, title, cellMm = STL_CARD.cellMm) {
       const x1 = x0 + cellMm
       const y1 = halfHeight - y * cellMm
       const y0 = y1 - cellMm
-      const height = cellHeight(raster, x, y)
+      const height = cellHeight(raster, x, y, reliefHeightMm, baseHeightMm)
       const p00 = [x0, y0, height]
       const p10 = [x1, y0, height]
       const p11 = [x1, y1, height]
@@ -323,10 +427,10 @@ function rasterToBinaryStl(raster, title, cellMm = STL_CARD.cellMm) {
       offset = writeTriangle(view, offset, [x0, y0, 0], [x0, y1, 0], [x1, y1, 0])
       offset = writeTriangle(view, offset, [x0, y0, 0], [x1, y1, 0], [x1, y0, 0])
 
-      const leftHeight = x > 0 ? cellHeight(raster, x - 1, y) : 0
-      const rightHeight = x < columns - 1 ? cellHeight(raster, x + 1, y) : 0
-      const bottomHeight = y < rows - 1 ? cellHeight(raster, x, y + 1) : 0
-      const topHeight = y > 0 ? cellHeight(raster, x, y - 1) : 0
+      const leftHeight = x > 0 ? cellHeight(raster, x - 1, y, reliefHeightMm, baseHeightMm) : 0
+      const rightHeight = x < columns - 1 ? cellHeight(raster, x + 1, y, reliefHeightMm, baseHeightMm) : 0
+      const bottomHeight = y < rows - 1 ? cellHeight(raster, x, y + 1, reliefHeightMm, baseHeightMm) : 0
+      const topHeight = y > 0 ? cellHeight(raster, x, y - 1, reliefHeightMm, baseHeightMm) : 0
       if (height > leftHeight) offset = writeVerticalQuad(view, offset, 'left', x0, y0, y1, leftHeight, height)
       if (height > rightHeight) offset = writeVerticalQuad(view, offset, 'right', x1, y0, y1, rightHeight, height)
       if (height > bottomHeight) offset = writeVerticalQuad(view, offset, 'bottom', y0, x0, x1, bottomHeight, height)
@@ -367,10 +471,10 @@ function indexedMeshToBinaryStl(mesh, title) {
   return buffer
 }
 
-function createBaseMesh(widthMm, heightMm) {
+function createBaseMesh(widthMm, heightMm, baseHeightMm = STL_CARD.baseHeightMm) {
   const halfWidth = widthMm / 2
   const halfHeight = heightMm / 2
-  const z = STL_CARD.baseHeightMm
+  const z = baseHeightMm
   return {
     vertices: [
       [-halfWidth, -halfHeight, 0],
@@ -410,7 +514,13 @@ function countDetailTriangles(raster) {
   return count
 }
 
-function detailRasterToBinaryStl(raster, title, cellMm) {
+function detailRasterToBinaryStl(
+  raster,
+  title,
+  cellMm,
+  reliefHeightMm = STL_CARD.reliefHeightMm,
+  detailBaseMm = STL_CARD.detailBaseMm,
+) {
   const rows = raster.length
   const columns = raster[0].length
   const triangleCount = countDetailTriangles(raster)
@@ -422,8 +532,8 @@ function detailRasterToBinaryStl(raster, title, cellMm) {
   view.setUint32(80, triangleCount, true)
   const halfWidth = (columns * cellMm) / 2
   const halfHeight = (rows * cellMm) / 2
-  const low = STL_CARD.baseHeightMm
-  const high = low + STL_CARD.reliefHeightMm
+  const low = detailBaseMm
+  const high = low + reliefHeightMm
   let offset = 84
 
   for (let y = 0; y < rows; y += 1) {
@@ -555,12 +665,17 @@ function partitionWords(font, words, size, lineCount) {
   return states[lineCount][count]
 }
 
-function fitVectorText(font, text, role, widthMm, heightMm) {
-  const settings = {
+function fitVectorText(font, text, role, widthMm, heightMm, typography = {}) {
+  const minimumPadding = 2
+  const cardTextSize = { size: 5, minimumSize: 4.8 }
+  const roleSettings = {
     title: { size: 6.2, minimumSize: 5, padding: 2.2, lineHeight: 1.18 },
-    note: { size: 4.2, minimumSize: 3.4, padding: 1.8, lineHeight: 1.2 },
-    body: { size: 3.8, minimumSize: 3.1, padding: 1.4, lineHeight: 1.22 },
-  }[role] || { size: 3.8, minimumSize: 3.1, padding: 1.4, lineHeight: 1.22 }
+    note: { ...cardTextSize, padding: minimumPadding, lineHeight: 1.28 },
+    ingredient: { ...cardTextSize, padding: minimumPadding, lineHeight: 1.2 },
+    body: { ...cardTextSize, padding: minimumPadding, lineHeight: 1.28 },
+  }[role] || { ...cardTextSize, padding: minimumPadding, lineHeight: 1.28 }
+  const settings = { ...roleSettings, ...typography }
+  const minimumHorizontalScale = settings.minimumHorizontalScale ?? 0.97
   const words = String(text).trim().split(/\s+/).filter(Boolean)
   const availableWidth = Math.max(1, widthMm - settings.padding * 2)
   const availableHeight = Math.max(1, heightMm - settings.padding * 2)
@@ -569,7 +684,8 @@ function fitVectorText(font, text, role, widthMm, heightMm) {
 
   while (size >= settings.minimumSize - 0.001) {
     const lineHeight = size * settings.lineHeight
-    const maximumLines = Math.max(1, Math.min(words.length, Math.floor(availableHeight / lineHeight)))
+    const fittingLines = 1 + Math.floor(Math.max(0, availableHeight - size) / lineHeight)
+    const maximumLines = Math.max(1, Math.min(words.length, fittingLines))
     for (let lineCount = 1; lineCount <= maximumLines; lineCount += 1) {
       const candidate = partitionWords(font, words, size, lineCount)
       if (!candidate) continue
@@ -585,7 +701,7 @@ function fitVectorText(font, text, role, widthMm, heightMm) {
         }
       }
     }
-    if (best?.scaleX >= 0.9) break
+    if (best?.scaleX >= minimumHorizontalScale) break
     size -= 0.2
   }
 
@@ -597,13 +713,21 @@ function fitVectorText(font, text, role, widthMm, heightMm) {
   }
 }
 
-function createVectorTextMesh(capturedLayout, font, TextGeometry, cellMm) {
+function createVectorTextMesh(
+  capturedLayout,
+  font,
+  TextGeometry,
+  cellMm,
+  reliefHeightMm = STL_CARD.reliefHeightMm,
+  detailBaseMm = STL_CARD.detailBaseMm,
+) {
   const widthMm = capturedLayout.columns * cellMm
   const heightMm = capturedLayout.rows * cellMm
   const halfWidth = widthMm / 2
   const halfHeight = heightMm / 2
   const meshes = []
   const renderedText = []
+  const renderedLineCounts = []
   let minimumFontSizeMm = Infinity
   let minimumHorizontalScale = Infinity
 
@@ -612,16 +736,24 @@ function createVectorTextMesh(capturedLayout, font, TextGeometry, cellMm) {
     const cellHeight = cell.height * cellMm
     const cellCenterX = cell.x * cellMm + cellWidth / 2 - halfWidth
     const cellCenterY = halfHeight - (cell.y * cellMm + cellHeight / 2)
-    const fitted = fitVectorText(font, cell.text, cell.role, cellWidth, cellHeight)
+    const fitted = fitVectorText(
+      font,
+      cell.text,
+      cell.role,
+      cellWidth,
+      cellHeight,
+      cell.typography,
+    )
     minimumFontSizeMm = Math.min(minimumFontSizeMm, fitted.size)
     minimumHorizontalScale = Math.min(minimumHorizontalScale, fitted.scaleX)
+    renderedLineCounts.push(fitted.lines.length)
     const blockHeight = (fitted.lines.length - 1) * fitted.lineHeight
 
     fitted.lines.forEach((line, lineIndex) => {
       const geometry = new TextGeometry(line, {
         font,
         size: fitted.size,
-        depth: STL_CARD.reliefHeightMm,
+        depth: reliefHeightMm,
         curveSegments: 2,
         bevelEnabled: false,
       })
@@ -634,7 +766,7 @@ function createVectorTextMesh(capturedLayout, font, TextGeometry, cellMm) {
       geometry.translate(
         cellCenterX - centerX * fitted.scaleX,
         lineCenterY - centerY,
-        STL_CARD.baseHeightMm,
+        detailBaseMm,
       )
       meshes.push(threeGeometryToIndexedMesh(geometry))
       geometry.dispose()
@@ -645,6 +777,7 @@ function createVectorTextMesh(capturedLayout, font, TextGeometry, cellMm) {
   return {
     mesh: mergeIndexedMeshes(...meshes),
     renderedText,
+    renderedLineCounts,
     minimumFontSizeMm: Number.isFinite(minimumFontSizeMm) ? minimumFontSizeMm : 0,
     minimumHorizontalScale: Number.isFinite(minimumHorizontalScale) ? minimumHorizontalScale : 1,
   }
@@ -670,7 +803,7 @@ function meshToXml(mesh) {
   return `<mesh><vertices>${vertices}</vertices><triangles>${triangles}</triangles></mesh>`
 }
 
-function createColorThreeMf(title, baseBuffer, detailBuffer) {
+function createColorThreeMf(title, baseBuffer, detailBuffer, slicerSettings = {}) {
   const baseMesh = stlToIndexedMesh(baseBuffer)
   const detailMesh = stlToIndexedMesh(detailBuffer)
   const safeTitle = escapeXml(title || 'Recipe card')
@@ -758,7 +891,7 @@ function createColorThreeMf(title, baseBuffer, detailBuffer) {
     default_filament_colour: ['#FFFFFF', '#000000'],
     default_print_profile: '0.20mm Standard @BBL X1C',
     different_settings_to_system: [
-      'inner_wall_line_width;internal_solid_infill_line_width;line_width;outer_wall_line_width;seam_gap;top_surface_line_width;wall_generator;xy_contour_compensation;xy_hole_compensation',
+      'inner_wall_line_width;internal_solid_infill_line_width;line_width;outer_wall_line_width;seam_gap;top_surface_line_width;top_surface_pattern;top_surface_speed;wall_generator;xy_contour_compensation;xy_hole_compensation',
       '',
       '',
       '',
@@ -777,13 +910,13 @@ function createColorThreeMf(title, baseBuffer, detailBuffer) {
     filament_type: ['PLA', 'PLA'],
     filament_vendor: ['Bambu Lab', 'Bambu Lab'],
     initial_layer_print_height: '0.2',
-    inner_wall_line_width: '0.5',
-    internal_solid_infill_line_width: '0.5',
+    inner_wall_line_width: '0.45',
+    internal_solid_infill_line_width: '0.42',
     layer_height: '0.2',
-    line_width: '0.5',
+    line_width: '0.42',
     nozzle_diameter: ['0.4'],
     nozzle_type: 'stainless_steel',
-    outer_wall_line_width: '0.5',
+    outer_wall_line_width: '0.42',
     print_settings_id: '0.20mm Standard @BBL X1C',
     printable_area: ['0x0', '256x0', '256x256', '0x256'],
     printable_height: '250',
@@ -794,10 +927,13 @@ function createColorThreeMf(title, baseBuffer, detailBuffer) {
     printer_variant: '0.4',
     seam_gap: '0%',
     single_extruder_multi_material: '1',
-    top_surface_line_width: '0.5',
+    top_surface_line_width: '0.42',
+    top_surface_pattern: 'monotonicline',
+    top_surface_speed: '30',
     wall_generator: 'arachne',
-    xy_contour_compensation: '0.1',
-    xy_hole_compensation: '-0.1',
+    xy_contour_compensation: '0',
+    xy_hole_compensation: '0',
+    ...slicerSettings,
   })
   const sliceInfo = `<?xml version="1.0" encoding="UTF-8"?>
 <config>
@@ -836,16 +972,29 @@ export function createRecipePrintFiles(recipe, capturedRaster, vectorLibraries =
   resolveDiagonalContacts(raster)
   const columns = raster[0].length
   const rows = raster.length
-  const cellMm = STL_CARD.widthMm / columns
+  const targetWidthMm = Number.isFinite(capturedRaster.widthMm)
+    ? capturedRaster.widthMm
+    : STL_CARD.widthMm
+  const baseHeightMm = Number.isFinite(capturedRaster.baseHeightMm)
+    ? capturedRaster.baseHeightMm
+    : STL_CARD.baseHeightMm
+  const reliefHeightMm = Number.isFinite(capturedRaster.reliefHeightMm)
+    ? capturedRaster.reliefHeightMm
+    : STL_CARD.reliefHeightMm
+  const detailBaseMm = Number.isFinite(capturedRaster.detailBaseMm)
+    ? capturedRaster.detailBaseMm
+    : STL_CARD.detailBaseMm
+  const cellMm = targetWidthMm / columns
   const widthMm = columns * cellMm
   const heightMm = rows * cellMm
-  const baseMesh = createBaseMesh(widthMm, heightMm)
+  const baseMesh = createBaseMesh(widthMm, heightMm, baseHeightMm)
   const baseBuffer = indexedMeshToBinaryStl(baseMesh, `${recipe.title} white card`)
   let detailBuffer
   let detailTriangleCount
   let stlBuffer
   let triangleCount
   let renderedText = []
+  let renderedLineCounts = []
   let vectorText = false
   let minimumFontSizeMm = 0
   let minimumHorizontalScale = 1
@@ -854,7 +1003,13 @@ export function createRecipePrintFiles(recipe, capturedRaster, vectorLibraries =
     const borderRaster = (capturedRaster.borderRaster || raster)
       .map((row) => Uint8Array.from(row))
     resolveDiagonalContacts(borderRaster)
-    const borderResult = detailRasterToBinaryStl(borderRaster, `${recipe.title} borders`, cellMm)
+    const borderResult = detailRasterToBinaryStl(
+      borderRaster,
+      `${recipe.title} borders`,
+      cellMm,
+      reliefHeightMm,
+      detailBaseMm,
+    )
     const borderMesh = stlToIndexedMesh(borderResult.buffer)
     const vectorResult = createVectorTextMesh(
       {
@@ -865,6 +1020,8 @@ export function createRecipePrintFiles(recipe, capturedRaster, vectorLibraries =
       vectorLibraries.font,
       vectorLibraries.TextGeometry,
       cellMm,
+      reliefHeightMm,
+      detailBaseMm,
     )
     const detailMesh = mergeIndexedMeshes(borderMesh, vectorResult.mesh)
     const combinedMesh = mergeIndexedMeshes(baseMesh, detailMesh)
@@ -873,18 +1030,36 @@ export function createRecipePrintFiles(recipe, capturedRaster, vectorLibraries =
     stlBuffer = indexedMeshToBinaryStl(combinedMesh, recipe.title)
     triangleCount = combinedMesh.triangles.length
     renderedText = vectorResult.renderedText
+    renderedLineCounts = vectorResult.renderedLineCounts
     minimumFontSizeMm = vectorResult.minimumFontSizeMm
     minimumHorizontalScale = vectorResult.minimumHorizontalScale
     vectorText = true
   } else {
-    const detailResult = detailRasterToBinaryStl(raster, recipe.title, cellMm)
-    const stlResult = rasterToBinaryStl(raster, recipe.title, cellMm)
+    const detailResult = detailRasterToBinaryStl(
+      raster,
+      recipe.title,
+      cellMm,
+      reliefHeightMm,
+      detailBaseMm,
+    )
+    const stlResult = rasterToBinaryStl(
+      raster,
+      recipe.title,
+      cellMm,
+      reliefHeightMm,
+      baseHeightMm,
+    )
     detailBuffer = detailResult.buffer
     detailTriangleCount = detailResult.triangleCount
     stlBuffer = stlResult.buffer
     triangleCount = stlResult.triangleCount
   }
-  const threeMfBuffer = createColorThreeMf(recipe.title, baseBuffer, detailBuffer)
+  const threeMfBuffer = createColorThreeMf(
+    recipe.title,
+    baseBuffer,
+    detailBuffer,
+    capturedRaster.slicerSettings,
+  )
 
   return {
     baseBuffer,
@@ -894,14 +1069,41 @@ export function createRecipePrintFiles(recipe, capturedRaster, vectorLibraries =
     metadata: {
       widthMm,
       heightMm,
-      depthMm: STL_CARD.baseHeightMm + STL_CARD.reliefHeightMm,
+      depthMm: Number(
+        Math.max(baseHeightMm, detailBaseMm + reliefHeightMm).toFixed(4),
+      ),
       triangleCount,
       detailTriangleCount,
       colorCount: 2,
       renderedText,
+      renderedLineCounts,
       vectorText,
       minimumFontSizeMm,
       minimumHorizontalScale,
+    },
+  }
+}
+
+export function createPrintTestCard(vectorLibraries = {}) {
+  const testFont = vectorLibraries.testFont
+    || vectorLibraries.font
+  const result = createRecipePrintFiles(
+    { title: `${PRINT_TEST_FONT.name} Type Test` },
+    buildPrintTestLayout(),
+    {
+      ...vectorLibraries,
+      font: testFont,
+    },
+  )
+  return {
+    ...result,
+    metadata: {
+      ...result.metadata,
+      testCard: true,
+      flushInlay: true,
+      fontId: PRINT_TEST_FONT.id,
+      fontName: PRINT_TEST_FONT.name,
+      targetCapHeightMm: PRINT_TEST_FONT.targetCapHeightMm,
     },
   }
 }
