@@ -1,12 +1,12 @@
 {
   "format": "recipe-table-studio-recipe",
   "version": 1,
-  "exportedAt": "2026-07-27T01:37:18.791Z",
+  "exportedAt": "2026-07-28T19:24:49.185Z",
   "recipe": {
     "id": "carrot-cake-restored",
     "title": "Carrot Cake",
     "note": "Preheat Oven 350°",
-    "ingredients": "2 cups all-purpose flour\n2 cups sugar\n1 teaspoon baking powder\n1 teaspoon baking soda\n1 teaspoon ground cinnamon\n3 cups finely shredded carrot\n1 cup cooking oil\n4 eggs",
+    "ingredients": "2 cups flour (240g)\n2 cups sugar\n1 teaspoon baking powder\n1 teaspoon baking soda\n1 teaspoon ground cinnamon\n3 cups finely shredded carrot\n1 cup cooking oil\n4 eggs",
     "actions": [
       {
         "id": "combine",
@@ -23,35 +23,35 @@
       },
       {
         "id": "add",
-        "text": "Add carrot, oil, and eggs",
+        "text": "Combine in a bowl",
         "groupName": "Wet mixture",
         "ingredientLines": [
           6,
           7,
           8
         ],
+        "sourceIds": []
+      },
+      {
+        "id": "action-ms43vg5n-uise",
+        "text": "Combine",
+        "groupName": "batter",
+        "ingredientLines": [],
         "sourceIds": [
+          "add",
           "combine"
         ]
       },
       {
-        "id": "pour",
-        "text": "Pour into 2 greased and floured 9 x 1½-inch round baking pans",
-        "groupName": "Prepared pans",
-        "ingredientLines": [],
-        "sourceIds": [
-          "add"
-        ]
-      },
-      {
         "id": "bake",
-        "text": "Bake in a 350° oven for 30 to 35 minutes or till a toothpick inserted near the centers comes out clean",
+        "text": "Bake for 30 to 35 minutes in greased baking pan",
         "groupName": "Carrot cake",
         "ingredientLines": [],
         "sourceIds": [
-          "pour"
+          "action-ms43vg5n-uise"
         ]
       }
-    ]
+    ],
+    "updatedAt": 1785266689184
   }
 }
