@@ -1,16 +1,16 @@
 {
   "format": "recipe-table-studio-recipe",
   "version": 1,
-  "exportedAt": "2026-07-27T01:37:18.791Z",
+  "exportedAt": "2026-07-28T21:19:09.064Z",
   "recipe": {
     "id": "1785114493740-4u962",
     "title": "Irish Soda Bread",
     "note": "Preheat oven 375 degrees",
-    "ingredients": "2 1/4 cups flour\n1/2 cup sugar\n1/4 teaspoon salt\n1/2 teaspoon baking soda\n1 1/2 teaspoon baking powder\n3/4 cup dried cranberries\n1 teaspoon caraway seeds\n1 cup buttermilk",
+    "ingredients": "2 1/4 cups flour (270g)\n1/2 cup sugar\n1/4 tsp salt\n1/2 tsp baking soda\n1 1/2 tsp baking powder\n3/4 cup dried cranberries\n1 tsp caraway seeds\n1 cup buttermilk",
     "actions": [
       {
         "id": "action-ms2j0fam-uhho",
-        "text": "Whisk together in a large bowl",
+        "text": "Combine in a bowl",
         "groupName": "Dry ingredients",
         "ingredientLines": [
           1,
@@ -25,7 +25,7 @@
       },
       {
         "id": "action-ms2j1bce-wune",
-        "text": "Add and knead until mixed",
+        "text": "Combine until mixed",
         "groupName": "Dough",
         "ingredientLines": [
           8
@@ -36,20 +36,11 @@
       },
       {
         "id": "action-ms2j1t1k-kjqo",
-        "text": "Put on greased cookie sheet; cross score on top",
-        "groupName": "Shaped dough",
+        "text": "Bake 10 minutes at 375 in greased pan",
+        "groupName": "partial bake",
         "ingredientLines": [],
         "sourceIds": [
           "action-ms2j1bce-wune"
-        ]
-      },
-      {
-        "id": "action-ms2j2797-0u4u",
-        "text": "Bake 10 minutes at 375 degrees",
-        "groupName": "Partially baked bread",
-        "ingredientLines": [],
-        "sourceIds": [
-          "action-ms2j1t1k-kjqo"
         ]
       },
       {
@@ -58,10 +49,10 @@
         "groupName": "Irish Soda Bread",
         "ingredientLines": [],
         "sourceIds": [
-          "action-ms2j2797-0u4u"
+          "action-ms2j1t1k-kjqo"
         ]
       }
     ],
-    "updatedAt": 1785114493740
+    "updatedAt": 1785273549064
   }
 }

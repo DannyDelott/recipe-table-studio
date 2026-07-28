@@ -22,8 +22,51 @@ test('ships the six recipes exported from production in shelf order', () => {
   )
 })
 
-test('ships the latest Carrot Cake and Banana Bread preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 2)
+test('ships the latest Irish Soda Bread, Carrot Cake, and Banana Bread preset updates', () => {
+  assert.equal(BUILT_IN_RECIPE_VERSION, 3)
+
+  const irishSodaBread = BUILT_IN_RECIPES.find(
+    (recipe) => recipe.id === '1785114493740-4u962',
+  )
+  assert.equal(irishSodaBread.id, '1785114493740-4u962')
+  assert.equal(
+    irishSodaBread.ingredients.split('\n')[0],
+    '2 1/4 cups flour (270g)',
+  )
+  assert.deepEqual(
+    irishSodaBread.actions.map(({ id, text, groupName, sourceIds }) => ({
+      id,
+      text,
+      groupName,
+      sourceIds,
+    })),
+    [
+      {
+        id: 'action-ms2j0fam-uhho',
+        text: 'Combine in a bowl',
+        groupName: 'Dry ingredients',
+        sourceIds: [],
+      },
+      {
+        id: 'action-ms2j1bce-wune',
+        text: 'Combine until mixed',
+        groupName: 'Dough',
+        sourceIds: ['action-ms2j0fam-uhho'],
+      },
+      {
+        id: 'action-ms2j1t1k-kjqo',
+        text: 'Bake 10 minutes at 375 in greased pan',
+        groupName: 'partial bake',
+        sourceIds: ['action-ms2j1bce-wune'],
+      },
+      {
+        id: 'action-ms2j2k5u-7hmc',
+        text: 'Bake 40 minutes at 350 degrees',
+        groupName: 'Irish Soda Bread',
+        sourceIds: ['action-ms2j1t1k-kjqo'],
+      },
+    ],
+  )
 
   const carrotCake = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === 'carrot-cake-restored',
