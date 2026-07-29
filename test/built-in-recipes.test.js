@@ -25,7 +25,7 @@ test('ships the eight recipes exported from production in shelf order', () => {
 })
 
 test('ships the latest built-in preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 11)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 12)
 
   const blueberryMuffins = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === '1785355185413-9488a',
@@ -248,7 +248,7 @@ test('ships the latest built-in preset updates', () => {
     (recipe) => recipe.id === 'carrot-cake-restored',
   )
   assert.equal(carrotCake.title, 'Carrot Cake')
-  assert.equal(carrotCake.note, 'Preheat Oven 350°')
+  assert.equal(carrotCake.note, 'Preheat Oven 350 degrees')
   assert.equal(
     carrotCake.ingredients,
     [
