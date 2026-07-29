@@ -1,16 +1,16 @@
 {
   "format": "recipe-table-studio-recipe",
   "version": 1,
-  "exportedAt": "2026-07-27T01:37:18.791Z",
+  "exportedAt": "2026-07-29T19:13:44.932Z",
   "recipe": {
     "id": "1785115943512-w4h3p",
-    "title": "Lemon Bars",
+    "title": "Lemon Bar",
     "note": "Preheat oven 350 degrees",
-    "ingredients": "2 cups flour\n1 cup butter\n1/2 cup powdered sugar\n4 eggs\n7 tablespoons lemon juice\n2 cups sugar\n1/2 teaspoon salt\n4 tablespoons flour",
+    "ingredients": "2 cups flour\n1 cup butter\n1/2 cup powdered sugar\n4 eggs\n7 tbsp lemon juice\n2 cups sugar\n1/2 tsp salt\n4 tbsp flour",
     "actions": [
       {
         "id": "action-ms2jv24k-cwg1",
-        "text": "Cream and press into ungreased 9 × 12 baking pan",
+        "text": "Cream and press into ungreased pan",
         "groupName": "Crust",
         "ingredientLines": [
           1,
@@ -21,7 +21,7 @@
       },
       {
         "id": "action-ms2jvrke-59la",
-        "text": "Bake 20 minutes at 350 degrees",
+        "text": "Bake 20 minutes",
         "groupName": "Baked crust",
         "ingredientLines": [],
         "sourceIds": [
@@ -39,7 +39,7 @@
       },
       {
         "id": "action-ms2jwsh3-3236",
-        "text": "Add",
+        "text": "Combine",
         "groupName": "Lemon filling",
         "ingredientLines": [
           5,
@@ -63,7 +63,7 @@
       },
       {
         "id": "action-ms2jxee1-b0lo",
-        "text": "Bake 25 minutes at 350 degrees",
+        "text": "Bake 25 minutes",
         "groupName": "Baked lemon bars",
         "ingredientLines": [],
         "sourceIds": [
@@ -80,6 +80,6 @@
         ]
       }
     ],
-    "updatedAt": 1785115988614
+    "updatedAt": 1785352424932
   }
 }

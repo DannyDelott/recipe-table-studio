@@ -12,7 +12,7 @@ test('ships the six recipes exported from production in shelf order', () => {
   assert.deepEqual(
     BUILT_IN_RECIPES.map((recipe) => recipe.title),
     [
-      'Lemon Bars',
+      'Lemon Bar',
       'Cinnamon Apple Muffins',
       'Irish Soda Bread',
       'Carrot Cake',
@@ -23,7 +23,80 @@ test('ships the six recipes exported from production in shelf order', () => {
 })
 
 test('ships the latest built-in preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 6)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 7)
+
+  const lemonBar = BUILT_IN_RECIPES.find(
+    (recipe) => recipe.id === '1785115943512-w4h3p',
+  )
+  assert.equal(lemonBar.title, 'Lemon Bar')
+  assert.equal(lemonBar.note, 'Preheat oven 350 degrees')
+  assert.equal(
+    lemonBar.ingredients,
+    [
+      '2 cups flour',
+      '1 cup butter',
+      '1/2 cup powdered sugar',
+      '4 eggs',
+      '7 tbsp lemon juice',
+      '2 cups sugar',
+      '1/2 tsp salt',
+      '4 tbsp flour',
+    ].join('\n'),
+  )
+  assert.deepEqual(lemonBar.actions, [
+    {
+      id: 'action-ms2jv24k-cwg1',
+      text: 'Cream and press into ungreased pan',
+      groupName: 'Crust',
+      ingredientLines: [1, 2, 3],
+      sourceIds: [],
+    },
+    {
+      id: 'action-ms2jvrke-59la',
+      text: 'Bake 20 minutes',
+      groupName: 'Baked crust',
+      ingredientLines: [],
+      sourceIds: ['action-ms2jv24k-cwg1'],
+    },
+    {
+      id: 'action-ms2jwjlj-cpnv',
+      text: 'Beat',
+      groupName: 'Beaten eggs',
+      ingredientLines: [4],
+      sourceIds: [],
+    },
+    {
+      id: 'action-ms2jwsh3-3236',
+      text: 'Combine',
+      groupName: 'Lemon filling',
+      ingredientLines: [5, 6, 7, 8],
+      sourceIds: ['action-ms2jwjlj-cpnv'],
+    },
+    {
+      id: 'action-ms2jx4n2-7070',
+      text: 'Pour on baked crust',
+      groupName: 'Filled crust',
+      ingredientLines: [],
+      sourceIds: [
+        'action-ms2jvrke-59la',
+        'action-ms2jwsh3-3236',
+      ],
+    },
+    {
+      id: 'action-ms2jxee1-b0lo',
+      text: 'Bake 25 minutes',
+      groupName: 'Baked lemon bars',
+      ingredientLines: [],
+      sourceIds: ['action-ms2jx4n2-7070'],
+    },
+    {
+      id: 'action-ms2jxn84-q1bc',
+      text: 'Sprinkle with powdered sugar while warm',
+      groupName: 'Lemon Bars',
+      ingredientLines: [],
+      sourceIds: ['action-ms2jxee1-b0lo'],
+    },
+  ])
 
   const irishSodaBread = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === '1785114493740-4u962',
