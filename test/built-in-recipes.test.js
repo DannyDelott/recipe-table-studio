@@ -22,8 +22,8 @@ test('ships the six recipes exported from production in shelf order', () => {
   )
 })
 
-test('ships the latest Irish Soda Bread, Carrot Cake, and Banana Bread preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 4)
+test('ships the latest built-in preset updates', () => {
+  assert.equal(BUILT_IN_RECIPE_VERSION, 5)
 
   const irishSodaBread = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === '1785114493740-4u962',
@@ -99,6 +99,48 @@ test('ships the latest Irish Soda Bread, Carrot Cake, and Banana Bread preset up
         id: 'bake',
         text: 'Bake for 30 to 35 minutes in greased baking pan',
         sourceIds: ['action-ms43vg5n-uise'],
+      },
+    ],
+  )
+
+  const zucchiniBread = BUILT_IN_RECIPES.find(
+    (recipe) => recipe.id === 'carrot-cake-2026-07-26',
+  )
+  assert.equal(zucchiniBread.id, 'carrot-cake-2026-07-26')
+  assert.deepEqual(
+    zucchiniBread.actions.map(({ id, text, sourceIds }) => ({
+      id,
+      text,
+      sourceIds,
+    })),
+    [
+      {
+        id: 'action-ms27x7vg-fi58',
+        text: 'Combine in a bowl',
+        sourceIds: [],
+      },
+      {
+        id: 'action-ms27xpfu-qgdh',
+        text: 'Combine in a bowl',
+        sourceIds: [],
+      },
+      {
+        id: 'action-ms2aq4sv-a3zw',
+        text: 'Combine until mixed',
+        sourceIds: [
+          'action-ms27x7vg-fi58',
+          'action-ms27xpfu-qgdh',
+        ],
+      },
+      {
+        id: 'action-ms27z5tl-uy1y',
+        text: 'Stir in chopped walnuts',
+        sourceIds: ['action-ms2aq4sv-a3zw'],
+      },
+      {
+        id: 'action-ms27zl2a-vlbe',
+        text: 'Bake 55 minutes in greased pan',
+        sourceIds: ['action-ms27z5tl-uy1y'],
       },
     ],
   )

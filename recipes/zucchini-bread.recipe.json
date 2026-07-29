@@ -1,7 +1,7 @@
 {
   "format": "recipe-table-studio-recipe",
   "version": 1,
-  "exportedAt": "2026-07-27T01:37:18.791Z",
+  "exportedAt": "2026-07-29T01:23:05.989Z",
   "recipe": {
     "id": "carrot-cake-2026-07-26",
     "title": "Zucchini Bread",
@@ -24,7 +24,7 @@
       },
       {
         "id": "action-ms27xpfu-qgdh",
-        "text": "Combine in a bowl; mix well",
+        "text": "Combine in a bowl",
         "groupName": "Wet mixture",
         "ingredientLines": [
           7,
@@ -37,7 +37,7 @@
       },
       {
         "id": "action-ms2aq4sv-a3zw",
-        "text": "Add wet mixture to flour mixture; stir until just combined",
+        "text": "Combine until mixed",
         "groupName": "Batter",
         "ingredientLines": [],
         "sourceIds": [
@@ -57,24 +57,15 @@
         ]
       },
       {
-        "id": "action-ms27ze5n-dx2c",
-        "text": "Pour batter into a greased 8 × 4 × 2-inch loaf pan",
-        "groupName": "Prepared loaf pan",
+        "id": "action-ms27zl2a-vlbe",
+        "text": "Bake 55 minutes in greased pan",
+        "groupName": "Zucchini bread",
         "ingredientLines": [],
         "sourceIds": [
           "action-ms27z5tl-uy1y"
         ]
-      },
-      {
-        "id": "action-ms27zl2a-vlbe",
-        "text": "Bake in a 350° oven for 55 to 60 minutes or till a toothpick inserted near the center comes out clean",
-        "groupName": "Zucchini bread",
-        "ingredientLines": [],
-        "sourceIds": [
-          "action-ms27ze5n-dx2c"
-        ]
       }
     ],
-    "updatedAt": 1785102513110
+    "updatedAt": 1785288185989
   }
 }
