@@ -25,7 +25,7 @@ test('ships the eight recipes exported from production in shelf order', () => {
 })
 
 test('ships the latest built-in preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 12)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 13)
 
   const blueberryMuffins = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === '1785355185413-9488a',
@@ -198,6 +198,87 @@ test('ships the latest built-in preset updates', () => {
       groupName: 'Lemon Bars',
       ingredientLines: [],
       sourceIds: ['action-ms2jxee1-b0lo'],
+    },
+  ])
+
+  const cinnamonAppleMuffins = BUILT_IN_RECIPES.find(
+    (recipe) => recipe.id === 'cinnamon-apple-muffins',
+  )
+  assert.equal(cinnamonAppleMuffins.title, 'Cinnamon Apple Muffins')
+  assert.equal(cinnamonAppleMuffins.note, 'Preheat oven 375 degrees')
+  assert.equal(
+    cinnamonAppleMuffins.ingredients,
+    [
+      '2 cups diced apples',
+      '2 tsp flour (5g)',
+      '1/2 tsp ground cinnamon',
+      '2 cups flour (240g)',
+      '1 1/2 tsp baking powder',
+      '1/2 tsp kosher salt',
+      '2 tsp ground cinnamon',
+      '1/2 cup butter (room temp)',
+      '1 cup sugar',
+      '2 eggs',
+      '2 tsp vanilla extract',
+      '1/2 cup milk',
+    ].join('\n'),
+  )
+  assert.deepEqual(cinnamonAppleMuffins.actions, [
+    {
+      id: 'apple-mixture',
+      text: 'Combine in a bowl',
+      groupName: 'Apple mixture',
+      ingredientLines: [1, 2, 3],
+      sourceIds: [],
+    },
+    {
+      id: 'dry-mixture',
+      text: 'Mix together in medium bowl',
+      groupName: 'Dry mixture',
+      ingredientLines: [4, 5, 6, 7],
+      sourceIds: [],
+    },
+    {
+      id: 'creamed-butter',
+      text: 'Cream together',
+      groupName: 'Creamed butter and sugar',
+      ingredientLines: [8, 9],
+      sourceIds: [],
+    },
+    {
+      id: 'egg-mixture',
+      text: 'Add one at a time, mixing fully after each',
+      groupName: 'Egg mixture',
+      ingredientLines: [10],
+      sourceIds: ['creamed-butter'],
+    },
+    {
+      id: 'wet-mixture',
+      text: 'Stir in',
+      groupName: 'Wet mixture',
+      ingredientLines: [11],
+      sourceIds: ['egg-mixture'],
+    },
+    {
+      id: 'batter',
+      text: 'Combine until mixed',
+      groupName: 'Batter',
+      ingredientLines: [12],
+      sourceIds: ['dry-mixture', 'wet-mixture'],
+    },
+    {
+      id: 'batter-apples',
+      text: 'Stir in',
+      groupName: 'Batter with apples',
+      ingredientLines: [],
+      sourceIds: ['apple-mixture', 'batter'],
+    },
+    {
+      id: 'baked-muffins',
+      text: 'Bake 20-30 minutes',
+      groupName: 'Cinnamon Apple Muffins',
+      ingredientLines: [],
+      sourceIds: ['batter-apples'],
     },
   ])
 

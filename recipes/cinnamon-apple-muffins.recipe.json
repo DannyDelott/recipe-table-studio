@@ -1,16 +1,16 @@
 {
   "format": "recipe-table-studio-recipe",
   "version": 1,
-  "exportedAt": "2026-07-27T01:37:18.791Z",
+  "exportedAt": "2026-07-29T20:36:13.898Z",
   "recipe": {
     "id": "cinnamon-apple-muffins",
     "title": "Cinnamon Apple Muffins",
     "note": "Preheat oven 375 degrees",
-    "ingredients": "2 cups diced apples\n2 teaspoons flour\n1/2 teaspoon ground cinnamon\n2 cups flour\n1 1/2 teaspoon baking powder\n1/2 teaspoon kosher salt\n2 teaspoons ground cinnamon\n1/2 cup butter (room temp, unsalted)\n1 cup sugar\n2 large eggs\n2 teaspoons vanilla extract\n1/2 cup milk",
+    "ingredients": "2 cups diced apples\n2 tsp flour (5g)\n1/2 tsp ground cinnamon\n2 cups flour (240g)\n1 1/2 tsp baking powder\n1/2 tsp kosher salt\n2 tsp ground cinnamon\n1/2 cup butter (room temp)\n1 cup sugar\n2 eggs\n2 tsp vanilla extract\n1/2 cup milk",
     "actions": [
       {
         "id": "apple-mixture",
-        "text": "Mix in separate bowl",
+        "text": "Combine in a bowl",
         "groupName": "Apple mixture",
         "ingredientLines": [
           1,
@@ -65,7 +65,7 @@
       },
       {
         "id": "batter",
-        "text": "Fold in, alternating with milk until just combined",
+        "text": "Combine until mixed",
         "groupName": "Batter",
         "ingredientLines": [
           12
@@ -77,7 +77,7 @@
       },
       {
         "id": "batter-apples",
-        "text": "Fold in",
+        "text": "Stir in",
         "groupName": "Batter with apples",
         "ingredientLines": [],
         "sourceIds": [
@@ -86,23 +86,15 @@
         ]
       },
       {
-        "id": "filled-tins",
-        "text": "Fill greased muffin tins about 2/3 to 3/4 full",
-        "groupName": "Filled muffin tins",
-        "ingredientLines": [],
-        "sourceIds": [
-          "batter-apples"
-        ]
-      },
-      {
         "id": "baked-muffins",
         "text": "Bake 20-30 minutes",
         "groupName": "Cinnamon Apple Muffins",
         "ingredientLines": [],
         "sourceIds": [
-          "filled-tins"
+          "batter-apples"
         ]
       }
-    ]
+    ],
+    "updatedAt": 1785357373898
   }
 }
