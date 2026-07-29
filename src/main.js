@@ -1107,18 +1107,18 @@ function renderActionBuilder() {
     const ingredientChoices = ingredients.map((ingredient) => {
       const checked = action.ingredientLines.includes(ingredient.line)
       return `<label class="source-option ingredient-option ${checked ? 'is-selected' : ''}">
-        <input class="checkbox checkbox-xs action-ingredient" type="checkbox" data-action-id="${action.id}" data-line="${ingredient.line}" ${checked ? 'checked' : ''} />
+        <input class="checkbox checkbox-sm checkbox-primary action-ingredient" type="checkbox" data-action-id="${action.id}" data-line="${ingredient.line}" ${checked ? 'checked' : ''} />
         <span class="source-number">${ingredient.line}</span>
-        <span>${escapeHtml(ingredient.text)}</span>
+        <span class="source-option-text">${escapeHtml(ingredient.text)}</span>
       </label>`
     }).join('')
     const groupChoices = previousActions.length ? previousActions.map((source, sourceIndex) => {
       const checked = action.sourceIds.includes(source.id)
       const sourceName = source.groupName.trim() || source.text.trim() || `Result group ${sourceIndex + 1}`
       return `<label class="source-option group-option ${checked ? 'is-selected' : ''}">
-        <input class="checkbox checkbox-xs action-source" type="checkbox" data-action-id="${action.id}" data-source-id="${source.id}" ${checked ? 'checked' : ''} />
+        <input class="checkbox checkbox-sm checkbox-primary action-source" type="checkbox" data-action-id="${action.id}" data-source-id="${source.id}" ${checked ? 'checked' : ''} />
         <span class="group-icon">G${sourceIndex + 1}</span>
-        <span>${escapeHtml(sourceName)}</span>
+        <span class="source-option-text">${escapeHtml(sourceName)}</span>
       </label>`
     }).join('') : '<p class="empty-source">No earlier groups yet. Select ingredients to begin this branch.</p>'
 
