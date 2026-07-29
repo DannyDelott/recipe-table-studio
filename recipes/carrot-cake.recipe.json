@@ -1,12 +1,12 @@
 {
   "format": "recipe-table-studio-recipe",
   "version": 1,
-  "exportedAt": "2026-07-28T19:24:49.185Z",
+  "exportedAt": "2026-07-29T20:25:00.703Z",
   "recipe": {
     "id": "carrot-cake-restored",
     "title": "Carrot Cake",
     "note": "Preheat Oven 350°",
-    "ingredients": "2 cups flour (240g)\n2 cups sugar\n1 teaspoon baking powder\n1 teaspoon baking soda\n1 teaspoon ground cinnamon\n3 cups finely shredded carrot\n1 cup cooking oil\n4 eggs",
+    "ingredients": "2 cups flour (240g)\n2 cups sugar\n1 tsp baking powder\n1 tsp baking soda\n1 tsp ground cinnamon\n3 cups finely shredded carrot\n1 cup cooking oil\n4 eggs",
     "actions": [
       {
         "id": "combine",
@@ -52,6 +52,6 @@
         ]
       }
     ],
-    "updatedAt": 1785266689184
+    "updatedAt": 1785356700703
   }
 }

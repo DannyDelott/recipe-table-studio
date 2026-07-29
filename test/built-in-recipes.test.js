@@ -25,7 +25,7 @@ test('ships the eight recipes exported from production in shelf order', () => {
 })
 
 test('ships the latest built-in preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 10)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 11)
 
   const blueberryMuffins = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === '1785355185413-9488a',
@@ -37,7 +37,7 @@ test('ships the latest built-in preset updates', () => {
     [
       '1 cup granulated sugar',
       '1 tbsp lemon zest',
-      '2 cups flour',
+      '2 cups flour (240g)',
       '2 tsp baking powder',
       '1/2 tsp salt',
       '2 eggs',
@@ -103,7 +103,7 @@ test('ships the latest built-in preset updates', () => {
   assert.equal(
     streuselTopping.ingredients,
     [
-      '1/4 cup flour',
+      '1/4 cup flour (30g)',
       '2 tbsp sugar',
       '2 tbsp brown sugar',
       '1/4 tsp cinnamon',
@@ -136,14 +136,14 @@ test('ships the latest built-in preset updates', () => {
   assert.equal(
     lemonBar.ingredients,
     [
-      '2 cups flour',
+      '2 cups flour (240g)',
       '1 cup butter',
       '1/2 cup powdered sugar',
       '4 eggs',
       '7 tbsp lemon juice',
       '2 cups sugar',
       '1/2 tsp salt',
-      '4 tbsp flour',
+      '4 tbsp flour (30g)',
     ].join('\n'),
   )
   assert.deepEqual(lemonBar.actions, [
@@ -247,37 +247,51 @@ test('ships the latest built-in preset updates', () => {
   const carrotCake = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === 'carrot-cake-restored',
   )
-  assert.equal(carrotCake.id, 'carrot-cake-restored')
-  assert.equal(carrotCake.ingredients.split('\n')[0], '2 cups flour (240g)')
-  assert.deepEqual(
-    carrotCake.actions.map(({ id, text, sourceIds }) => ({
-      id,
-      text,
-      sourceIds,
-    })),
+  assert.equal(carrotCake.title, 'Carrot Cake')
+  assert.equal(carrotCake.note, 'Preheat Oven 350°')
+  assert.equal(
+    carrotCake.ingredients,
     [
-      {
-        id: 'combine',
-        text: 'Combine in a bowl',
-        sourceIds: [],
-      },
-      {
-        id: 'add',
-        text: 'Combine in a bowl',
-        sourceIds: [],
-      },
-      {
-        id: 'action-ms43vg5n-uise',
-        text: 'Combine',
-        sourceIds: ['add', 'combine'],
-      },
-      {
-        id: 'bake',
-        text: 'Bake for 30 to 35 minutes in greased baking pan',
-        sourceIds: ['action-ms43vg5n-uise'],
-      },
-    ],
+      '2 cups flour (240g)',
+      '2 cups sugar',
+      '1 tsp baking powder',
+      '1 tsp baking soda',
+      '1 tsp ground cinnamon',
+      '3 cups finely shredded carrot',
+      '1 cup cooking oil',
+      '4 eggs',
+    ].join('\n'),
   )
+  assert.deepEqual(carrotCake.actions, [
+    {
+      id: 'combine',
+      text: 'Combine in a bowl',
+      groupName: 'Dry ingredients',
+      ingredientLines: [1, 2, 3, 4, 5],
+      sourceIds: [],
+    },
+    {
+      id: 'add',
+      text: 'Combine in a bowl',
+      groupName: 'Wet mixture',
+      ingredientLines: [6, 7, 8],
+      sourceIds: [],
+    },
+    {
+      id: 'action-ms43vg5n-uise',
+      text: 'Combine',
+      groupName: 'batter',
+      ingredientLines: [],
+      sourceIds: ['add', 'combine'],
+    },
+    {
+      id: 'bake',
+      text: 'Bake for 30 to 35 minutes in greased baking pan',
+      groupName: 'Carrot cake',
+      ingredientLines: [],
+      sourceIds: ['action-ms43vg5n-uise'],
+    },
+  ])
 
   const zucchiniBread = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === 'carrot-cake-2026-07-26',
