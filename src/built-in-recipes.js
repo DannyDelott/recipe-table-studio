@@ -20,7 +20,7 @@ const productionRecipeFiles = [
   bananaBreadFile,
 ]
 
-export const BUILT_IN_RECIPE_VERSION = 8
+export const BUILT_IN_RECIPE_VERSION = 9
 export const BUILT_IN_RECIPES = productionRecipeFiles.map((recipeFile) =>
   parseRecipeFile(JSON.stringify(recipeFile)))
 
