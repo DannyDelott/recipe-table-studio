@@ -25,7 +25,7 @@ test('ships the eight recipes exported from production in shelf order', () => {
 })
 
 test('ships the latest built-in preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 9)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 10)
 
   const blueberryMuffins = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === '1785355185413-9488a',
@@ -104,17 +104,17 @@ test('ships the latest built-in preset updates', () => {
     streuselTopping.ingredients,
     [
       '1/4 cup flour',
-      '2 tablespoon sugar',
-      '2 tablespoon brown sugar',
-      '1/4 teaspoon cinnamon',
-      '1/8 teaspoon salt',
-      '2 tablespoon cold butter',
+      '2 tbsp sugar',
+      '2 tbsp brown sugar',
+      '1/4 tsp cinnamon',
+      '1/8 tsp salt',
+      '2 tbsp cold butter',
     ].join('\n'),
   )
   assert.deepEqual(streuselTopping.actions, [
     {
       id: 'action-ms6i9aaa-sd2n',
-      text: 'Combine in medium bowl',
+      text: 'Combine in a bowl',
       groupName: 'Streusel mixture',
       ingredientLines: [1, 2, 3, 4, 5],
       sourceIds: [],
