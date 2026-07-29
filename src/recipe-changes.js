@@ -20,6 +20,44 @@ export function recipeHasChanges(recipe, preset) {
     !== JSON.stringify(editableRecipeContent(preset))
 }
 
+export function recipeMatchesPresetIdentity(recipe, preset) {
+  if (!recipe || !preset) return false
+  if (Object.prototype.hasOwnProperty.call(recipe, 'presetId')) {
+    return recipe.presetId === preset.id
+  }
+  if (recipe.id === preset.id) return true
+
+  return String(recipe.title || '').trim().toLocaleLowerCase()
+    === String(preset.title || '').trim().toLocaleLowerCase()
+}
+
+export function recipeHasResettableChanges(currentRecipe, savedRecipe, preset) {
+  return Boolean(
+    preset
+    && savedRecipe
+    && recipeMatchesPresetIdentity(savedRecipe, preset)
+    && (
+      recipeHasChanges(currentRecipe, preset)
+      || recipeHasChanges(savedRecipe, preset)
+    ),
+  )
+}
+
+export function resetRecipeInLibrary(recipes, activeRecipeId, preset) {
+  if (!activeRecipeId || !preset) return recipes
+
+  return recipes.map((recipe) => (
+    recipe.id === activeRecipeId && recipeMatchesPresetIdentity(recipe, preset)
+      ? {
+          ...preset,
+          id: activeRecipeId,
+          presetId: preset.id,
+          actions: editableRecipeContent(preset).actions,
+        }
+      : recipe
+  ))
+}
+
 export function findBuiltInPresetForLoadedRecipe(
   recipe,
   builtInRecipes,
