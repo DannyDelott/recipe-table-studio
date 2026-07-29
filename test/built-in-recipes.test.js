@@ -23,7 +23,7 @@ test('ships the six recipes exported from production in shelf order', () => {
 })
 
 test('ships the latest built-in preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 5)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 6)
 
   const irishSodaBread = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === '1785114493740-4u962',
@@ -107,6 +107,10 @@ test('ships the latest built-in preset updates', () => {
     (recipe) => recipe.id === 'carrot-cake-2026-07-26',
   )
   assert.equal(zucchiniBread.id, 'carrot-cake-2026-07-26')
+  assert.equal(
+    zucchiniBread.ingredients.split('\n')[0],
+    '1.5 cups flour (180g)',
+  )
   assert.deepEqual(
     zucchiniBread.actions.map(({ id, text, sourceIds }) => ({
       id,
@@ -134,7 +138,7 @@ test('ships the latest built-in preset updates', () => {
       },
       {
         id: 'action-ms27z5tl-uy1y',
-        text: 'Stir in chopped walnuts',
+        text: 'Stir in',
         sourceIds: ['action-ms2aq4sv-a3zw'],
       },
       {
