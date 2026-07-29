@@ -1,12 +1,12 @@
 {
   "format": "recipe-table-studio-recipe",
   "version": 1,
-  "exportedAt": "2026-07-29T01:23:05.989Z",
+  "exportedAt": "2026-07-29T15:41:51.349Z",
   "recipe": {
     "id": "carrot-cake-2026-07-26",
     "title": "Zucchini Bread",
     "note": "Preheat oven to 350 degrees",
-    "ingredients": "1½ cups all-purpose flour\n1 teaspoon ground cinnamon\n½ teaspoon baking soda\n¼ teaspoon salt\n¼ teaspoon baking powder\n¼ teaspoon ground nutmeg\n1 cup sugar\n1 cup finely shredded unpeeled zucchini\n¼ cup cooking oil\n1 egg\n¼ teaspoon finely shredded lemon peel\n½ cup chopped walnuts",
+    "ingredients": "1.5 cups flour (180g)\n1 tsp ground cinnamon\n1/2 tsp baking soda\n1/4 tsp salt\n1/4 tsp baking powder\n1/4 tsp ground nutmeg\n1 cup sugar\n1 cup finely shredded unpeeled zucchini\n1/4 cup cooking oil\n1 egg\n1/4 tsp finely shredded lemon peel\n1/2 cup chopped walnuts",
     "actions": [
       {
         "id": "action-ms27x7vg-fi58",
@@ -47,7 +47,7 @@
       },
       {
         "id": "action-ms27z5tl-uy1y",
-        "text": "Stir in chopped walnuts",
+        "text": "Stir in",
         "groupName": "Batter with walnuts",
         "ingredientLines": [
           12
@@ -66,6 +66,6 @@
         ]
       }
     ],
-    "updatedAt": 1785288185989
+    "updatedAt": 1785339711349
   }
 }
