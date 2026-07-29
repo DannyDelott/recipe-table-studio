@@ -25,7 +25,7 @@ test('ships the eight recipes exported from production in shelf order', () => {
 })
 
 test('ships the latest built-in preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 8)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 9)
 
   const blueberryMuffins = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === '1785355185413-9488a',
@@ -35,56 +35,63 @@ test('ships the latest built-in preset updates', () => {
   assert.equal(
     blueberryMuffins.ingredients,
     [
-      '2 cups flour',
       '1 cup granulated sugar',
-      '2 teaspoons baking powder',
-      '1/2 teaspoon salt',
+      '1 tbsp lemon zest',
+      '2 cups flour',
+      '2 tsp baking powder',
+      '1/2 tsp salt',
       '2 eggs',
       '1/2 cup melted butter',
       '1/2 cup milk',
-      '1 teaspoon vanilla extract',
+      '1 tsp vanilla extract',
       '2 cups blueberries',
-      '1 tablespoon lemon zest',
     ].join('\n'),
   )
   assert.deepEqual(blueberryMuffins.actions, [
     {
-      id: 'action-ms6ib27p-mnqe',
-      text: 'Mix together in large bowl',
-      groupName: 'Dry mixture',
-      ingredientLines: [1, 2, 3, 4],
+      id: 'action-ms6iksru-bdrh',
+      text: 'Combine',
+      groupName: 'Lemon sugar',
+      ingredientLines: [1, 2],
       sourceIds: [],
     },
     {
+      id: 'action-ms6ib27p-mnqe',
+      text: 'Combine in large bowl',
+      groupName: 'Dry mixture',
+      ingredientLines: [1, 5],
+      sourceIds: ['action-ms6iksru-bdrh'],
+    },
+    {
       id: 'action-ms6ibqdk-cpx7',
-      text: 'Whisk together until smooth',
+      text: 'Combine in a bowl',
       groupName: 'Wet mixture',
-      ingredientLines: [5, 6, 7, 8],
+      ingredientLines: [6, 7, 8, 9],
       sourceIds: [],
     },
     {
       id: 'action-ms6ibzva-kmx1',
-      text: 'Fold together until just combined. Don’t overmix.',
+      text: 'Combine until mixed',
       groupName: 'Batter',
-      ingredientLines: [9, 10],
+      ingredientLines: [],
       sourceIds: [
         'action-ms6ib27p-mnqe',
         'action-ms6ibqdk-cpx7',
       ],
     },
     {
-      id: 'action-ms6icazn-kkji',
-      text: 'Fill lined muffin tins about 3/4 full. Top with 1 tablespoon of streusel topping.',
-      groupName: 'Filled muffin tins',
-      ingredientLines: [],
+      id: 'action-ms6ispyz-thqn',
+      text: 'Stir in',
+      groupName: 'Final batter',
+      ingredientLines: [10],
       sourceIds: ['action-ms6ibzva-kmx1'],
     },
     {
       id: 'action-ms6icpaa-klmb',
-      text: 'Bake 18-22 minutes, until tops are golden and toothpick comes out clean. Rotate tins halfway through baking.',
+      text: 'Bake 25 minutes',
       groupName: 'Blueberry Muffins',
       ingredientLines: [],
-      sourceIds: ['action-ms6icazn-kkji'],
+      sourceIds: ['action-ms6ispyz-thqn'],
     },
   ])
 

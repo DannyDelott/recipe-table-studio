@@ -1,69 +1,78 @@
 {
   "format": "recipe-table-studio-recipe",
   "version": 1,
-  "exportedAt": "2026-07-29T19:59:45.415Z",
+  "exportedAt": "2026-07-29T20:13:27.253Z",
   "recipe": {
     "id": "1785355185413-9488a",
     "title": "Blueberry Muffins",
     "note": "Preheat oven 400 degrees",
-    "ingredients": "2 cups flour\n1 cup granulated sugar\n2 teaspoons baking powder\n1/2 teaspoon salt\n2 eggs\n1/2 cup melted butter\n1/2 cup milk\n1 teaspoon vanilla extract\n2 cups blueberries\n1 tablespoon lemon zest",
+    "ingredients": "1 cup granulated sugar\n1 tbsp lemon zest\n2 cups flour\n2 tsp baking powder\n1/2 tsp salt\n2 eggs\n1/2 cup melted butter\n1/2 cup milk\n1 tsp vanilla extract\n2 cups blueberries",
     "actions": [
       {
-        "id": "action-ms6ib27p-mnqe",
-        "text": "Mix together in large bowl",
-        "groupName": "Dry mixture",
+        "id": "action-ms6iksru-bdrh",
+        "text": "Combine",
+        "groupName": "Lemon sugar",
         "ingredientLines": [
           1,
-          2,
-          3,
-          4
+          2
         ],
         "sourceIds": []
       },
       {
+        "id": "action-ms6ib27p-mnqe",
+        "text": "Combine in large bowl",
+        "groupName": "Dry mixture",
+        "ingredientLines": [
+          1,
+          5
+        ],
+        "sourceIds": [
+          "action-ms6iksru-bdrh"
+        ]
+      },
+      {
         "id": "action-ms6ibqdk-cpx7",
-        "text": "Whisk together until smooth",
+        "text": "Combine in a bowl",
         "groupName": "Wet mixture",
         "ingredientLines": [
-          5,
           6,
           7,
-          8
+          8,
+          9
         ],
         "sourceIds": []
       },
       {
         "id": "action-ms6ibzva-kmx1",
-        "text": "Fold together until just combined. Don’t overmix.",
+        "text": "Combine until mixed",
         "groupName": "Batter",
-        "ingredientLines": [
-          9,
-          10
-        ],
+        "ingredientLines": [],
         "sourceIds": [
           "action-ms6ib27p-mnqe",
           "action-ms6ibqdk-cpx7"
         ]
       },
       {
-        "id": "action-ms6icazn-kkji",
-        "text": "Fill lined muffin tins about 3/4 full. Top with 1 tablespoon of streusel topping.",
-        "groupName": "Filled muffin tins",
-        "ingredientLines": [],
+        "id": "action-ms6ispyz-thqn",
+        "text": "Stir in",
+        "groupName": "Final batter",
+        "ingredientLines": [
+          10
+        ],
         "sourceIds": [
           "action-ms6ibzva-kmx1"
         ]
       },
       {
         "id": "action-ms6icpaa-klmb",
-        "text": "Bake 18-22 minutes, until tops are golden and toothpick comes out clean. Rotate tins halfway through baking.",
+        "text": "Bake 25 minutes",
         "groupName": "Blueberry Muffins",
         "ingredientLines": [],
         "sourceIds": [
-          "action-ms6icazn-kkji"
+          "action-ms6ispyz-thqn"
         ]
       }
     ],
-    "updatedAt": 1785355185415
+    "updatedAt": 1785356007253
   }
 }
