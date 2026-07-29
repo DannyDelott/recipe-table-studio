@@ -8,10 +8,12 @@ import {
   seedBuiltInRecipes,
 } from '../src/built-in-recipes.js'
 
-test('ships the six recipes exported from production in shelf order', () => {
+test('ships the eight recipes exported from production in shelf order', () => {
   assert.deepEqual(
     BUILT_IN_RECIPES.map((recipe) => recipe.title),
     [
+      'Blueberry Muffins',
+      'Streusel Topping',
       'Lemon Bar',
       'Cinnamon Apple Muffins',
       'Irish Soda Bread',
@@ -23,7 +25,101 @@ test('ships the six recipes exported from production in shelf order', () => {
 })
 
 test('ships the latest built-in preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 7)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 8)
+
+  const blueberryMuffins = BUILT_IN_RECIPES.find(
+    (recipe) => recipe.id === '1785355185413-9488a',
+  )
+  assert.equal(blueberryMuffins.title, 'Blueberry Muffins')
+  assert.equal(blueberryMuffins.note, 'Preheat oven 400 degrees')
+  assert.equal(
+    blueberryMuffins.ingredients,
+    [
+      '2 cups flour',
+      '1 cup granulated sugar',
+      '2 teaspoons baking powder',
+      '1/2 teaspoon salt',
+      '2 eggs',
+      '1/2 cup melted butter',
+      '1/2 cup milk',
+      '1 teaspoon vanilla extract',
+      '2 cups blueberries',
+      '1 tablespoon lemon zest',
+    ].join('\n'),
+  )
+  assert.deepEqual(blueberryMuffins.actions, [
+    {
+      id: 'action-ms6ib27p-mnqe',
+      text: 'Mix together in large bowl',
+      groupName: 'Dry mixture',
+      ingredientLines: [1, 2, 3, 4],
+      sourceIds: [],
+    },
+    {
+      id: 'action-ms6ibqdk-cpx7',
+      text: 'Whisk together until smooth',
+      groupName: 'Wet mixture',
+      ingredientLines: [5, 6, 7, 8],
+      sourceIds: [],
+    },
+    {
+      id: 'action-ms6ibzva-kmx1',
+      text: 'Fold together until just combined. Don’t overmix.',
+      groupName: 'Batter',
+      ingredientLines: [9, 10],
+      sourceIds: [
+        'action-ms6ib27p-mnqe',
+        'action-ms6ibqdk-cpx7',
+      ],
+    },
+    {
+      id: 'action-ms6icazn-kkji',
+      text: 'Fill lined muffin tins about 3/4 full. Top with 1 tablespoon of streusel topping.',
+      groupName: 'Filled muffin tins',
+      ingredientLines: [],
+      sourceIds: ['action-ms6ibzva-kmx1'],
+    },
+    {
+      id: 'action-ms6icpaa-klmb',
+      text: 'Bake 18-22 minutes, until tops are golden and toothpick comes out clean. Rotate tins halfway through baking.',
+      groupName: 'Blueberry Muffins',
+      ingredientLines: [],
+      sourceIds: ['action-ms6icazn-kkji'],
+    },
+  ])
+
+  const streuselTopping = BUILT_IN_RECIPES.find(
+    (recipe) => recipe.id === '1785355027811-4liog',
+  )
+  assert.equal(streuselTopping.title, 'Streusel Topping')
+  assert.equal(streuselTopping.note, '')
+  assert.equal(
+    streuselTopping.ingredients,
+    [
+      '1/4 cup flour',
+      '2 tablespoon sugar',
+      '2 tablespoon brown sugar',
+      '1/4 teaspoon cinnamon',
+      '1/8 teaspoon salt',
+      '2 tablespoon cold butter',
+    ].join('\n'),
+  )
+  assert.deepEqual(streuselTopping.actions, [
+    {
+      id: 'action-ms6i9aaa-sd2n',
+      text: 'Combine in medium bowl',
+      groupName: 'Streusel mixture',
+      ingredientLines: [1, 2, 3, 4, 5],
+      sourceIds: [],
+    },
+    {
+      id: 'action-ms6i9ldg-yxry',
+      text: 'Cut in until crumbly and coarse',
+      groupName: 'Streusel Topping',
+      ingredientLines: [6],
+      sourceIds: ['action-ms6i9aaa-sd2n'],
+    },
+  ])
 
   const lemonBar = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === '1785115943512-w4h3p',
@@ -241,7 +337,7 @@ test('adds missing built-ins without overwriting saved recipes', () => {
 
   const merged = mergeBuiltInRecipes([customizedMuffins])
 
-  assert.equal(merged.length, 6)
+  assert.equal(merged.length, 8)
   assert.deepEqual(merged[0], customizedMuffins)
   assert.equal(
     merged.find((recipe) => recipe.id === customizedMuffins.id).note,
