@@ -12,7 +12,10 @@ import {
 } from './recipe-backup.js'
 import {
   findBuiltInPresetForLoadedRecipe,
+  recipeHasResettableChanges,
   recipeHasChanges,
+  recipeMatchesPresetIdentity,
+  resetRecipeInLibrary,
 } from './recipe-changes.js'
 import { createRecipeSubmissionIssueUrl } from './recipe-submission.js'
 import {
@@ -235,6 +238,13 @@ app.innerHTML = `
         <div class="preview-heading">
           <div><h2>Preview</h2></div>
           <div class="preview-actions">
+            <button class="btn btn-outline btn-xs section-action reset-action" id="reset-recipe" type="button" disabled>
+              <svg aria-hidden="true" viewBox="0 0 24 24">
+                <path d="M4 4v6h6"></path>
+                <path d="M5.5 15a7 7 0 1 0 1.2-7.8L4 10"></path>
+              </svg>
+              Reset
+            </button>
             <button class="btn btn-outline btn-xs section-action save-action" type="submit" form="recipe-form" data-save-recipe disabled>
               <svg aria-hidden="true" viewBox="0 0 24 24">
                 <path d="M5 3h12l2 2v16H5z"></path>
@@ -476,6 +486,17 @@ function updateSaveButtons() {
       ? 'Open a GitHub issue with these recipe changes'
       : 'No changes from the recipe preset'
   })
+
+  const activeLibraryRecipe = getLibrary().find((recipe) => recipe.id === activeRecipeId)
+  const hasResettableChanges = recipeHasResettableChanges(
+    recipeFromFields(),
+    activeLibraryRecipe,
+    getActiveBuiltInPreset(),
+  )
+  $('reset-recipe').disabled = !hasResettableChanges
+  $('reset-recipe').title = hasResettableChanges
+    ? 'Restore the built-in recipe preset'
+    : 'No local recipe changes to reset'
 }
 
 function loadRecipeIntoEditor(
@@ -1089,6 +1110,21 @@ function startNewRecipe() {
   setMobileEditorOpen(true, true)
 }
 
+function resetActiveRecipe() {
+  const preset = getActiveBuiltInPreset()
+  const recipes = getLibrary()
+  const activeLibraryRecipe = recipes.find((recipe) => recipe.id === activeRecipeId)
+  if (!recipeHasResettableChanges(recipeFromFields(), activeLibraryRecipe, preset)) return
+
+  const resetRecipes = resetRecipeInLibrary(recipes, activeRecipeId, preset)
+  const resetRecipe = resetRecipes.find((recipe) => recipe.id === activeRecipeId)
+  saveLibrary(resetRecipes)
+  loadRecipeIntoEditor(resetRecipe, preset.id, false)
+  saveDraft()
+  renderRecipeCards()
+  setBackupStatus(`Reset "${preset.title}" to the built-in preset.`)
+}
+
 function actionSourceSummary(action) {
   const ingredientCount = action.ingredientLines.length
   const groupCount = action.sourceIds.length
@@ -1496,6 +1532,7 @@ $('export-current-recipe').addEventListener('click', exportCurrentRecipe)
 $('export-all-recipes').addEventListener('click', exportAllRecipes)
 $('import-recipe').addEventListener('click', () => $('recipe-import-file').click())
 $('new-recipe').addEventListener('click', startNewRecipe)
+$('reset-recipe').addEventListener('click', resetActiveRecipe)
 $('recipe-import-file').addEventListener('change', async (event) => {
   await importRecipeFile(event.target.files?.[0])
   event.target.value = ''
@@ -1576,11 +1613,21 @@ if (!restoredStandaloneDraft && savedLibrary.length) {
       ? restoredActiveRecipeId
       : null
   } else {
-    const matchingRecipe = savedLibrary.find((recipe) =>
+    const matchingContentRecipe = savedLibrary.find((recipe) =>
       recipe.title === initialRecipe.title
       && recipe.ingredients === initialRecipe.ingredients
       && JSON.stringify(recipe.actions) === JSON.stringify(initialRecipe.actions))
-    activeRecipeId = matchingRecipe?.id || savedLibrary[0].id
+    const initialPreset = findBuiltInPresetForLoadedRecipe(
+      initialRecipe,
+      BUILT_IN_RECIPES,
+      restoredActivePresetId,
+      !restoredDraftHasPresetIdentity,
+    )
+    const matchingPresetRecipe = savedLibrary.find((recipe) =>
+      recipeMatchesPresetIdentity(recipe, initialPreset))
+    activeRecipeId = matchingContentRecipe?.id
+      || matchingPresetRecipe?.id
+      || savedLibrary[0].id
   }
 }
 

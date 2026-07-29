@@ -4,7 +4,9 @@ import test from 'node:test'
 import {
   editableRecipeContent,
   findBuiltInPresetForLoadedRecipe,
+  recipeHasResettableChanges,
   recipeHasChanges,
+  resetRecipeInLibrary,
 } from '../src/recipe-changes.js'
 
 const preset = {
@@ -111,5 +113,90 @@ test('does not turn an explicitly new recipe into an update based on title alone
       false,
     ),
     null,
+  )
+})
+
+test('only enables reset when the active saved preset has local changes', () => {
+  const changedRecipe = {
+    ...preset,
+    id: 'local-browser-copy',
+    presetId: preset.id,
+    note: 'Preheat oven to 350 degrees',
+  }
+
+  assert.equal(
+    recipeHasResettableChanges(changedRecipe, changedRecipe, preset),
+    true,
+  )
+  assert.equal(
+    recipeHasResettableChanges(preset, changedRecipe, preset),
+    true,
+    'saved library changes remain resettable after the editor is manually reverted',
+  )
+  assert.equal(
+    recipeHasResettableChanges(preset, preset, preset),
+    false,
+  )
+  assert.equal(
+    recipeHasResettableChanges(changedRecipe, null, preset),
+    false,
+    'a missing active library recipe cannot be reset',
+  )
+  assert.equal(
+    recipeHasResettableChanges(changedRecipe, changedRecipe, null),
+    false,
+    'a new recipe has no built-in preset to restore',
+  )
+  assert.equal(
+    recipeHasResettableChanges(changedRecipe, {
+      ...changedRecipe,
+      id: 'different-preset',
+      presetId: 'different-preset',
+    }, preset),
+    false,
+    'a mismatched active library recipe cannot be reset',
+  )
+})
+
+test('resets only the active library recipe to its built-in preset', () => {
+  const changedRecipe = {
+    ...preset,
+    id: 'local-browser-copy',
+    presetId: preset.id,
+    note: 'Preheat oven to 350 degrees',
+    updatedAt: 1800000000000,
+  }
+  const otherRecipe = {
+    id: 'other-recipe',
+    title: 'Other Recipe',
+    note: '',
+    ingredients: '1 cup sugar',
+    actions: [],
+  }
+
+  assert.deepEqual(
+    resetRecipeInLibrary(
+      [changedRecipe, otherRecipe],
+      changedRecipe.id,
+      preset,
+    ),
+    [
+      {
+        ...preset,
+        id: changedRecipe.id,
+        presetId: preset.id,
+      },
+      otherRecipe,
+    ],
+  )
+
+  assert.deepEqual(
+    resetRecipeInLibrary(
+      [otherRecipe],
+      otherRecipe.id,
+      preset,
+    ),
+    [otherRecipe],
+    'reset does not overwrite an active recipe from a different preset',
   )
 })
