@@ -1,0 +1,38 @@
+{
+  "format": "recipe-table-studio-recipe",
+  "version": 1,
+  "exportedAt": "2026-07-29T19:57:07.812Z",
+  "recipe": {
+    "id": "1785355027811-4liog",
+    "title": "Streusel Topping",
+    "note": "",
+    "ingredients": "1/4 cup flour\n2 tablespoon sugar\n2 tablespoon brown sugar\n1/4 teaspoon cinnamon\n1/8 teaspoon salt\n2 tablespoon cold butter",
+    "actions": [
+      {
+        "id": "action-ms6i9aaa-sd2n",
+        "text": "Combine in medium bowl",
+        "groupName": "Streusel mixture",
+        "ingredientLines": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "sourceIds": []
+      },
+      {
+        "id": "action-ms6i9ldg-yxry",
+        "text": "Cut in until crumbly and coarse",
+        "groupName": "Streusel Topping",
+        "ingredientLines": [
+          6
+        ],
+        "sourceIds": [
+          "action-ms6i9aaa-sd2n"
+        ]
+      }
+    ],
+    "updatedAt": 1785355027812
+  }
+}
