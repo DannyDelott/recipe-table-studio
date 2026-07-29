@@ -1,7 +1,7 @@
 {
   "format": "recipe-table-studio-recipe",
   "version": 1,
-  "exportedAt": "2026-07-28T19:26:48.918Z",
+  "exportedAt": "2026-07-29T00:19:39.153Z",
   "recipe": {
     "id": "1785090741628-m8u3v",
     "title": "Banana Bread",
@@ -44,7 +44,7 @@
       },
       {
         "id": "combine",
-        "text": "Mix until just combined",
+        "text": "Combine until mixed",
         "groupName": "Banana bread batter",
         "ingredientLines": [],
         "sourceIds": [
@@ -65,7 +65,7 @@
       },
       {
         "id": "bake",
-        "text": "Bake 1 hour at 325 degrees in greased loaf pan",
+        "text": "Bake 1 hour in greased loaf pan",
         "groupName": "Baked banana bread",
         "ingredientLines": [],
         "sourceIds": [
@@ -73,6 +73,6 @@
         ]
       }
     ],
-    "updatedAt": 1785266808918
+    "updatedAt": 1785284379153
   }
 }

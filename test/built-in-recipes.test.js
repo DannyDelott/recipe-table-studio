@@ -23,7 +23,7 @@ test('ships the six recipes exported from production in shelf order', () => {
 })
 
 test('ships the latest Irish Soda Bread, Carrot Cake, and Banana Bread preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 3)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 4)
 
   const irishSodaBread = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === '1785114493740-4u962',
@@ -110,6 +110,8 @@ test('ships the latest Irish Soda Bread, Carrot Cake, and Banana Bread preset up
   assert.match(bananaBread.ingredients, /2 cups flour \(240g\)/)
   assert.equal(bananaBread.actions[1].text, 'Combine in a bowl')
   assert.equal(bananaBread.actions[2].text, 'Combine in a bowl')
+  assert.equal(bananaBread.actions[3].text, 'Combine until mixed')
+  assert.equal(bananaBread.actions[5].text, 'Bake 1 hour in greased loaf pan')
 })
 
 test('adds missing built-ins without overwriting saved recipes', () => {
