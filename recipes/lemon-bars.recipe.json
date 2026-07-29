@@ -1,12 +1,12 @@
 {
   "format": "recipe-table-studio-recipe",
   "version": 1,
-  "exportedAt": "2026-07-29T19:13:44.932Z",
+  "exportedAt": "2026-07-29T20:23:31.636Z",
   "recipe": {
     "id": "1785115943512-w4h3p",
     "title": "Lemon Bar",
     "note": "Preheat oven 350 degrees",
-    "ingredients": "2 cups flour\n1 cup butter\n1/2 cup powdered sugar\n4 eggs\n7 tbsp lemon juice\n2 cups sugar\n1/2 tsp salt\n4 tbsp flour",
+    "ingredients": "2 cups flour (240g)\n1 cup butter\n1/2 cup powdered sugar\n4 eggs\n7 tbsp lemon juice\n2 cups sugar\n1/2 tsp salt\n4 tbsp flour (30g)",
     "actions": [
       {
         "id": "action-ms2jv24k-cwg1",
@@ -80,6 +80,6 @@
         ]
       }
     ],
-    "updatedAt": 1785352424932
+    "updatedAt": 1785356611636
   }
 }

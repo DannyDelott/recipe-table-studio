@@ -1,12 +1,12 @@
 {
   "format": "recipe-table-studio-recipe",
   "version": 1,
-  "exportedAt": "2026-07-29T20:13:27.253Z",
+  "exportedAt": "2026-07-29T20:22:49.044Z",
   "recipe": {
     "id": "1785355185413-9488a",
     "title": "Blueberry Muffins",
     "note": "Preheat oven 400 degrees",
-    "ingredients": "1 cup granulated sugar\n1 tbsp lemon zest\n2 cups flour\n2 tsp baking powder\n1/2 tsp salt\n2 eggs\n1/2 cup melted butter\n1/2 cup milk\n1 tsp vanilla extract\n2 cups blueberries",
+    "ingredients": "1 cup granulated sugar\n1 tbsp lemon zest\n2 cups flour (240g)\n2 tsp baking powder\n1/2 tsp salt\n2 eggs\n1/2 cup melted butter\n1/2 cup milk\n1 tsp vanilla extract\n2 cups blueberries",
     "actions": [
       {
         "id": "action-ms6iksru-bdrh",
@@ -73,6 +73,6 @@
         ]
       }
     ],
-    "updatedAt": 1785356007253
+    "updatedAt": 1785356569044
   }
 }
