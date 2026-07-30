@@ -25,7 +25,7 @@ test('ships the eight recipes exported from production in shelf order', () => {
 })
 
 test('ships the latest built-in preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 14)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 15)
 
   const blueberryMuffins = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === '1785355185413-9488a',
@@ -247,7 +247,7 @@ test('ships the latest built-in preset updates', () => {
     },
     {
       id: 'egg-mixture',
-      text: 'Add one at a time, mix fully after each',
+      text: 'Add one at a time, mix fully',
       groupName: 'Egg mixture',
       ingredientLines: [10],
       sourceIds: ['creamed-butter'],

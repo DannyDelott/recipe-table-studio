@@ -1,7 +1,7 @@
 {
   "format": "recipe-table-studio-recipe",
   "version": 1,
-  "exportedAt": "2026-07-29T20:53:10.204Z",
+  "exportedAt": "2026-07-30T00:00:23.866Z",
   "recipe": {
     "id": "cinnamon-apple-muffins",
     "title": "Cinnamon Apple Muffins",
@@ -43,7 +43,7 @@
       },
       {
         "id": "egg-mixture",
-        "text": "Add one at a time, mix fully after each",
+        "text": "Add one at a time, mix fully",
         "groupName": "Egg mixture",
         "ingredientLines": [
           10
@@ -95,6 +95,6 @@
         ]
       }
     ],
-    "updatedAt": 1785358390204
+    "updatedAt": 1785369623865
   }
 }
