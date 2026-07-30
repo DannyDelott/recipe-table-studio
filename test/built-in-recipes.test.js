@@ -8,11 +8,12 @@ import {
   seedBuiltInRecipes,
 } from '../src/built-in-recipes.js'
 
-test('ships the nine recipes exported from production in shelf order', () => {
+test('ships the ten recipes exported from production in shelf order', () => {
   assert.deepEqual(
     BUILT_IN_RECIPES.map((recipe) => recipe.title),
     [
       'Pumpkin Muffins',
+      'Gingerbread Muffins',
       'Blueberry Muffins',
       'Streusel Topping',
       'Lemon Bar',
@@ -26,7 +27,7 @@ test('ships the nine recipes exported from production in shelf order', () => {
 })
 
 test('ships the latest built-in preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 16)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 17)
 
   const pumpkinMuffins = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === '1785425059211-8ggsy',
@@ -88,6 +89,82 @@ test('ships the latest built-in preset updates', () => {
       groupName: 'Pumpkin Muffins',
       ingredientLines: [],
       sourceIds: ['action-ms7nrq1w-vsp5'],
+    },
+  ])
+
+  const gingerbreadMuffins = BUILT_IN_RECIPES.find(
+    (recipe) => recipe.id === '1785369418583-e8ewd',
+  )
+  assert.equal(gingerbreadMuffins.title, 'Gingerbread Muffins')
+  assert.equal(gingerbreadMuffins.note, 'Preheat oven 350 degrees')
+  assert.equal(
+    gingerbreadMuffins.ingredients,
+    [
+      '2 1/2 cups flour (300g)',
+      '1 tbsp ground ginger',
+      '2 tsp ground cinnamon',
+      '1 tsp baking powder',
+      '1/4 tsp baking soda',
+      '1/2 tsp salt',
+      '1/4 cup oil',
+      '2/3 cup packed dark brown sugar',
+      '1/2 cup molasses',
+      '1 large egg',
+      '1 1/3 cups buttermilk',
+    ].join('\n'),
+  )
+  assert.deepEqual(gingerbreadMuffins.actions, [
+    {
+      id: 'action-ms6qae9s-l0up',
+      text: 'Combine in a medium bowl',
+      groupName: 'Dry mixture',
+      ingredientLines: [1, 2, 3, 4, 5, 6],
+      sourceIds: [],
+    },
+    {
+      id: 'action-ms6qaxcd-r0te',
+      text: 'Combine in a bowl',
+      groupName: 'Oil and sugar mixture',
+      ingredientLines: [7, 8],
+      sourceIds: [],
+    },
+    {
+      id: 'action-ms6qb40d-z5hn',
+      text: 'Combine',
+      groupName: 'Molasses mixture',
+      ingredientLines: [9],
+      sourceIds: ['action-ms6qaxcd-r0te'],
+    },
+    {
+      id: 'action-ms6qbg2z-mzx3',
+      text: 'Combine',
+      groupName: 'Egg mixture',
+      ingredientLines: [10],
+      sourceIds: ['action-ms6qb40d-z5hn'],
+    },
+    {
+      id: 'action-ms6qbgsy-622y',
+      text: 'Combine',
+      groupName: 'Wet mixture',
+      ingredientLines: [11],
+      sourceIds: ['action-ms6qbg2z-mzx3'],
+    },
+    {
+      id: 'action-ms6qbhid-zc8k',
+      text: 'Combine until mixed',
+      groupName: 'Batter',
+      ingredientLines: [],
+      sourceIds: [
+        'action-ms6qae9s-l0up',
+        'action-ms6qbgsy-622y',
+      ],
+    },
+    {
+      id: 'action-ms6qbttx-37u0',
+      text: 'Bake 20-25 minutes',
+      groupName: 'Gingerbread Muffins',
+      ingredientLines: [],
+      sourceIds: ['action-ms6qbhid-zc8k'],
     },
   ])
 
@@ -503,7 +580,7 @@ test('adds missing built-ins without overwriting saved recipes', () => {
 
   const merged = mergeBuiltInRecipes([customizedMuffins])
 
-  assert.equal(merged.length, 9)
+  assert.equal(merged.length, 10)
   assert.deepEqual(merged[0], customizedMuffins)
   assert.equal(
     merged.find((recipe) => recipe.id === customizedMuffins.id).note,
