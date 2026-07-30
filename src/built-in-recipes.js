@@ -4,12 +4,14 @@ import carrotCakeFile from '../recipes/carrot-cake.recipe.json' with { type: 'js
 import cinnamonAppleMuffinsFile from '../recipes/cinnamon-apple-muffins.recipe.json' with { type: 'json' }
 import irishSodaBreadFile from '../recipes/irish-soda-bread.recipe.json' with { type: 'json' }
 import lemonBarsFile from '../recipes/lemon-bars.recipe.json' with { type: 'json' }
+import pumpkinMuffinsFile from '../recipes/pumpkin-muffins.recipe.json' with { type: 'json' }
 import streuselToppingFile from '../recipes/streusel-topping.recipe.json' with { type: 'json' }
 import zucchiniBreadFile from '../recipes/zucchini-bread.recipe.json' with { type: 'json' }
 
 import { parseRecipeFile } from './recipe-backup.js'
 
 const productionRecipeFiles = [
+  pumpkinMuffinsFile,
   blueberryMuffinsFile,
   streuselToppingFile,
   lemonBarsFile,
@@ -20,7 +22,7 @@ const productionRecipeFiles = [
   bananaBreadFile,
 ]
 
-export const BUILT_IN_RECIPE_VERSION = 15
+export const BUILT_IN_RECIPE_VERSION = 16
 export const BUILT_IN_RECIPES = productionRecipeFiles.map((recipeFile) =>
   parseRecipeFile(JSON.stringify(recipeFile)))
 

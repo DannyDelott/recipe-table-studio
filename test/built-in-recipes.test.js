@@ -8,10 +8,11 @@ import {
   seedBuiltInRecipes,
 } from '../src/built-in-recipes.js'
 
-test('ships the eight recipes exported from production in shelf order', () => {
+test('ships the nine recipes exported from production in shelf order', () => {
   assert.deepEqual(
     BUILT_IN_RECIPES.map((recipe) => recipe.title),
     [
+      'Pumpkin Muffins',
       'Blueberry Muffins',
       'Streusel Topping',
       'Lemon Bar',
@@ -25,7 +26,70 @@ test('ships the eight recipes exported from production in shelf order', () => {
 })
 
 test('ships the latest built-in preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 15)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 16)
+
+  const pumpkinMuffins = BUILT_IN_RECIPES.find(
+    (recipe) => recipe.id === '1785425059211-8ggsy',
+  )
+  assert.equal(pumpkinMuffins.title, 'Pumpkin Muffins')
+  assert.equal(pumpkinMuffins.note, 'Preheat oven 425 degrees')
+  assert.equal(
+    pumpkinMuffins.ingredients,
+    [
+      '1 3/4 cups flour (219g)',
+      '1 tsp baking soda',
+      '1 1/2 tsp ground cinnamon',
+      '1 1/2 tsp pumpkin pie spice',
+      '1/4 tsp ground ginger',
+      '1/2 tsp kosher salt',
+      '1/2 cup vegetable oil',
+      '1/2 cup sugar (100g)',
+      '1/2 cup brown sugar (100g)',
+      '1 1/2 cups pumpkin puree (340g)',
+      '2 eggs',
+      '1/4 cup milk',
+    ].join('\n'),
+  )
+  assert.deepEqual(pumpkinMuffins.actions, [
+    {
+      id: 'action-ms7nq0xa-44j8',
+      text: 'Combine in a bowl',
+      groupName: 'Dry mixture',
+      ingredientLines: [1, 2, 3, 4, 5, 6],
+      sourceIds: [],
+    },
+    {
+      id: 'action-ms7nqibn-4m04',
+      text: 'Combine in a bowl',
+      groupName: 'Wet mixture',
+      ingredientLines: [7, 8, 9, 10, 11, 12],
+      sourceIds: [],
+    },
+    {
+      id: 'action-ms7nrcub-ipfg',
+      text: 'Combine until mixed',
+      groupName: 'Batter',
+      ingredientLines: [],
+      sourceIds: [
+        'action-ms7nq0xa-44j8',
+        'action-ms7nqibn-4m04',
+      ],
+    },
+    {
+      id: 'action-ms7nrq1w-vsp5',
+      text: 'Bake 5 minutes at 425 degrees',
+      groupName: 'Partially baked muffins',
+      ingredientLines: [],
+      sourceIds: ['action-ms7nrcub-ipfg'],
+    },
+    {
+      id: 'action-ms7nrymp-kko9',
+      text: 'Bake 16-17 minutes at 350 degrees ',
+      groupName: 'Pumpkin Muffins',
+      ingredientLines: [],
+      sourceIds: ['action-ms7nrq1w-vsp5'],
+    },
+  ])
 
   const blueberryMuffins = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === '1785355185413-9488a',
@@ -439,7 +503,7 @@ test('adds missing built-ins without overwriting saved recipes', () => {
 
   const merged = mergeBuiltInRecipes([customizedMuffins])
 
-  assert.equal(merged.length, 8)
+  assert.equal(merged.length, 9)
   assert.deepEqual(merged[0], customizedMuffins)
   assert.equal(
     merged.find((recipe) => recipe.id === customizedMuffins.id).note,
