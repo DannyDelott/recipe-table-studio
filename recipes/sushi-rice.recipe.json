@@ -1,0 +1,64 @@
+{
+  "format": "recipe-table-studio-recipe",
+  "version": 1,
+  "exportedAt": "2026-08-03T15:23:20.524Z",
+  "recipe": {
+    "id": "1785770600523-rx2nw",
+    "title": "Sushi Rice",
+    "note": "",
+    "ingredients": "4 rice cooker cups short- or medium-grain white rice\nwater to Sushi Rice level 4\n5 1/3 Tbsp rice vinegar\n4 Tbsp sugar\n1 1/3 tsp salt",
+    "actions": [
+      {
+        "id": "action-msddm7mt-hrw4",
+        "text": "Rinse until water runs clear",
+        "groupName": "Rinsed rice",
+        "ingredientLines": [
+          1
+        ],
+        "sourceIds": []
+      },
+      {
+        "id": "action-msddmtls-ifc7",
+        "text": "Cook on Sushi setting",
+        "groupName": "Cooked rice",
+        "ingredientLines": [
+          2
+        ],
+        "sourceIds": [
+          "action-msddm7mt-hrw4"
+        ]
+      },
+      {
+        "id": "action-msddnfua-3obw",
+        "text": "Stir until sugar dissolves",
+        "groupName": "Sushi seasoning",
+        "ingredientLines": [
+          3,
+          4,
+          5
+        ],
+        "sourceIds": []
+      },
+      {
+        "id": "action-msddo8lj-5sex",
+        "text": "Fold seasoning into hot rice",
+        "groupName": "Seasoned rice",
+        "ingredientLines": [],
+        "sourceIds": [
+          "action-msddmtls-ifc7",
+          "action-msddnfua-3obw"
+        ]
+      },
+      {
+        "id": "action-msddow3i-u12l",
+        "text": "Fan and fold until body temperature and glossy",
+        "groupName": "Sushi Rice",
+        "ingredientLines": [],
+        "sourceIds": [
+          "action-msddo8lj-5sex"
+        ]
+      }
+    ],
+    "updatedAt": 1785770600524
+  }
+}
