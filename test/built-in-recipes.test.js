@@ -8,10 +8,11 @@ import {
   seedBuiltInRecipes,
 } from '../src/built-in-recipes.js'
 
-test('ships the ten recipes exported from production in shelf order', () => {
+test('ships the eleven recipes exported from production in shelf order', () => {
   assert.deepEqual(
     BUILT_IN_RECIPES.map((recipe) => recipe.title),
     [
+      'Sushi Rice',
       'Pumpkin Muffins',
       'Gingerbread Muffins',
       'Blueberry Muffins',
@@ -27,7 +28,63 @@ test('ships the ten recipes exported from production in shelf order', () => {
 })
 
 test('ships the latest built-in preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 18)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 19)
+
+  const sushiRice = BUILT_IN_RECIPES.find(
+    (recipe) => recipe.id === '1785770600523-rx2nw',
+  )
+  assert.equal(sushiRice.title, 'Sushi Rice')
+  assert.equal(sushiRice.note, '')
+  assert.equal(
+    sushiRice.ingredients,
+    [
+      '4 rice cooker cups short- or medium-grain white rice',
+      'water to Sushi Rice level 4',
+      '5 1/3 Tbsp rice vinegar',
+      '4 Tbsp sugar',
+      '1 1/3 tsp salt',
+    ].join('\n'),
+  )
+  assert.deepEqual(sushiRice.actions, [
+    {
+      id: 'action-msddm7mt-hrw4',
+      text: 'Rinse until water runs clear',
+      groupName: 'Rinsed rice',
+      ingredientLines: [1],
+      sourceIds: [],
+    },
+    {
+      id: 'action-msddmtls-ifc7',
+      text: 'Cook on Sushi setting',
+      groupName: 'Cooked rice',
+      ingredientLines: [2],
+      sourceIds: ['action-msddm7mt-hrw4'],
+    },
+    {
+      id: 'action-msddnfua-3obw',
+      text: 'Stir until sugar dissolves',
+      groupName: 'Sushi seasoning',
+      ingredientLines: [3, 4, 5],
+      sourceIds: [],
+    },
+    {
+      id: 'action-msddo8lj-5sex',
+      text: 'Fold seasoning into hot rice',
+      groupName: 'Seasoned rice',
+      ingredientLines: [],
+      sourceIds: [
+        'action-msddmtls-ifc7',
+        'action-msddnfua-3obw',
+      ],
+    },
+    {
+      id: 'action-msddow3i-u12l',
+      text: 'Fan and fold until body temperature and glossy',
+      groupName: 'Sushi Rice',
+      ingredientLines: [],
+      sourceIds: ['action-msddo8lj-5sex'],
+    },
+  ])
 
   const pumpkinMuffins = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === '1785425059211-8ggsy',
@@ -580,7 +637,7 @@ test('adds missing built-ins without overwriting saved recipes', () => {
 
   const merged = mergeBuiltInRecipes([customizedMuffins])
 
-  assert.equal(merged.length, 10)
+  assert.equal(merged.length, 11)
   assert.deepEqual(merged[0], customizedMuffins)
   assert.equal(
     merged.find((recipe) => recipe.id === customizedMuffins.id).note,
