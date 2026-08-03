@@ -1,0 +1,4 @@
+interface:
+  display_name: "Recipe Preset Issue Processor"
+  short_description: "Process new and updated recipes from GitHub issues"
+  default_prompt: "Use $update to process the newest open recipe preset issue."
