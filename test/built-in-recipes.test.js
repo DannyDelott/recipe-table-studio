@@ -28,7 +28,7 @@ test('ships the eleven recipes exported from production in shelf order', () => {
 })
 
 test('ships the latest built-in preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 19)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 20)
 
   const sushiRice = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === '1785770600523-rx2nw',
@@ -38,51 +38,36 @@ test('ships the latest built-in preset updates', () => {
   assert.equal(
     sushiRice.ingredients,
     [
-      '4 rice cooker cups short- or medium-grain white rice',
-      'water to Sushi Rice level 4',
-      '5 1/3 Tbsp rice vinegar',
-      '4 Tbsp sugar',
+      '4 cups rice',
+      '5 1/3 tbsp rice vinegar',
+      '4 tbsp sugar',
       '1 1/3 tsp salt',
     ].join('\n'),
   )
   assert.deepEqual(sushiRice.actions, [
     {
       id: 'action-msddm7mt-hrw4',
-      text: 'Rinse until water runs clear',
+      text: 'Rinse and cook on Sushi setting',
       groupName: 'Rinsed rice',
       ingredientLines: [1],
       sourceIds: [],
     },
     {
-      id: 'action-msddmtls-ifc7',
-      text: 'Cook on Sushi setting',
-      groupName: 'Cooked rice',
-      ingredientLines: [2],
-      sourceIds: ['action-msddm7mt-hrw4'],
-    },
-    {
       id: 'action-msddnfua-3obw',
       text: 'Stir until sugar dissolves',
       groupName: 'Sushi seasoning',
-      ingredientLines: [3, 4, 5],
+      ingredientLines: [2, 3, 4],
       sourceIds: [],
     },
     {
-      id: 'action-msddo8lj-5sex',
-      text: 'Fold seasoning into hot rice',
-      groupName: 'Seasoned rice',
-      ingredientLines: [],
-      sourceIds: [
-        'action-msddmtls-ifc7',
-        'action-msddnfua-3obw',
-      ],
-    },
-    {
       id: 'action-msddow3i-u12l',
-      text: 'Fan and fold until body temperature and glossy',
+      text: 'Combine until cool and glossy',
       groupName: 'Sushi Rice',
       ingredientLines: [],
-      sourceIds: ['action-msddo8lj-5sex'],
+      sourceIds: [
+        'action-msddm7mt-hrw4',
+        'action-msddnfua-3obw',
+      ],
     },
   ])
 

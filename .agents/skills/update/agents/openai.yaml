@@ -1,0 +1,4 @@
+interface:
+  display_name: "Recipe Preset Update"
+  short_description: "Update built-in recipes from GitHub issues"
+  default_prompt: "Use $update to apply the newest open recipe preset issue."
