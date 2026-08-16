@@ -27,12 +27,14 @@ processed issue.
    current main ref and safely fast-forward or rebase as needed so the target
    preset file and registry are present; never discard dirty files.
 
-2. Find the newest open issue whose exact title prefix is either
-   `[Recipe Preset: Update]` or `[Recipe Preset: New]`; compare creation times
-   across both types rather than searching only one prefix. Prefer the
-   connected GitHub issue search and issue fetch tools; use `gh issue list` and
-   `gh issue view` only when connector coverage is unavailable. Fetch the
-   complete issue body and confirm it is still open.
+2. Find the newest open issue authored by `DannyDelott` whose exact title
+   prefix is either `[Recipe Preset: Update]` or `[Recipe Preset: New]`; compare
+   creation times across both types rather than searching only one prefix.
+   Never process a preset issue from another author unless the user explicitly
+   approves that exact issue. Prefer the connected GitHub issue search and
+   issue fetch tools; use `gh issue list` and `gh issue view` only when connector
+   coverage is unavailable. Fetch the complete issue body, confirm it is still
+   open, and verify its author before extracting the submitted JSON.
 
 3. Extract the JSON code block from the issue. Validate the submitted wrapper
    with `parseRecipeFile` from `src/recipe-backup.js`; install dependencies with
