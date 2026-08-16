@@ -29,7 +29,7 @@ test('ships the twelve recipes exported from production in shelf order', () => {
 })
 
 test('ships Sheet Pan Chicken Shawarma from issue 62 as the newest preset', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 21)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 22)
   assert.equal(BUILT_IN_RECIPES.length, 12)
 
   const sheetPanChickenShawarma = BUILT_IN_RECIPES[0]
@@ -90,7 +90,7 @@ test('ships Sheet Pan Chicken Shawarma from issue 62 as the newest preset', () =
 })
 
 test('ships the latest built-in preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 21)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 22)
 
   const sushiRice = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === '1785770600523-rx2nw',
@@ -150,7 +150,7 @@ test('ships the latest built-in preset updates', () => {
       '1/2 cup vegetable oil',
       '1/2 cup sugar',
       '1/2 cup brown sugar',
-      '1 1/2 cups pumpkin puree',
+      '1 1/2 cup pumpkin puree',
       '2 eggs',
       '1/4 cup milk',
     ].join('\n'),
