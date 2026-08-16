@@ -1,0 +1,85 @@
+{
+  "format": "recipe-table-studio-recipe",
+  "version": 1,
+  "exportedAt": "2026-08-07T02:19:58.593Z",
+  "recipe": {
+    "id": "1786069198591-0h5lb",
+    "title": "Sheet Pan Chicken Shawarma",
+    "note": "When ready to cook (after marinating chicken) preheat oven to 425 degrees and lightly oil sheet pan with oil/Pam or line with non-stick foil.",
+    "ingredients": "4 tbsp olive oil\n2 tbsp lemon juice\n4 cloves garlic\n2 tsp coriander\n2 tsp paprika\n2 tsp cumin\n1 tsp tumeric\n1 tsp salt\n1/2 tsp cinnamon\n1/2 tsp ginger\n1/4 tsp cardamon\ndash of cayenne\n4 large boneless skinless chicken breasts",
+    "actions": [
+      {
+        "id": "action-msib9y17-iz7d",
+        "text": "Mix marinade ingredients in large ziploc bag.",
+        "groupName": "Result group 1",
+        "ingredientLines": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "sourceIds": []
+      },
+      {
+        "id": "action-msibaqqg-kn2g",
+        "text": "Cut up chicken into thin strips.",
+        "groupName": "Result group 2",
+        "ingredientLines": [
+          13
+        ],
+        "sourceIds": []
+      },
+      {
+        "id": "action-msibbt6o-6bjx",
+        "text": "Add chicken to marinade and keep in fridge for min 2 hours.",
+        "groupName": "Result group 3",
+        "ingredientLines": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "sourceIds": []
+      },
+      {
+        "id": "action-msibd583-fwx3",
+        "text": "Remove chicken from fridge and place in a single layer on prepared sheet pan. Drizzle any remaining marinade over chicken.  Bake for 25 minutes, flipping chicken once after 15 minutes.  Serve with Morrocan couscous.",
+        "groupName": "Result group 4",
+        "ingredientLines": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13
+        ],
+        "sourceIds": []
+      }
+    ],
+    "updatedAt": 1786069198593
+  }
+}

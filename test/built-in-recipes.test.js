@@ -8,10 +8,11 @@ import {
   seedBuiltInRecipes,
 } from '../src/built-in-recipes.js'
 
-test('ships the eleven recipes exported from production in shelf order', () => {
+test('ships the twelve recipes exported from production in shelf order', () => {
   assert.deepEqual(
     BUILT_IN_RECIPES.map((recipe) => recipe.title),
     [
+      'Sheet Pan Chicken Shawarma',
       'Sushi Rice',
       'Pumpkin Muffins',
       'Gingerbread Muffins',
@@ -27,8 +28,69 @@ test('ships the eleven recipes exported from production in shelf order', () => {
   )
 })
 
+test('ships Sheet Pan Chicken Shawarma from issue 62 as the newest preset', () => {
+  assert.equal(BUILT_IN_RECIPE_VERSION, 22)
+  assert.equal(BUILT_IN_RECIPES.length, 12)
+
+  const sheetPanChickenShawarma = BUILT_IN_RECIPES[0]
+  assert.equal(sheetPanChickenShawarma.id, '1786069198591-0h5lb')
+  assert.equal(sheetPanChickenShawarma.title, 'Sheet Pan Chicken Shawarma')
+  assert.equal(
+    sheetPanChickenShawarma.note,
+    'When ready to cook (after marinating chicken) preheat oven to 425 degrees and lightly oil sheet pan with oil/Pam or line with non-stick foil.',
+  )
+  assert.equal(
+    sheetPanChickenShawarma.ingredients,
+    [
+      '4 tbsp olive oil',
+      '2 tbsp lemon juice',
+      '4 cloves garlic',
+      '2 tsp coriander',
+      '2 tsp paprika',
+      '2 tsp cumin',
+      '1 tsp tumeric',
+      '1 tsp salt',
+      '1/2 tsp cinnamon',
+      '1/2 tsp ginger',
+      '1/4 tsp cardamon',
+      'dash of cayenne',
+      '4 large boneless skinless chicken breasts',
+    ].join('\n'),
+  )
+  assert.deepEqual(sheetPanChickenShawarma.actions, [
+    {
+      id: 'action-msib9y17-iz7d',
+      text: 'Mix marinade ingredients in large ziploc bag.',
+      groupName: 'Result group 1',
+      ingredientLines: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+      sourceIds: [],
+    },
+    {
+      id: 'action-msibaqqg-kn2g',
+      text: 'Cut up chicken into thin strips.',
+      groupName: 'Result group 2',
+      ingredientLines: [13],
+      sourceIds: [],
+    },
+    {
+      id: 'action-msibbt6o-6bjx',
+      text: 'Add chicken to marinade and keep in fridge for min 2 hours.',
+      groupName: 'Result group 3',
+      ingredientLines: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+      sourceIds: [],
+    },
+    {
+      id: 'action-msibd583-fwx3',
+      text: 'Remove chicken from fridge and place in a single layer on prepared sheet pan. Drizzle any remaining marinade over chicken.  Bake for 25 minutes, flipping chicken once after 15 minutes.  Serve with Morrocan couscous.',
+      groupName: 'Result group 4',
+      ingredientLines: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
+      sourceIds: [],
+    },
+  ])
+})
+
 test('ships the latest built-in preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 20)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 22)
 
   const sushiRice = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === '1785770600523-rx2nw',
@@ -88,7 +150,7 @@ test('ships the latest built-in preset updates', () => {
       '1/2 cup vegetable oil',
       '1/2 cup sugar',
       '1/2 cup brown sugar',
-      '1 1/2 cups pumpkin puree',
+      '1 1/2 cup pumpkin puree',
       '2 eggs',
       '1/4 cup milk',
     ].join('\n'),
@@ -622,7 +684,7 @@ test('adds missing built-ins without overwriting saved recipes', () => {
 
   const merged = mergeBuiltInRecipes([customizedMuffins])
 
-  assert.equal(merged.length, 11)
+  assert.equal(merged.length, 12)
   assert.deepEqual(merged[0], customizedMuffins)
   assert.equal(
     merged.find((recipe) => recipe.id === customizedMuffins.id).note,
