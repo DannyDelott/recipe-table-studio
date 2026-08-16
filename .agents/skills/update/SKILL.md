@@ -1,6 +1,6 @@
 ---
 name: update
-description: 'Process the newest open Recipe Table Studio preset issue from GitHub, whether it adds a new recipe or updates an existing one. Use when the user says "update", "update now", or asks to process a `[Recipe Preset: New]` or `[Recipe Preset: Update]` issue.'
+description: 'Process and ship the newest open Recipe Table Studio preset issue from GitHub, whether it adds a new recipe or updates an existing one. Use when the user says "update", "update now", or asks to process a `[Recipe Preset: New]` or `[Recipe Preset: Update]` issue.'
 ---
 
 # Recipe Preset Issue Processor
@@ -10,13 +10,15 @@ description: 'Process the newest open Recipe Table Studio preset issue from GitH
 Interpret a bare `update` in this repository as: find the newest open issue
 with either `[Recipe Preset: New]` or `[Recipe Preset: Update]` in
 `DannyDelott/recipe-table-studio`, classify it from its title/body, and apply
-its submitted recipe to the built-in library.
+its submitted recipe to the built-in library, then ship it through production.
 
 Process one newest matching issue per bare invocation. If the user explicitly
 asks to process all matching issues, process them in tracker creation order,
-one issue at a time, and bump the built-in version once per issue. Do not close
-issues, commit, push, or open a PR unless the user separately asks for
-publication.
+one issue at a time, and bump the built-in version once per issue. A bare
+`update` includes publication: commit the scoped changes, push a branch, open a
+ready-for-review PR, merge it, verify the exact merge commit deployed to GitHub
+Pages and the live site returns HTTP 200, then comment on and close each
+processed issue.
 
 ## Workflow
 
@@ -74,7 +76,19 @@ publication.
    git diff --check
    ```
 
-8. Report the issue type and number, preset file, whether the recipe was added
-   or replaced, its ID, the new built-in version, and verification results.
-   Leave the GitHub issue open unless the user explicitly requests issue or
-   publication management.
+8. Commit only the scoped recipe, registry, and test changes, preserving any
+   unrelated worktree changes. Push the branch and open a ready-for-review PR
+   against `main` with the processed issue numbers in its description.
+
+9. Confirm the PR is mergeable, merge it using the repository's normal merge
+   commit method, and capture the exact merge commit SHA. Do not treat a green
+   local build or a merged PR as proof of production deployment.
+
+10. Wait for the GitHub Pages deployment associated with that exact merge
+    commit to succeed, then verify the live Recipe Table Studio site returns
+    HTTP 200. Only after both checks pass, comment on each processed issue with
+    the PR and deployment result and close it as completed.
+
+11. Report the issue type and number, preset file, whether the recipe was added
+    or replaced, its ID, the new built-in version, verification results, PR,
+    merge commit, production deployment, and issue closure.
