@@ -1,0 +1,94 @@
+{
+  "format": "recipe-table-studio-recipe",
+  "version": 1,
+  "exportedAt": "2026-08-31T22:38:08.332Z",
+  "recipe": {
+    "id": "1788215888332-uxelq",
+    "title": "Healthy Morning Glory Muffins",
+    "note": "Preheat oven to 375°F. Makes 14 to 16 muffins. Source: https://thenaturalnurturer.com/healthy-morning-glory-muffins/",
+    "ingredients": "1 1/4 cups (150g) white whole wheat flour\n1 cup (80g) quick-cooking oats\n2 tsp baking soda\n2 tsp cinnamon\n1/2 tsp ground ginger\n1/2 tsp salt\n3 large eggs\n3/4 cup (180ml) unsweetened applesauce\n1/3 cup (79ml) avocado or neutral-tasting oil\n1/3 cup (79ml) maple syrup or honey\n1 tsp orange zest\n1/4 cup (59ml) orange juice\n2 cups (198g) grated carrot\n1 cup (105g) grated apple\n1/2 cup (70g) raisins\n1/2 cup (54g) chopped pecans, optional\n3 tbsp ground flaxseed, optional",
+    "actions": [
+      {
+        "id": "action-mthtki4s-75568",
+        "text": "Whisk until well combined",
+        "groupName": "Dry mixture",
+        "ingredientLines": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6
+        ],
+        "sourceIds": []
+      },
+      {
+        "id": "action-mthtki4s-dh5xi",
+        "text": "Whisk until well combined",
+        "groupName": "Wet mixture",
+        "ingredientLines": [
+          7,
+          8,
+          9,
+          10,
+          11,
+          12
+        ],
+        "sourceIds": []
+      },
+      {
+        "id": "action-mthtki4s-3j8lv",
+        "text": "Stir until just combined; do not overmix",
+        "groupName": "Batter",
+        "ingredientLines": [],
+        "sourceIds": [
+          "action-mthtki4s-75568",
+          "action-mthtki4s-dh5xi"
+        ]
+      },
+      {
+        "id": "action-mthtki4s-253ly",
+        "text": "Fold in",
+        "groupName": "Loaded batter",
+        "ingredientLines": [
+          13,
+          14,
+          15,
+          16,
+          17
+        ],
+        "sourceIds": [
+          "action-mthtki4s-3j8lv"
+        ]
+      },
+      {
+        "id": "action-mthtki4s-jqr5n",
+        "text": "Scoop into greased or lined muffin cups, filling to the top; sprinkle with extra pecans if desired",
+        "groupName": "Unbaked muffins",
+        "ingredientLines": [],
+        "sourceIds": [
+          "action-mthtki4s-253ly"
+        ]
+      },
+      {
+        "id": "action-mthtki4s-9bacg",
+        "text": "Bake 20 to 23 minutes at 375°F, until golden and 200°F inside",
+        "groupName": "Baked muffins",
+        "ingredientLines": [],
+        "sourceIds": [
+          "action-mthtki4s-jqr5n"
+        ]
+      },
+      {
+        "id": "action-mthtki4s-oiyy4",
+        "text": "Cool in the pan for 10 to 15 minutes",
+        "groupName": "Healthy Morning Glory Muffins",
+        "ingredientLines": [],
+        "sourceIds": [
+          "action-mthtki4s-9bacg"
+        ]
+      }
+    ],
+    "updatedAt": 1788215888332
+  }
+}
