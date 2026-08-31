@@ -8,10 +8,11 @@ import {
   seedBuiltInRecipes,
 } from '../src/built-in-recipes.js'
 
-test('ships the twelve recipes exported from production in shelf order', () => {
+test('ships the thirteen recipes exported from production in shelf order', () => {
   assert.deepEqual(
     BUILT_IN_RECIPES.map((recipe) => recipe.title),
     [
+      'Healthy Morning Glory Muffins',
       'One Bowl Muffins by Jamie',
       'Sushi Rice',
       'Pumpkin Muffins',
@@ -28,11 +29,100 @@ test('ships the twelve recipes exported from production in shelf order', () => {
   )
 })
 
-test('ships One Bowl Muffins by Jamie as the newest preset', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 24)
-  assert.equal(BUILT_IN_RECIPES.length, 12)
+test('ships Healthy Morning Glory Muffins as the newest preset', () => {
+  assert.equal(BUILT_IN_RECIPE_VERSION, 25)
+  assert.equal(BUILT_IN_RECIPES.length, 13)
 
-  const oneBowlMuffins = BUILT_IN_RECIPES[0]
+  const morningGloryMuffins = BUILT_IN_RECIPES[0]
+  assert.equal(morningGloryMuffins.id, '1788215888332-uxelq')
+  assert.equal(morningGloryMuffins.title, 'Healthy Morning Glory Muffins')
+  assert.equal(
+    morningGloryMuffins.note,
+    'Preheat oven to 375°F. Makes 14 to 16 muffins. Source: https://thenaturalnurturer.com/healthy-morning-glory-muffins/',
+  )
+  assert.equal(
+    morningGloryMuffins.ingredients,
+    [
+      '1 1/4 cups (150g) white whole wheat flour',
+      '1 cup (80g) quick-cooking oats',
+      '2 tsp baking soda',
+      '2 tsp cinnamon',
+      '1/2 tsp ground ginger',
+      '1/2 tsp salt',
+      '3 large eggs',
+      '3/4 cup (180ml) unsweetened applesauce',
+      '1/3 cup (79ml) avocado or neutral-tasting oil',
+      '1/3 cup (79ml) maple syrup or honey',
+      '1 tsp orange zest',
+      '1/4 cup (59ml) orange juice',
+      '2 cups (198g) grated carrot',
+      '1 cup (105g) grated apple',
+      '1/2 cup (70g) raisins',
+      '1/2 cup (54g) chopped pecans, optional',
+      '3 tbsp ground flaxseed, optional',
+    ].join('\n'),
+  )
+  assert.deepEqual(morningGloryMuffins.actions, [
+    {
+      id: 'action-mthtki4s-75568',
+      text: 'Whisk until well combined',
+      groupName: 'Dry mixture',
+      ingredientLines: [1, 2, 3, 4, 5, 6],
+      sourceIds: [],
+    },
+    {
+      id: 'action-mthtki4s-dh5xi',
+      text: 'Whisk until well combined',
+      groupName: 'Wet mixture',
+      ingredientLines: [7, 8, 9, 10, 11, 12],
+      sourceIds: [],
+    },
+    {
+      id: 'action-mthtki4s-3j8lv',
+      text: 'Stir until just combined; do not overmix',
+      groupName: 'Batter',
+      ingredientLines: [],
+      sourceIds: [
+        'action-mthtki4s-75568',
+        'action-mthtki4s-dh5xi',
+      ],
+    },
+    {
+      id: 'action-mthtki4s-253ly',
+      text: 'Fold in',
+      groupName: 'Loaded batter',
+      ingredientLines: [13, 14, 15, 16, 17],
+      sourceIds: ['action-mthtki4s-3j8lv'],
+    },
+    {
+      id: 'action-mthtki4s-jqr5n',
+      text: 'Scoop into greased or lined muffin cups, filling to the top; sprinkle with extra pecans if desired',
+      groupName: 'Unbaked muffins',
+      ingredientLines: [],
+      sourceIds: ['action-mthtki4s-253ly'],
+    },
+    {
+      id: 'action-mthtki4s-9bacg',
+      text: 'Bake 20 to 23 minutes at 375°F, until golden and 200°F inside',
+      groupName: 'Baked muffins',
+      ingredientLines: [],
+      sourceIds: ['action-mthtki4s-jqr5n'],
+    },
+    {
+      id: 'action-mthtki4s-oiyy4',
+      text: 'Cool in the pan for 10 to 15 minutes',
+      groupName: 'Healthy Morning Glory Muffins',
+      ingredientLines: [],
+      sourceIds: ['action-mthtki4s-9bacg'],
+    },
+  ])
+})
+
+test('keeps One Bowl Muffins by Jamie immediately after the newest preset', () => {
+  assert.equal(BUILT_IN_RECIPE_VERSION, 25)
+  assert.equal(BUILT_IN_RECIPES.length, 13)
+
+  const oneBowlMuffins = BUILT_IN_RECIPES[1]
   assert.equal(oneBowlMuffins.id, '1788135257203-5o2zv')
   assert.equal(oneBowlMuffins.title, 'One Bowl Muffins by Jamie')
   assert.equal(oneBowlMuffins.note, 'Preheat oven to 180°C/350°F.')
@@ -93,7 +183,7 @@ test('ships One Bowl Muffins by Jamie as the newest preset', () => {
 })
 
 test('ships the latest built-in preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 24)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 25)
 
   const sushiRice = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === '1785770600523-rx2nw',
@@ -687,7 +777,7 @@ test('adds missing built-ins without overwriting saved recipes', () => {
 
   const merged = mergeBuiltInRecipes([customizedMuffins])
 
-  assert.equal(merged.length, 12)
+  assert.equal(merged.length, 13)
   assert.deepEqual(merged[0], customizedMuffins)
   assert.equal(
     merged.find((recipe) => recipe.id === customizedMuffins.id).note,
@@ -709,9 +799,9 @@ test('retires Sheet Pan Chicken Shawarma from previously seeded libraries', () =
 
   const result = seedBuiltInRecipes([retiredRecipe], 22)
 
-  assert.equal(result.version, 24)
+  assert.equal(result.version, 25)
   assert.equal(result.changed, true)
-  assert.equal(result.recipes.length, 12)
+  assert.equal(result.recipes.length, 13)
   assert.equal(
     result.recipes.some((recipe) => recipe.id === retiredRecipe.id),
     false,

@@ -3,6 +3,7 @@ import blueberryMuffinsFile from '../recipes/blueberry-muffins.recipe.json' with
 import carrotCakeFile from '../recipes/carrot-cake.recipe.json' with { type: 'json' }
 import cinnamonAppleMuffinsFile from '../recipes/cinnamon-apple-muffins.recipe.json' with { type: 'json' }
 import gingerbreadMuffinsFile from '../recipes/gingerbread-muffins.recipe.json' with { type: 'json' }
+import healthyMorningGloryMuffinsFile from '../recipes/healthy-morning-glory-muffins.recipe.json' with { type: 'json' }
 import irishSodaBreadFile from '../recipes/irish-soda-bread.recipe.json' with { type: 'json' }
 import lemonBarsFile from '../recipes/lemon-bars.recipe.json' with { type: 'json' }
 import oneBowlMuffinsByJamieFile from '../recipes/one-bowl-muffins-by-jamie.recipe.json' with { type: 'json' }
@@ -14,6 +15,7 @@ import zucchiniBreadFile from '../recipes/zucchini-bread.recipe.json' with { typ
 import { parseRecipeFile } from './recipe-backup.js'
 
 const productionRecipeFiles = [
+  healthyMorningGloryMuffinsFile,
   oneBowlMuffinsByJamieFile,
   sushiRiceFile,
   pumpkinMuffinsFile,
@@ -32,7 +34,7 @@ const retiredBuiltInRecipeIds = new Set([
   '1786069198591-0h5lb',
 ])
 
-export const BUILT_IN_RECIPE_VERSION = 24
+export const BUILT_IN_RECIPE_VERSION = 25
 export const BUILT_IN_RECIPES = productionRecipeFiles.map((recipeFile) =>
   parseRecipeFile(JSON.stringify(recipeFile)))
 
