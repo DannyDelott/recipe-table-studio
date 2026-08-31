@@ -1,0 +1,74 @@
+{
+  "format": "recipe-table-studio-recipe",
+  "version": 1,
+  "exportedAt": "2026-08-31T00:14:17.203Z",
+  "recipe": {
+    "id": "1788135257203-5o2zv",
+    "title": "One Bowl Muffins by Jamie",
+    "note": "Preheat oven to 180°C/350°F.",
+    "ingredients": "Grated carrots (300g)\nGrated sweet potatoes (300g)\nSliced bananas (300g), reserving 12 slices\nRaisins or any dried fruit\n6 large eggs\nAll-purpose flour (250g)\n1 tbsp baking powder\n1/2 tsp salt\n3 tbsp cottage cheese\n1 tbsp honey, divided\nPinch cinnamon\nSliced almonds",
+    "actions": [
+      {
+        "id": "action-mtghkar7-v90r6",
+        "text": "Combine",
+        "groupName": "Self-raising flour",
+        "ingredientLines": [
+          6,
+          7,
+          8
+        ],
+        "sourceIds": []
+      },
+      {
+        "id": "action-mtghkar7-jg63j",
+        "text": "Combine until mixed",
+        "groupName": "Batter",
+        "ingredientLines": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          9,
+          10,
+          11
+        ],
+        "sourceIds": [
+          "action-mtghkar7-v90r6"
+        ]
+      },
+      {
+        "id": "action-mtghkar7-nztqh",
+        "text": "Divide into muffin cups",
+        "groupName": "Unbaked muffins",
+        "ingredientLines": [],
+        "sourceIds": [
+          "action-mtghkar7-jg63j"
+        ]
+      },
+      {
+        "id": "action-mtghkar7-vl6ym",
+        "text": "Top with reserved banana slices, sliced almonds, and honey",
+        "groupName": "Topped muffins",
+        "ingredientLines": [
+          3,
+          10,
+          12
+        ],
+        "sourceIds": [
+          "action-mtghkar7-nztqh"
+        ]
+      },
+      {
+        "id": "action-mtghkar7-lahtz",
+        "text": "Bake 35 minutes at 180°C/350°F",
+        "groupName": "One Bowl Muffins by Jamie",
+        "ingredientLines": [],
+        "sourceIds": [
+          "action-mtghkar7-vl6ym"
+        ]
+      }
+    ],
+    "updatedAt": 1788135257203
+  }
+}

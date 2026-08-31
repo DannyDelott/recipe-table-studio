@@ -8,10 +8,11 @@ import {
   seedBuiltInRecipes,
 } from '../src/built-in-recipes.js'
 
-test('ships the eleven recipes exported from production in shelf order', () => {
+test('ships the twelve recipes exported from production in shelf order', () => {
   assert.deepEqual(
     BUILT_IN_RECIPES.map((recipe) => recipe.title),
     [
+      'One Bowl Muffins by Jamie',
       'Sushi Rice',
       'Pumpkin Muffins',
       'Gingerbread Muffins',
@@ -27,8 +28,72 @@ test('ships the eleven recipes exported from production in shelf order', () => {
   )
 })
 
+test('ships One Bowl Muffins by Jamie as the newest preset', () => {
+  assert.equal(BUILT_IN_RECIPE_VERSION, 24)
+  assert.equal(BUILT_IN_RECIPES.length, 12)
+
+  const oneBowlMuffins = BUILT_IN_RECIPES[0]
+  assert.equal(oneBowlMuffins.id, '1788135257203-5o2zv')
+  assert.equal(oneBowlMuffins.title, 'One Bowl Muffins by Jamie')
+  assert.equal(oneBowlMuffins.note, 'Preheat oven to 180°C/350°F.')
+  assert.equal(
+    oneBowlMuffins.ingredients,
+    [
+      'Grated carrots (300g)',
+      'Grated sweet potatoes (300g)',
+      'Sliced bananas (300g), reserving 12 slices',
+      'Raisins or any dried fruit',
+      '6 large eggs',
+      'All-purpose flour (250g)',
+      '1 tbsp baking powder',
+      '1/2 tsp salt',
+      '3 tbsp cottage cheese',
+      '1 tbsp honey, divided',
+      'Pinch cinnamon',
+      'Sliced almonds',
+    ].join('\n'),
+  )
+  assert.deepEqual(oneBowlMuffins.actions, [
+    {
+      id: 'action-mtghkar7-v90r6',
+      text: 'Combine',
+      groupName: 'Self-raising flour',
+      ingredientLines: [6, 7, 8],
+      sourceIds: [],
+    },
+    {
+      id: 'action-mtghkar7-jg63j',
+      text: 'Combine until mixed',
+      groupName: 'Batter',
+      ingredientLines: [1, 2, 3, 4, 5, 9, 10, 11],
+      sourceIds: ['action-mtghkar7-v90r6'],
+    },
+    {
+      id: 'action-mtghkar7-nztqh',
+      text: 'Divide into muffin cups',
+      groupName: 'Unbaked muffins',
+      ingredientLines: [],
+      sourceIds: ['action-mtghkar7-jg63j'],
+    },
+    {
+      id: 'action-mtghkar7-vl6ym',
+      text: 'Top with reserved banana slices, sliced almonds, and honey',
+      groupName: 'Topped muffins',
+      ingredientLines: [3, 10, 12],
+      sourceIds: ['action-mtghkar7-nztqh'],
+    },
+    {
+      id: 'action-mtghkar7-lahtz',
+      text: 'Bake 35 minutes at 180°C/350°F',
+      groupName: 'One Bowl Muffins by Jamie',
+      ingredientLines: [],
+      sourceIds: ['action-mtghkar7-vl6ym'],
+    },
+  ])
+})
+
 test('ships the latest built-in preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 23)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 24)
 
   const sushiRice = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === '1785770600523-rx2nw',
@@ -622,7 +687,7 @@ test('adds missing built-ins without overwriting saved recipes', () => {
 
   const merged = mergeBuiltInRecipes([customizedMuffins])
 
-  assert.equal(merged.length, 11)
+  assert.equal(merged.length, 12)
   assert.deepEqual(merged[0], customizedMuffins)
   assert.equal(
     merged.find((recipe) => recipe.id === customizedMuffins.id).note,
@@ -644,9 +709,9 @@ test('retires Sheet Pan Chicken Shawarma from previously seeded libraries', () =
 
   const result = seedBuiltInRecipes([retiredRecipe], 22)
 
-  assert.equal(result.version, 23)
+  assert.equal(result.version, 24)
   assert.equal(result.changed, true)
-  assert.equal(result.recipes.length, 11)
+  assert.equal(result.recipes.length, 12)
   assert.equal(
     result.recipes.some((recipe) => recipe.id === retiredRecipe.id),
     false,
