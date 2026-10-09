@@ -86,20 +86,11 @@
       },
       {
         "id": "bake",
-        "text": "Bake 35–40 min, until shiny and cracking",
-        "groupName": "Baked brownies",
-        "ingredientLines": [],
-        "sourceIds": [
-          "pan"
-        ]
-      },
-      {
-        "id": "cool",
-        "text": "Cool in pan",
+        "text": "Bake 35–40 min, until shiny and cracking on top. Cool in pan.",
         "groupName": "Supernatural Brownies",
         "ingredientLines": [],
         "sourceIds": [
-          "bake"
+          "pan"
         ]
       }
     ],
