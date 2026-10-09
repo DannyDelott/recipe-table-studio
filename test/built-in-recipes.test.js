@@ -8,10 +8,13 @@ import {
   seedBuiltInRecipes,
 } from '../src/built-in-recipes.js'
 
-test('ships the thirteen recipes exported from production in shelf order', () => {
+test('ships the fourteen built-in recipes in shelf order', () => {
+  assert.equal(BUILT_IN_RECIPES[0].id, 'supernatural-brownies')
+  assert.match(BUILT_IN_RECIPES[0].ingredients, /1 cup all-purpose flour \(120g\)/)
   assert.deepEqual(
     BUILT_IN_RECIPES.map((recipe) => recipe.title),
     [
+      'Supernatural Brownies',
       'Healthy Morning Glory Muffins',
       'One Bowl Muffins by Jamie',
       'Sushi Rice',
@@ -29,11 +32,11 @@ test('ships the thirteen recipes exported from production in shelf order', () =>
   )
 })
 
-test('ships Healthy Morning Glory Muffins as the newest preset', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 25)
-  assert.equal(BUILT_IN_RECIPES.length, 13)
+test('ships Healthy Morning Glory Muffins', () => {
+  assert.equal(BUILT_IN_RECIPE_VERSION, 26)
+  assert.equal(BUILT_IN_RECIPES.length, 14)
 
-  const morningGloryMuffins = BUILT_IN_RECIPES[0]
+  const morningGloryMuffins = BUILT_IN_RECIPES.find((recipe) => recipe.title === 'Healthy Morning Glory Muffins')
   assert.equal(morningGloryMuffins.id, '1788215888332-uxelq')
   assert.equal(morningGloryMuffins.title, 'Healthy Morning Glory Muffins')
   assert.equal(
@@ -118,11 +121,11 @@ test('ships Healthy Morning Glory Muffins as the newest preset', () => {
   ])
 })
 
-test('keeps One Bowl Muffins by Jamie immediately after the newest preset', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 25)
-  assert.equal(BUILT_IN_RECIPES.length, 13)
+test('keeps One Bowl Muffins by Jamie in the library', () => {
+  assert.equal(BUILT_IN_RECIPE_VERSION, 26)
+  assert.equal(BUILT_IN_RECIPES.length, 14)
 
-  const oneBowlMuffins = BUILT_IN_RECIPES[1]
+  const oneBowlMuffins = BUILT_IN_RECIPES.find((recipe) => recipe.title === 'One Bowl Muffins by Jamie')
   assert.equal(oneBowlMuffins.id, '1788135257203-5o2zv')
   assert.equal(oneBowlMuffins.title, 'One Bowl Muffins by Jamie')
   assert.equal(oneBowlMuffins.note, 'Preheat oven to 180°C/350°F.')
@@ -183,7 +186,7 @@ test('keeps One Bowl Muffins by Jamie immediately after the newest preset', () =
 })
 
 test('ships the latest built-in preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 25)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 26)
 
   const sushiRice = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === '1785770600523-rx2nw',
@@ -777,7 +780,7 @@ test('adds missing built-ins without overwriting saved recipes', () => {
 
   const merged = mergeBuiltInRecipes([customizedMuffins])
 
-  assert.equal(merged.length, 13)
+  assert.equal(merged.length, 14)
   assert.deepEqual(merged[0], customizedMuffins)
   assert.equal(
     merged.find((recipe) => recipe.id === customizedMuffins.id).note,
@@ -799,9 +802,9 @@ test('retires Sheet Pan Chicken Shawarma from previously seeded libraries', () =
 
   const result = seedBuiltInRecipes([retiredRecipe], 22)
 
-  assert.equal(result.version, 25)
+  assert.equal(result.version, 26)
   assert.equal(result.changed, true)
-  assert.equal(result.recipes.length, 13)
+  assert.equal(result.recipes.length, 14)
   assert.equal(
     result.recipes.some((recipe) => recipe.id === retiredRecipe.id),
     false,

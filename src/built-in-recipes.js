@@ -1,3 +1,4 @@
+import supernaturalBrowniesFile from '../recipes/supernatural-brownies.recipe.json' with { type: 'json' }
 import bananaBreadFile from '../recipes/banana-bread.recipe.json' with { type: 'json' }
 import blueberryMuffinsFile from '../recipes/blueberry-muffins.recipe.json' with { type: 'json' }
 import carrotCakeFile from '../recipes/carrot-cake.recipe.json' with { type: 'json' }
@@ -15,6 +16,7 @@ import zucchiniBreadFile from '../recipes/zucchini-bread.recipe.json' with { typ
 import { parseRecipeFile } from './recipe-backup.js'
 
 const productionRecipeFiles = [
+  supernaturalBrowniesFile,
   healthyMorningGloryMuffinsFile,
   oneBowlMuffinsByJamieFile,
   sushiRiceFile,
@@ -34,7 +36,7 @@ const retiredBuiltInRecipeIds = new Set([
   '1786069198591-0h5lb',
 ])
 
-export const BUILT_IN_RECIPE_VERSION = 25
+export const BUILT_IN_RECIPE_VERSION = 26
 export const BUILT_IN_RECIPES = productionRecipeFiles.map((recipeFile) =>
   parseRecipeFile(JSON.stringify(recipeFile)))
 
