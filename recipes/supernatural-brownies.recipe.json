@@ -6,11 +6,11 @@
     "id": "supernatural-brownies",
     "title": "Supernatural Brownies",
     "note": "Preheat oven 350 degrees",
-    "ingredients": "2 sticks (16 tbsp) butter\n8 oz bittersweet chocolate\n1 cup dark brown sugar\n1 cup granulated sugar\n4 eggs\n1/2 tsp salt\n2 tsp vanilla extract\n1 cup all-purpose flour (120g)\n1/2 cup chopped walnuts (optional)\n9 × 13-inch pan\nSpray oil\nParchment paper",
+    "ingredients": "2 sticks (16 tbsp) butter\n8 oz bittersweet chocolate\n1 cup dark brown sugar\n1 cup granulated sugar\n4 eggs\n1/2 tsp salt\n2 tsp vanilla extract\n1 cup all-purpose flour (120g)\n1/2 cup chopped walnuts\n9 × 13-inch pan\nSpray oil\nParchment paper",
     "actions": [
       {
         "id": "melt",
-        "text": "Melt over barely simmering water or microwave on low; cool slightly",
+        "text": "Melt; cool slightly",
         "groupName": "Chocolate mixture",
         "ingredientLines": [
           1,
@@ -43,7 +43,7 @@
       },
       {
         "id": "flour",
-        "text": "Fold in just until combined",
+        "text": "Fold in flour",
         "groupName": "Batter",
         "ingredientLines": [
           8
@@ -54,7 +54,7 @@
       },
       {
         "id": "walnuts",
-        "text": "Stir in chopped walnuts",
+        "text": "Stir in",
         "groupName": "Walnut batter",
         "ingredientLines": [
           9
@@ -65,7 +65,7 @@
       },
       {
         "id": "prepare-pan",
-        "text": "Spray pan, line with parchment, spray parchment",
+        "text": "Spray pan; add parchment; spray again",
         "groupName": "Prepared pan",
         "ingredientLines": [
           10,
@@ -103,6 +103,6 @@
         ]
       }
     ],
-    "updatedAt": 1791563282928
+    "updatedAt": 1791563950621
   }
 }
