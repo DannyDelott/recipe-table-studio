@@ -1,12 +1,12 @@
 {
   "format": "recipe-table-studio-recipe",
   "version": 1,
-  "exportedAt": "2026-10-09T15:50:54.143Z",
+  "exportedAt": "2026-10-09T16:28:02.928Z",
   "recipe": {
     "id": "supernatural-brownies",
     "title": "Supernatural Brownies",
-    "note": "350°F · Butter a 9 × 13-inch pan; line with buttered parchment. Makes 15 large or 24 small brownies.",
-    "ingredients": "2 sticks (16 tbsp) butter\n8 oz bittersweet chocolate\n1 cup dark brown sugar\n1 cup granulated sugar\n4 eggs\n1/2 tsp salt\n2 tsp vanilla extract\n1 cup all-purpose flour (120g)\n1/2 cup chopped OR 3/4 cup whole walnuts (optional)",
+    "note": "Preheat oven 350 degrees",
+    "ingredients": "2 sticks (16 tbsp) butter\n8 oz bittersweet chocolate\n1 cup dark brown sugar\n1 cup granulated sugar\n4 eggs\n1/2 tsp salt\n2 tsp vanilla extract\n1 cup all-purpose flour (120g)\n1/2 cup chopped walnuts (optional)\n9 × 13-inch pan\nSpray oil\nParchment paper",
     "actions": [
       {
         "id": "melt",
@@ -22,7 +22,7 @@
       },
       {
         "id": "eggs",
-        "text": "Whisk eggs, then salt and vanilla",
+        "text": "Whisk eggs, salt and vanilla",
         "groupName": "Egg mixture",
         "ingredientLines": [
           5,
@@ -53,9 +53,9 @@
         ]
       },
       {
-        "id": "pan",
-        "text": "Stir in chopped walnuts, if using. Pour into pan; top with whole walnuts instead, if using",
-        "groupName": "Unbaked brownies",
+        "id": "walnuts",
+        "text": "Stir in chopped walnuts",
+        "groupName": "Walnut batter",
         "ingredientLines": [
           9
         ],
@@ -64,8 +64,29 @@
         ]
       },
       {
+        "id": "prepare-pan",
+        "text": "Spray pan, line with parchment, spray parchment",
+        "groupName": "Prepared pan",
+        "ingredientLines": [
+          10,
+          11,
+          12
+        ],
+        "sourceIds": []
+      },
+      {
+        "id": "pan",
+        "text": "Pour into pan",
+        "groupName": "Unbaked brownies",
+        "ingredientLines": [],
+        "sourceIds": [
+          "walnuts",
+          "prepare-pan"
+        ]
+      },
+      {
         "id": "bake",
-        "text": "Bake 35–40 min, until shiny and cracking on top",
+        "text": "Bake 35–40 min, until shiny and cracking",
         "groupName": "Baked brownies",
         "ingredientLines": [],
         "sourceIds": [
@@ -74,7 +95,7 @@
       },
       {
         "id": "cool",
-        "text": "Cool in pan on rack. Best next day: cool, then wrap tightly",
+        "text": "Cool in pan",
         "groupName": "Supernatural Brownies",
         "ingredientLines": [],
         "sourceIds": [
@@ -82,6 +103,6 @@
         ]
       }
     ],
-    "updatedAt": 1791561054143
+    "updatedAt": 1791563282928
   }
 }

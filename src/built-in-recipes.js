@@ -36,7 +36,7 @@ const retiredBuiltInRecipeIds = new Set([
   '1786069198591-0h5lb',
 ])
 
-export const BUILT_IN_RECIPE_VERSION = 26
+export const BUILT_IN_RECIPE_VERSION = 27
 export const BUILT_IN_RECIPES = productionRecipeFiles.map((recipeFile) =>
   parseRecipeFile(JSON.stringify(recipeFile)))
 

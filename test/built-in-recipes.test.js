@@ -33,7 +33,7 @@ test('ships the fourteen built-in recipes in shelf order', () => {
 })
 
 test('ships Healthy Morning Glory Muffins', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 26)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 27)
   assert.equal(BUILT_IN_RECIPES.length, 14)
 
   const morningGloryMuffins = BUILT_IN_RECIPES.find((recipe) => recipe.title === 'Healthy Morning Glory Muffins')
@@ -122,7 +122,7 @@ test('ships Healthy Morning Glory Muffins', () => {
 })
 
 test('keeps One Bowl Muffins by Jamie in the library', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 26)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 27)
   assert.equal(BUILT_IN_RECIPES.length, 14)
 
   const oneBowlMuffins = BUILT_IN_RECIPES.find((recipe) => recipe.title === 'One Bowl Muffins by Jamie')
@@ -186,7 +186,7 @@ test('keeps One Bowl Muffins by Jamie in the library', () => {
 })
 
 test('ships the latest built-in preset updates', () => {
-  assert.equal(BUILT_IN_RECIPE_VERSION, 26)
+  assert.equal(BUILT_IN_RECIPE_VERSION, 27)
 
   const sushiRice = BUILT_IN_RECIPES.find(
     (recipe) => recipe.id === '1785770600523-rx2nw',
@@ -802,7 +802,7 @@ test('retires Sheet Pan Chicken Shawarma from previously seeded libraries', () =
 
   const result = seedBuiltInRecipes([retiredRecipe], 22)
 
-  assert.equal(result.version, 26)
+  assert.equal(result.version, 27)
   assert.equal(result.changed, true)
   assert.equal(result.recipes.length, 14)
   assert.equal(
